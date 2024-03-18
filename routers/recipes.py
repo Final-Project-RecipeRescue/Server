@@ -1,15 +1,14 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix='/drones')
-# drone_service = DronesService(collection_drones)
+from DAL.recipes_db_connection import SpoonacularAPI
 
-@router.get("/")
-async def get_drones():
-    # drones = await drone_service.get_all()
-    # if not drones:
-    #     raise HTTPException(status_code=404, detail="No missions found")
-    # return drones
-    return
+router = APIRouter(prefix='/drones')
+instance = SpoonacularAPI()
+@router.get("/getRecipesByIngredients")
+async def get_recipes(ingredients : str):
+    ingredients_list = ingredients.split(',')
+    instance = SpoonacularAPI.get_instance()
+    return await instance.find_recipes_by_ingredients(ingredients_list)
 
 # Endpoint to get all drones by availability status
 @router.get("/findByStatus/{status}")
