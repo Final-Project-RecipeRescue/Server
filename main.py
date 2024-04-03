@@ -1,6 +1,6 @@
-from fastapi import FastAPI
-from routers.recipes import router as recipe_router
+from fastapi import FastAPI, APIRouter
 
+from routers.recipes import router as recipes_router
 app = FastAPI()
 
-app.include_router(recipe_router)
+app.include_router(recipes_router)

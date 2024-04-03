@@ -1,12 +1,12 @@
-from typing import List
+import json
 
-from bson import ObjectId
 from fastapi import APIRouter
-from config.db import collection_pollution
-from DAL.recipes_db_connection import SpoonacularAPI
 
-router = APIRouter(prefix='/drones')
-instance = SpoonacularAPI()
+from BL.recipes_service import RecipesService
+
+
+router = APIRouter(prefix='/recipes',tags=['recipes'])## tag is description of router
+recipes_service = RecipesService()
 
 '''
 This function is designed to provide service to the customer
@@ -17,20 +17,28 @@ This function is designed to provide service to the customer
 @router.get("/getRecipesByIngredients")
 async def get_recipes(ingredients: str):
     ingredients_list = ingredients.split(',')
-    instance = SpoonacularAPI.get_instance()
-    return await instance.find_recipes_by_ingredients(ingredients_list)
+    return await recipes_service.get_recipes_by_ingredients_lst(ingredients_list)
+
+
 '''
 This function is designed to let the user find recipes by their ID,
  for example a user needs a recipe and wants to see the history of our recipes so he can search for a recipe by ID
  '''
+
 @router.get("/getRecipesByID/{recipe_id}")
 async def get_recipes_by_id(recipe_id: str):
-    return
+    return await recipes_service.get_recipe_by_id(recipe_id)
+
+@router.get("/getRecipesByIDs")
+async def get_recipes_by_id(recipe_ids: str):
+    recipe_ids_list = recipe_ids.split(',')
+    return await recipes_service.get_recipe_by_ids(recipe_ids_list)
 
 '''
 This function will let the user search for a recipe freely
 and return the list of recipes
 '''
+
 @router.get("/getRecipesByName/{recipe_name}")
 async def get_recipes_by_name(recipe_name: str):
-    return
+    return await recipes_service.get_recipe_by_name(recipe_name)
