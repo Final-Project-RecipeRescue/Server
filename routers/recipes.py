@@ -24,8 +24,7 @@ async def get_recipes(ingredients: str):
 This function is designed to let the user find recipes by their ID,
  for example a user needs a recipe and wants to see the history of our recipes so he can search for a recipe by ID
  '''
-
-@router.get("/getRecipesByID/{recipe_id}")
+@router.get("/getRecipeByID/{recipe_id}")
 async def get_recipes_by_id(recipe_id: str):
     return await recipes_service.get_recipe_by_id(recipe_id)
 
@@ -38,7 +37,6 @@ async def get_recipes_by_id(recipe_ids: str):
 This function will let the user search for a recipe freely
 and return the list of recipes
 '''
-
 @router.get("/getRecipesByName/{recipe_name}")
 async def get_recipes_by_name(recipe_name: str):
     return await recipes_service.get_recipe_by_name(recipe_name)
