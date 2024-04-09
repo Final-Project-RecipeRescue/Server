@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-
+from BL.users_household_service import UsersHouseholdService
 
 router = APIRouter(prefix='/users_household',tags=['users and household operations'])## tag is description of router
 
@@ -8,25 +8,27 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])
 
-# Dummy data structures for demonstration purposes
-users = []
-households = []
-recipes_consumed = []
+user_household_service = UsersHouseholdService()
 
 # Adding a new household with the user who created it
 @router.post("/add_household")
-async def add_household(creator_id: int, household_name: str):
-    households.append((creator_id, household_name))
-    return {"message": "Household added successfully"}
+async def add_household(user_mail: str, household_name: str):
+    if await user_household_service.create_household(user_mail, household_name) == 1:
+        return {"message": "Household added successfully"}
+    else:
+        return {"message": "Household Not added successfully"}
 
 
 # Adding a new user
 @router.post("/add_user")
-async def add_user(user_data: dict):
+async def add_user(first_name: str, last_name: str, email: str ):
     # Logic to add a new user
-    users.append(user_data)
-    return {"message": "User added successfully"}
+    if await user_household_service.create_user(first_name, last_name, email) == 1:
+        return {"message": "User added successfully"}
+    else:
+        return {"message": "User not added successfully"}
 
+'''
 # Adding a new user to the household and defining him as a participant and not as an owner
 @router.post("/add_user_to_household")
 async def add_user_to_household(household_id: int, user_id: int):
@@ -107,3 +109,4 @@ async def get_thrown_away_ingredients(household_id: int, start_date: str, end_da
     # Assume household_id validation and date parsing
     return {"thrown_away_ingredients": []}  # Placeholder for actual logic
 
+'''

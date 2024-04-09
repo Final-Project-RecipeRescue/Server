@@ -24,7 +24,7 @@ class SpoonacularAPI:
         return SpoonacularAPI._instance
     def __init__(self):
         if SpoonacularAPI._instance is not None:
-            raise Exception("Singleton instance already exists.")
+            raise Exception("Singleton instance spoonacular already exists.")
         self.base_url = "https://api.spoonacular.com"
         self.initialized = True
         self.api_key=os.getenv("SPOONACULAR_API_KEY")
