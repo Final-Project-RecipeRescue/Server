@@ -42,29 +42,11 @@ class UsersHouseholdService:
             self.firebase_instance.write_firebase_data(f'households/{household_id}',household.__dict__)
 
             user_data = self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}')
-            first_name = user_data['first_name']
-            last_name = user_data['last_name']
-            email = user_data['user_email']
-            image = None
-            households = None
-            meals = None
-            try:
-                image = user_data['image']
-            except KeyError:
-                pass
-            try:
-                households = user_data['households']
-            except KeyError:
-                pass
-            try:
-                meals = user_data['meals']
-            except KeyError:
-                pass
-            if households is not None:
-                households.append(household_id)
+            user = self.to_user_entity(user_data)
+            if user.households is not None:
+                user.households.append(household_id)
             else:
-                households = [household_id]
-            user = UserEntity(first_name,last_name,email,image,households,meals)
+                user.households = [household_id]
             self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}',user.__dict__)
             return 1
         except Exception as e:
@@ -92,3 +74,36 @@ class UsersHouseholdService:
         except Exception as e:
             print(e)
             return -1
+
+    async def get_user(self, email :str) -> UserEntity:
+        try:
+            user = self.firebase_instance.get_firebase_data(f'users/{encoded_email(email)}')
+            user_entity = self.to_user_entity(user)
+            if user_entity == None or user_entity.user_email == None:
+                return None
+            else:
+                return user_entity
+        except:
+            print("user does not")
+
+
+    def to_user_entity(self, user_data:object) -> UserEntity:
+        first_name = user_data['first_name']
+        last_name = user_data['last_name']
+        email = user_data['user_email']
+        image = None
+        households = None
+        meals = None
+        try:
+            image = user_data['image']
+        except KeyError:
+            pass
+        try:
+            households = user_data['households']
+        except KeyError:
+            pass
+        try:
+            meals = user_data['meals']
+        except KeyError:
+            pass
+        return  UserEntity(first_name, last_name, email, image, households, meals)

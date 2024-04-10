@@ -28,6 +28,13 @@ async def add_user(first_name: str, last_name: str, email: str ):
     else:
         return {"message": "User not added successfully"}
 
+@router.post("/get_user")
+async def get_user(user_email: str):
+    user = await user_household_service.get_user(user_email)
+    if  user != None:
+        return user
+    else:
+        return {"message": "User not exist"}
 '''
 # Adding a new user to the household and defining him as a participant and not as an owner
 @router.post("/add_user_to_household")
