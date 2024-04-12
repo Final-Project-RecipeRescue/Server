@@ -1,40 +1,97 @@
-from fastapi import APIRouter
-from BL.users_household_service import UsersHouseholdService
-
-router = APIRouter(prefix='/users_household',tags=['users and household operations'])## tag is description of router
-
-
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
+from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
 
-router = APIRouter(prefix='/users_household', tags=['users and household operations'])
+router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 
 user_household_service = UsersHouseholdService()
+
 
 # Adding a new household with the user who created it
 @router.post("/add_household")
 async def add_household(user_mail: str, household_name: str):
-    if await user_household_service.create_household(user_mail, household_name) == 1:
+    try:
+        await user_household_service.create_household(user_mail, household_name)
         return {"message": "Household added successfully"}
-    else:
-        return {"message": "Household Not added successfully"}
-
-
+    except UserException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+# Define the Pydantic model for the request body
+class User(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    country: str
+    state: str
 # Adding a new user
 @router.post("/add_user")
-async def add_user(first_name: str, last_name: str, email: str ):
+async def add_user(user: User):
     # Logic to add a new user
-    if await user_household_service.create_user(first_name, last_name, email) == 1:
-        return {"message": "User added successfully"}
-    else:
-        return {"message": "User not added successfully"}
-
-@router.post("/get_user")
+    try:
+        await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country, user.state)
+        return {"message": "Successfully Added User"}
+    except UserException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+    except InvalidArgException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+@router.get("/get_user")
 async def get_user(user_email: str):
-    user = await user_household_service.get_user(user_email)
-    if  user != None:
+    try:
+        user = await user_household_service.get_user(user_email)
         return user
-    else:
-        return {"message": "User not exist"}
+    except UserException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+    except InvalidArgException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+@router.get("/get_household_user_by_id")
+async def get_household_user_by_id(user_email: str, household_id: str):
+    try:
+        household = await user_household_service.get_household_user_by_id(user_email, household_id)
+        return household
+    except UserException as e:
+        return HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail=str(e.message))
+    except InvalidArgException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+    except HouseholdException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+@router.get("/get_household_user_by_name")
+async def get_household_user_by_name(user_email: str, household_name: str):
+    try:
+        households = await user_household_service.get_household_user_by_name(user_email, household_name)
+        return households
+    except UserException as e:
+        return HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail=str(e.message))
+    except InvalidArgException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+    except HouseholdException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+
+@router.post("/add_user_to_household")
+async def add_user_to_household(user_email: str, household_id: str):
+    try:
+        await user_household_service.add_user_to_household(user_email, household_id)
+    except UserException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+    except InvalidArgException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+    except HouseholdException as e:
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 '''
 # Adding a new user to the household and defining him as a participant and not as an owner
 @router.post("/add_user_to_household")
