@@ -1,3 +1,6 @@
+import datetime
+
+
 class IngredientEntitySpoonacular:
     def __init__(self, ingredient_data):
         self.aisle = ingredient_data.get('aisle')
@@ -13,3 +16,12 @@ class IngredientEntitySpoonacular:
         self.unit_short = ingredient_data.get('unitShort')
         self.consistency = ingredient_data.get('consistency')
         self.measures = ingredient_data.get('measures')
+
+
+class IngredientEntity:
+    def __init__(self, id: int, name: str, amount: float, unit: str, purchase_date: datetime.datetime):
+        self.id = id
+        self.name = name
+        self.amount = amount
+        self.unit = unit
+        self.purchase_date = f'{purchase_date}' if purchase_date is not None else f'{datetime.datetime.now()}'

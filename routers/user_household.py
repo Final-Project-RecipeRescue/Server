@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
-
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 
 user_household_service = UsersHouseholdService()
@@ -77,8 +76,16 @@ async def add_user_to_household(user_email: str, household_id: str):
     except HouseholdException as e:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
-
-
+@router.post("/add_ingredient_to_household_by_ingredient_id")
+async def add_ingredient_to_household_by_ingredient_id(user_email: str, ingredient_id: int,ingredient_amount : float, household_id: str):
+    try:
+        await user_household_service.add_ingredient_to_household_by_ingredient_id(user_email, household_id,ingredient_id,ingredient_amount)
+    except UserException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+    except InvalidArgException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+    except HouseholdException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
 

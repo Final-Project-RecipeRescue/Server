@@ -8,7 +8,7 @@ def is_valid_email(email):
     return re.match(pattern, email) is not None
 
 
-class UserEntity:
+class UserBoundary:
     def __init__(self, first_name: str, last_name: str, user_email: str, image, households_ids: List[str],
                  meals: List[RecipeBoundary],country : str, state : str):
         self.first_name = first_name
