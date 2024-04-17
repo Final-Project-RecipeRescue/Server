@@ -19,9 +19,9 @@ class IngredientEntitySpoonacular:
 
 
 class IngredientEntity:
-    def __init__(self, id: int, name: str, amount: float, unit: str, purchase_date: datetime.datetime):
+    def __init__(self, id: int, name: str, amount: float, unit: str, purchase_date: str):
         self.id = id
         self.name = name
         self.amount = amount
         self.unit = unit
-        self.purchase_date = f'{purchase_date}' if purchase_date is not None else f'{datetime.datetime.now()}'
+        self.purchase_date = purchase_date

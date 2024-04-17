@@ -13,3 +13,4 @@ client = MongoClient(uri)
 db = client.recipe_rescue_db
 
 collection_pollution = db["pollution"]
+collection_ingredients = db["ingredients"]

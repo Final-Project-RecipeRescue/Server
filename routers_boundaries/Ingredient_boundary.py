@@ -7,4 +7,7 @@ class ingredient_boundary:
         self.name = name
         self.amount = amount
         self.unit = unit
-        self.purchase_date = purchase_date if purchase_date is not None else None
+        if purchase_date is None:
+            self.purchase_date = None
+        else:
+            self.purchase_date = purchase_date.strftime("%Y-%m-%d") if purchase_date else datetime.now().strftime("%Y-%m-%d")

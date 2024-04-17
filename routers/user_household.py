@@ -1,15 +1,17 @@
+import asyncio
+import datetime
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
-
+from datetime import date
 user_household_service = UsersHouseholdService()
 
 
 # Adding a new household with the user who created it
-@router.post("/add_household")
-async def add_household(user_mail: str, household_name: str):
+@router.post("/createNewHousehold")
+async def createNewHousehold(user_mail: str, household_name: str):
     try:
         await user_household_service.create_household(user_mail, household_name)
         return {"message": "Household added successfully"}
@@ -64,7 +66,6 @@ async def get_household_user_by_name(user_email: str, household_name: str):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
     except HouseholdException as e:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
-
 @router.post("/add_user_to_household")
 async def add_user_to_household(user_email: str, household_id: str):
     try:
@@ -75,22 +76,62 @@ async def add_user_to_household(user_email: str, household_id: str):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
     except HouseholdException as e:
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
-
-@router.post("/add_ingredient_to_household_by_ingredient_id")
-async def add_ingredient_to_household_by_ingredient_id(user_email: str, ingredient_id: int,ingredient_amount : float, household_id: str):
+@router.post("/add_ingredient_to_household_by_ingredient_name")
+async def add_ingredient_to_household_by_ingredient_name(user_email: str, household_id: str, ingredient_name: str, ingredient_amount: float):
     try:
-        await user_household_service.add_ingredient_to_household_by_ingredient_id(user_email, household_id,ingredient_id,ingredient_amount)
+        await user_household_service.add_ingredient_to_household_by_ingredient_name(user_email, household_id,ingredient_name,ingredient_amount)
     except UserException as e:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
     except InvalidArgException as e:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
     except HouseholdException as e:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+    except ValueError as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
+class Ingredient (BaseModel):
+    IngredientName : str  # The name of the ingredient
+    IngredientAmount : float  # The amount of the ingredient in grams
+class ListIngredients(BaseModel):
+    ingredients: list[Ingredient]
 
+@router.post("/add_list_ingredients_to_household")
+async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredients):
+    # Create a list of coroutine objects for each ingredient addition
+    tasks = [
+        add_ingredient_to_household_by_ingredient_name(user_email, household_id, ingredient.IngredientName, ingredient.IngredientAmount)
+        for ingredient in list_ingredients.ingredients
+    ]
 
+    # Run all tasks concurrently and wait for all of them to finish
+    results = await asyncio.gather(*tasks)
 
+    # Optionally, you can handle the results array or errors as needed
+    return {"status": "success", "results": results}
+
+@router.delete("/remove_ingredient_from_household")
+async def remove_ingredients_from_household(user_email: str, household_id: str, ingredient_name: str, ingredient_amount: float, year: int, month: int, day: int):
+    ingredient_date = None
+    try:
+        # Create a date object from the provided year, month, and day
+        ingredient_date = date(year, month, day)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date provided")
+    try:
+        await user_household_service.remove_household_ingredients(
+            user_email,
+            household_id,
+            ingredient_name,
+            ingredient_amount,
+            ingredient_date
+        )
+    except InvalidArgException as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+
+@router.get("/get_all_ingredients_in_household")
+async def get_all_ingredients_in_household(user_email: str, household_id: str):
+    return await user_household_service.get_all_ingredients_in_household(user_email, household_id)
 
 
 
