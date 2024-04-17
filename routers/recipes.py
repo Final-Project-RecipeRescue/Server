@@ -17,8 +17,12 @@ This function is designed to provide service to the customer
 @router.get("/getRecipesByIngredients")
 async def get_recipes(ingredients: str):
     ingredients_list = ingredients.split(',')
-    return await recipes_service.get_recipes_by_ingredients_lst(ingredients_list)
+    return await recipes_service.get_recipes_by_ingredients_lst(ingredients_list, missed_ingredients=True)
 
+@router.get("/getRecipesByIngredientsWitoutMissedIngredients")
+async def get_recipes(ingredients: str):
+    ingredients_list = ingredients.split(',')
+    return await recipes_service.get_recipes_by_ingredients_lst(ingredients_list,missed_ingredients=False)
 
 '''
 This function is designed to let the user find recipes by their ID,

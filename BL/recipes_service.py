@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from Data.recipe_entity import RecipeEntity, RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular
 from Data.IngredientEntity import IngredientEntitySpoonacular
@@ -12,18 +12,22 @@ class RecipesService(Service):
     def __init__(self):
         self.spoonacular_instance = SpoonacularAPI().get_instance()
 
-    async def get_recipes_by_ingredients_lst(self, ingredients: List[str]) -> List[RecipeBoundary]:
-        recipes = await (self.spoonacular_instance.find_recipes_by_ingredients(ingredients))
+    async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missed_ingredients: bool) -> Optional[List[RecipeBoundary]]:
         try:
-            return [self.toBoundryRecipe(recipe) for recipe in recipes]
+            recipes = await self.spoonacular_instance.find_recipes_by_ingredients(ingredients)
+            if missed_ingredients:
+                result = [self.toBoundaryRecipe(recipe) for recipe in recipes]
+            else:
+                result = [self.toBoundaryRecipe(recipe) for recipe in recipes if recipe.missed_ingredient_count == 0]
+
+            return result if result else None
         except Exception as e:
-            print("In get_recipes_by_ingredients_lst func : ", e)
-            return None
+            print("In get_recipes_by_ingredients_lst func: ", e)
 
     async def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundary:
         try:
             recipe_id = int(recipe_id)
-            return self.toBoundryRecipe(await (self.spoonacular_instance.find_recipe_by_id(recipe_id)))
+            return self.toBoundaryRecipe(await (self.spoonacular_instance.find_recipe_by_id(recipe_id)))
         except Exception as e:
             print("in get_recipe_by_id ", e)
             return None
@@ -34,7 +38,7 @@ class RecipesService(Service):
     async def get_recipe_by_ids(self, recipe_ids: [str]) -> [RecipeBoundary]:
         try:
             ids = [int(id) for id in recipe_ids]
-            return [self.toBoundryRecipe(recipe)
+            return [self.toBoundaryRecipe(recipe)
                     for recipe in
                     (await (self.spoonacular_instance.find_recipe_by_ids(ids)))]
         except Exception as e:
@@ -43,30 +47,32 @@ class RecipesService(Service):
 
     async def get_recipe_by_name(self, recipe_name) -> List[RecipeBoundary]:
         try:
-            return [self.toBoundryRecipe(recipe)
+            return [self.toBoundaryRecipe(recipe)
                     for recipe in
                     (await (self.spoonacular_instance.find_recipe_by_name(recipe_name)))]
         except Exception as e:
             print("in get_recipe_by_name ", e)
             return None
 
-    def toBoundryRecipe(self, recipeEntity: RecipeEntity) -> RecipeBoundary:
+    def toBoundaryRecipe(self, recipeEntity: RecipeEntity) -> RecipeBoundary:
         recipeBoundary = RecipeBoundary(id=int(recipeEntity.id)
                                         , recipe_name=recipeEntity.title
                                         , ingredients=[]
                                         , image_url=recipeEntity.image)
-        print(recipeBoundary)
         if isinstance(recipeEntity, RecipeEntityByIngredientSpoonacular):
-            recipeBoundary.ingredients = (
-                    recipeEntity.missed_ingredients + recipeEntity.used_ingredients
-            )
+            recipeBoundary.ingredients = [
+                [self.toBoundryIngredient(ingredient) for ingredient in recipeEntity.missed_ingredients] +
+                [self.toBoundryIngredient(ingredient) for ingredient in recipeEntity.used_ingredients]
+            ]
         elif isinstance(recipeEntity, RecipeEntityByIDSpoonacular):
-            recipeBoundary.ingredients = recipeEntity.extendedIngredients
+            recipeBoundary.ingredients = [self.toBoundryIngredient(ingredient) for ingredient in
+                                          recipeEntity.extendedIngredients]
             recipeBoundary.summery = recipeEntity.summary
         return recipeBoundary
 
     def toBoundryIngredient(self, ingredient: IngredientEntitySpoonacular) -> ingredient_boundary:
-        return ingredient_boundary(id=int(ingredient.id)
+        return ingredient_boundary(ingredient_id=int(ingredient.id)
                                    , name=ingredient.name
                                    , amount=ingredient.amount
-                                   , unit=ingredient.unit)
+                                   , unit=ingredient.unit
+                                   , purchase_date=None)
