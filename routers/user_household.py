@@ -140,25 +140,8 @@ async def get_all_ingredients_in_household(user_email: str, household_id: str):
 
 
 
+
 '''
-# Adding a new user to the household and defining him as a participant and not as an owner
-@router.post("/add_user_to_household")
-async def add_user_to_household(household_id: int, user_id: int):
-    # Logic to add a user to a household
-    # Assume household_id and user_id validation
-    household = households[household_id]
-    household["participants"].append(user_id)
-    return {"message": "User added to household as a participant"}
-
-# Adding ingredients to the household
-@router.post("/add_ingredients_to_household")
-async def add_ingredients_to_household(household_id: int, ingredients: list):
-    # Logic to add ingredients to a household
-    # Assume household_id validation
-    household = households[household_id]
-    household["ingredients"].extend(ingredients)
-    return {"message": "ingredients added to household"}
-
 # Receiving the ingredients in the household
 @router.get("/get_ingredients_in_household/{household_id}")
 async def get_ingredients_in_household(household_id: int):
