@@ -1,0 +1,3200 @@
+{
+    "Bakery": {
+        "Bagel": {
+            "name": "Bagel",
+            "amount_per_serving": "Typical serving: 1 bagel = 85g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Baguette": {
+            "name": "Baguette",
+            "amount_per_serving": "Typical serving: One medium baguette = 220g",
+            "gCO2e_per_100g": "130",
+            "description": "Very Low carbon footprint"
+        },
+        "Bread": {
+            "name": "Bread",
+            "amount_per_serving": "Typical serving: Two medium slices = 80g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Bread crumbs": {
+            "name": "Bread crumbs",
+            "amount_per_serving": "Typical serving: One cup = 112g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Bread roll": {
+            "name": "Bread roll",
+            "amount_per_serving": "Typical serving: One medium roll = 60g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Brown bread": {
+            "name": "Brown bread",
+            "amount_per_serving": "Typical serving: Two medium slices = 80g",
+            "gCO2e_per_100g": "110",
+            "description": "Very Low carbon footprint"
+        },
+        "Brown bread roll": {
+            "name": "Brown bread roll",
+            "amount_per_serving": "Typical serving: One medium roll = 60g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Cake": {
+            "name": "Cake",
+            "amount_per_serving": "Typical serving: One piece = 120g",
+            "gCO2e_per_100g": "306",
+            "description": "Medium carbon footprint"
+        },
+        "Chocolate cake": {
+            "name": "Chocolate cake",
+            "amount_per_serving": "Typical serving: One slice = 120g",
+            "gCO2e_per_100g": "367",
+            "description": "Medium carbon footprint"
+        },
+        "Crepe": {
+            "name": "Crepe",
+            "amount_per_serving": "Typical serving: One crepe = 80g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "Crumpet": {
+            "name": "Crumpet",
+            "amount_per_serving": "Typical serving: 1 crumpet = 50g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Doughnut": {
+            "name": "Doughnut",
+            "amount_per_serving": "Typical serving: One doughnut = 75g",
+            "gCO2e_per_100g": "658",
+            "description": "Very High carbon footprint"
+        },
+        "Fruit cake": {
+            "name": "Fruit cake",
+            "amount_per_serving": "Typical serving: One slice = 120g",
+            "gCO2e_per_100g": "306",
+            "description": "Medium carbon footprint"
+        },
+        "Muffin": {
+            "name": "Muffin",
+            "amount_per_serving": "Typical serving: Medium muffin = 130g",
+            "gCO2e_per_100g": "658",
+            "description": "Very High carbon footprint"
+        },
+        "Pancake": {
+            "name": "Pancake",
+            "amount_per_serving": "Typical serving: Medium pancake = 50g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "Pastry": {
+            "name": "Pastry",
+            "amount_per_serving": "Typical serving: One pastry shell = 47g",
+            "gCO2e_per_100g": "658",
+            "description": "Very High carbon footprint"
+        },
+        "Pitta bread": {
+            "name": "Pitta bread",
+            "amount_per_serving": "Typical serving: One medium pitta = 60g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Plain naan bread": {
+            "name": "Plain naan bread",
+            "amount_per_serving": "Typical serving: One naan = 140g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Rye bread": {
+            "name": "Rye bread",
+            "amount_per_serving": "Typical serving: Two medium slices = 80g",
+            "gCO2e_per_100g": "107",
+            "description": "Very Low carbon footprint"
+        },
+        "Scones": {
+            "name": "Scones",
+            "amount_per_serving": "Typical serving: One scone = 70g",
+            "gCO2e_per_100g": "306",
+            "description": "Medium carbon footprint"
+        },
+        "Sponge cake": {
+            "name": "Sponge cake",
+            "amount_per_serving": "Typical serving: One slice = 120g",
+            "gCO2e_per_100g": "306",
+            "description": "Medium carbon footprint"
+        },
+        "Tortilla wrap": {
+            "name": "Tortilla wrap",
+            "amount_per_serving": "Typical serving: One wrap = 65g",
+            "gCO2e_per_100g": "108",
+            "description": "Very Low carbon footprint"
+        },
+        "Waffle": {
+            "name": "Waffle",
+            "amount_per_serving": "Typical serving: Medium waffle = 75g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "White bread": {
+            "name": "White bread",
+            "amount_per_serving": "Typical serving: Two medium slices = 80g",
+            "gCO2e_per_100g": "108",
+            "description": "Very Low carbon footprint"
+        },
+        "White bread roll": {
+            "name": "White bread roll",
+            "amount_per_serving": "Typical serving: One medium roll = 60g",
+            "gCO2e_per_100g": "112",
+            "description": "Very Low carbon footprint"
+        },
+        "Fruit pie": {
+            "name": "Fruit pie",
+            "amount_per_serving": "Typical serving: One slice = 120g",
+            "gCO2e_per_100g": "81",
+            "description": "Very Low carbon footprint"
+        },
+        "Cheesecake": {
+            "name": "Cheesecake",
+            "amount_per_serving": "Typical serving: = 120g",
+            "gCO2e_per_100g": "548",
+            "description": "High carbon footprint"
+        }
+    },
+    "Biscuits and confectionery": {
+        "Biscuits": {
+            "name": "Biscuits",
+            "amount_per_serving": "Typical serving: Three biscuits = 45g",
+            "gCO2e_per_100g": "130",
+            "description": "Very Low carbon footprint"
+        },
+        "Chocolate": {
+            "name": "Chocolate",
+            "amount_per_serving": "Typical serving: One slice = 120g",
+            "gCO2e_per_100g": "367",
+            "description": "Medium carbon footprint"
+        },
+        "Chocolate biscuit": {
+            "name": "Chocolate biscuit",
+            "amount_per_serving": "Typical serving: Three biscuits = 45g",
+            "gCO2e_per_100g": "270",
+            "description": "Low carbon footprint"
+        },
+        "Chocolate chips": {
+            "name": "Chocolate chips",
+            "amount_per_serving": "Typical serving: Fifteen chocolate chips = 10g",
+            "gCO2e_per_100g": "576",
+            "description": "Very High carbon footprint"
+        },
+        "Chocolate snack bar": {
+            "name": "Chocolate snack bar",
+            "amount_per_serving": "Typical serving: One bar = 32g",
+            "gCO2e_per_100g": "507",
+            "description": "High carbon footprint"
+        },
+        "Crackers": {
+            "name": "Crackers",
+            "amount_per_serving": "Typical serving: Three crackers = 24g",
+            "gCO2e_per_100g": "116",
+            "description": "Very Low carbon footprint"
+        },
+        "Flapjacks": {
+            "name": "Flapjacks",
+            "amount_per_serving": "Typical serving: One flapjack = 32g",
+            "gCO2e_per_100g": "684",
+            "description": "Very High carbon footprint"
+        },
+        "Fudge": {
+            "name": "Fudge",
+            "amount_per_serving": "Typical serving: One piece = 34g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Gluten-free biscuit": {
+            "name": "Gluten-free biscuit",
+            "amount_per_serving": "Typical serving: Three biscuits = 45g",
+            "gCO2e_per_100g": "330",
+            "description": "Medium carbon footprint"
+        },
+        "Liquorice": {
+            "name": "Liquorice",
+            "amount_per_serving": "Typical serving: Three pieces = 21g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Marshmallows": {
+            "name": "Marshmallows",
+            "amount_per_serving": "Typical serving: Five large marshmallows = 35g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Milk-based sweets": {
+            "name": "Milk-based sweets",
+            "amount_per_serving": "Typical serving: One piece = 10g",
+            "gCO2e_per_100g": "421",
+            "description": "Medium carbon footprint"
+        },
+        "Mints": {
+            "name": "Mints",
+            "amount_per_serving": "Typical serving: Three pieces = 15g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Muesli snack bar": {
+            "name": "Muesli snack bar",
+            "amount_per_serving": "Typical serving: One bar = 32g",
+            "gCO2e_per_100g": "684",
+            "description": "Very High carbon footprint"
+        },
+        "Sweets": {
+            "name": "Sweets",
+            "amount_per_serving": "Typical serving: One piece = 10g",
+            "gCO2e_per_100g": "421",
+            "description": "Medium carbon footprint"
+        },
+        "Toffee": {
+            "name": "Toffee",
+            "amount_per_serving": "Typical serving: Three pieces = 21g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Vegan chocolate": {
+            "name": "Vegan chocolate",
+            "amount_per_serving": "Typical serving: Six squares = 30g",
+            "gCO2e_per_100g": "192",
+            "description": "Low carbon footprint"
+        }
+    },
+    "Cupboard": {
+        "Allspice": {
+            "name": "Allspice",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Almond extract": {
+            "name": "Almond extract",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 5g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Baking powder": {
+            "name": "Baking powder",
+            "amount_per_serving": "0",
+            "gCO2e_per_100g": "0",
+            "description": ""
+        },
+        "Basil": {
+            "name": "Basil",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Bay leaves": {
+            "name": "Bay leaves",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Beet molasses": {
+            "name": "Beet molasses",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "29",
+            "description": "Very Low carbon footprint"
+        },
+        "Beet sugar": {
+            "name": "Beet sugar",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 4g",
+            "gCO2e_per_100g": "39",
+            "description": "Very Low carbon footprint"
+        },
+        "Bicarbonate of soda": {
+            "name": "Bicarbonate of soda",
+            "amount_per_serving": "0",
+            "gCO2e_per_100g": "0",
+            "description": ""
+        },
+        "Black pepper": {
+            "name": "Black pepper",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Breakfast cereal": {
+            "name": "Breakfast cereal",
+            "amount_per_serving": "Typical serving: Three handfuls = 45g",
+            "gCO2e_per_100g": "240",
+            "description": "Low carbon footprint"
+        },
+        "Brown sugar": {
+            "name": "Brown sugar",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 4g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Cacao nibs": {
+            "name": "Cacao nibs",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "266",
+            "description": "Low carbon footprint"
+        },
+        "Cacao powder": {
+            "name": "Cacao powder",
+            "amount_per_serving": "Typical serving: One teaspoon = 5g",
+            "gCO2e_per_100g": "444",
+            "description": "High carbon footprint"
+        },
+        "Cassava starch": {
+            "name": "Cassava starch",
+            "amount_per_serving": "Typical serving: One teaspoon = 4g",
+            "gCO2e_per_100g": "59",
+            "description": "Very Low carbon footprint"
+        },
+        "Cayenne pepper": {
+            "name": "Cayenne pepper",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Chilli flakes": {
+            "name": "Chilli flakes",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Chilli powder": {
+            "name": "Chilli powder",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Chives": {
+            "name": "Chives",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Cinnamon": {
+            "name": "Cinnamon",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Cloves": {
+            "name": "Cloves",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Coconut sugar": {
+            "name": "Coconut sugar",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 4g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Coffee beans": {
+            "name": "Coffee beans",
+            "amount_per_serving": "Typical serving: Five beans = 10g",
+            "gCO2e_per_100g": "450",
+            "description": "High carbon footprint"
+        },
+        "Coriander": {
+            "name": "Coriander",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Cornflour": {
+            "name": "Cornflour",
+            "amount_per_serving": "Typical serving: One teaspoon = 4g",
+            "gCO2e_per_100g": "89",
+            "description": "Very Low carbon footprint"
+        },
+        "Cumin": {
+            "name": "Cumin",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Dill": {
+            "name": "Dill",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Five spice": {
+            "name": "Five spice",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Flour": {
+            "name": "Flour",
+            "amount_per_serving": "Typical serving: One teaspoon = 4g",
+            "gCO2e_per_100g": "89",
+            "description": "Very Low carbon footprint"
+        },
+        "Food colouring": {
+            "name": "Food colouring",
+            "amount_per_serving": "Typical serving: One teaspoon = 5g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Garam masala": {
+            "name": "Garam masala",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Granola": {
+            "name": "Granola",
+            "amount_per_serving": "Typical serving: Handful = 45g",
+            "gCO2e_per_100g": "402",
+            "description": "Medium carbon footprint"
+        },
+        "Herbs and spices": {
+            "name": "Herbs and spices",
+            "amount_per_serving": "Typical serving: Handful = 20g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Hot chocolate powder": {
+            "name": "Hot chocolate powder",
+            "amount_per_serving": "Typical serving: Teaspoon = 2g",
+            "gCO2e_per_100g": "444",
+            "description": "High carbon footprint"
+        },
+        "Icing - to roll": {
+            "name": "Icing - to roll",
+            "amount_per_serving": "Typical serving: = 60g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Icing sugar": {
+            "name": "Icing sugar",
+            "amount_per_serving": "Typical serving: One tablespoon = 8g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Lard": {
+            "name": "Lard",
+            "amount_per_serving": "Typical serving: 1 tablespoon = 12g",
+            "gCO2e_per_100g": "612",
+            "description": "Very High carbon footprint"
+        },
+        "Marzipan": {
+            "name": "Marzipan",
+            "amount_per_serving": "Typical serving: = 60g",
+            "gCO2e_per_100g": "166",
+            "description": "Very Low carbon footprint"
+        },
+        "Mint": {
+            "name": "Mint",
+            "amount_per_serving": "Typical serving: Three pieces = 15g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Miso paste": {
+            "name": "Miso paste",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Molasses": {
+            "name": "Molasses",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "29",
+            "description": "Very Low carbon footprint"
+        },
+        "Muesli": {
+            "name": "Muesli",
+            "amount_per_serving": "Typical serving: One bar = 32g",
+            "gCO2e_per_100g": "684",
+            "description": "Very High carbon footprint"
+        },
+        "Non-wholegrain breakfast cereal": {
+            "name": "Non-wholegrain breakfast cereal",
+            "amount_per_serving": "Typical serving: Handful = 45g",
+            "gCO2e_per_100g": "401",
+            "description": "Medium carbon footprint"
+        },
+        "Nutmeg": {
+            "name": "Nutmeg",
+            "amount_per_serving": "Typical serving: Teaspoon ground = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Oat flakes": {
+            "name": "Oat flakes",
+            "amount_per_serving": "Typical serving: Handful = 45g",
+            "gCO2e_per_100g": "79",
+            "description": "Very Low carbon footprint"
+        },
+        "Oregano": {
+            "name": "Oregano",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Paprika": {
+            "name": "Paprika",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Parsley": {
+            "name": "Parsley",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Peppermint extract": {
+            "name": "Peppermint extract",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 5g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Plain flour": {
+            "name": "Plain flour",
+            "amount_per_serving": "Typical serving: One tablespoon = 8g",
+            "gCO2e_per_100g": "89",
+            "description": "Very Low carbon footprint"
+        },
+        "Porridge": {
+            "name": "Porridge",
+            "amount_per_serving": "Typical serving: = 45g",
+            "gCO2e_per_100g": "396",
+            "description": "Medium carbon footprint"
+        },
+        "Rosemary": {
+            "name": "Rosemary",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Rye flour": {
+            "name": "Rye flour",
+            "amount_per_serving": "Typical serving: One tablespoon = 8g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "Sage": {
+            "name": "Sage",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Salt": {
+            "name": "Salt",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Self-raising flour": {
+            "name": "Self-raising flour",
+            "amount_per_serving": "Typical serving: One tablespoon = 8g",
+            "gCO2e_per_100g": "89",
+            "description": "Very Low carbon footprint"
+        },
+        "Sugar": {
+            "name": "Sugar",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 4g",
+            "gCO2e_per_100g": "39",
+            "description": "Very Low carbon footprint"
+        },
+        "Tapioca starch": {
+            "name": "Tapioca starch",
+            "amount_per_serving": "Typical serving: One teaspoon = 5g",
+            "gCO2e_per_100g": "59",
+            "description": "Very Low carbon footprint"
+        },
+        "Thyme": {
+            "name": "Thyme",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Turmeric": {
+            "name": "Turmeric",
+            "amount_per_serving": "Typical serving: Teaspoon = 3g",
+            "gCO2e_per_100g": "113",
+            "description": "Very Low carbon footprint"
+        },
+        "Vanilla": {
+            "name": "Vanilla",
+            "amount_per_serving": "Typical serving: One teaspoon = 5g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Vanilla extract": {
+            "name": "Vanilla extract",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 5g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Vegetable fat": {
+            "name": "Vegetable fat",
+            "amount_per_serving": "Typical serving: 1 tablespoon = 12g",
+            "gCO2e_per_100g": "275",
+            "description": "Low carbon footprint"
+        },
+        "White sugar": {
+            "name": "White sugar",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 4g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Wholegrain breakfast cereal": {
+            "name": "Wholegrain breakfast cereal",
+            "amount_per_serving": "Typical serving: Handful = 45g",
+            "gCO2e_per_100g": "401",
+            "description": "Medium carbon footprint"
+        },
+        "Xanthan gum": {
+            "name": "Xanthan gum",
+            "amount_per_serving": "0",
+            "gCO2e_per_100g": "0",
+            "description": ""
+        },
+        "Yeast": {
+            "name": "Yeast",
+            "amount_per_serving": "0",
+            "gCO2e_per_100g": "0",
+            "description": ""
+        },
+        "Yeast extract": {
+            "name": "Yeast extract",
+            "amount_per_serving": "0",
+            "gCO2e_per_100g": "0",
+            "description": ""
+        },
+        "Chilli paste": {
+            "name": "Chilli paste",
+            "amount_per_serving": "Typical serving: One tablespoon = 1.1g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        }
+    },
+    "Dairy and alternatives": {
+        "Almond milk": {
+            "name": "Almond milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "56",
+            "description": "Very Low carbon footprint"
+        },
+        "Brie": {
+            "name": "Brie",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "742",
+            "description": "Very High carbon footprint"
+        },
+        "Buffalo milk": {
+            "name": "Buffalo milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "338",
+            "description": "Medium carbon footprint"
+        },
+        "Butter": {
+            "name": "Butter",
+            "amount_per_serving": "Typical serving: One tablespoon = 14g",
+            "gCO2e_per_100g": "976",
+            "description": "Very High carbon footprint"
+        },
+        "Buttermilk": {
+            "name": "Buttermilk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "110",
+            "description": "Very Low carbon footprint"
+        },
+        "Camembert": {
+            "name": "Camembert",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Cheddar": {
+            "name": "Cheddar",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "742",
+            "description": "Very High carbon footprint"
+        },
+        "Cheese": {
+            "name": "Cheese",
+            "amount_per_serving": "Typical serving: = 120g",
+            "gCO2e_per_100g": "548",
+            "description": "High carbon footprint"
+        },
+        "Clotted cream": {
+            "name": "Clotted cream",
+            "amount_per_serving": "Typical serving: Half tub = 150g",
+            "gCO2e_per_100g": "372",
+            "description": "Medium carbon footprint"
+        },
+        "Concentrated milk": {
+            "name": "Concentrated milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "310",
+            "description": "Medium carbon footprint"
+        },
+        "Cottage cheese": {
+            "name": "Cottage cheese",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "245",
+            "description": "Low carbon footprint"
+        },
+        "Cream cheese": {
+            "name": "Cream cheese",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "644",
+            "description": "Very High carbon footprint"
+        },
+        "Double cream": {
+            "name": "Double cream",
+            "amount_per_serving": "Typical serving: Half tub = 150g",
+            "gCO2e_per_100g": "372",
+            "description": "Medium carbon footprint"
+        },
+        "Edam": {
+            "name": "Edam",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Emmental": {
+            "name": "Emmental",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Feta": {
+            "name": "Feta",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Goats cheese": {
+            "name": "Goats cheese",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Goats milk": {
+            "name": "Goats milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "267",
+            "description": "Low carbon footprint"
+        },
+        "Gouda": {
+            "name": "Gouda",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "742",
+            "description": "Very High carbon footprint"
+        },
+        "Ice cream": {
+            "name": "Ice cream",
+            "amount_per_serving": "Typical serving: Two scoops = 120g",
+            "gCO2e_per_100g": "380",
+            "description": "Medium carbon footprint"
+        },
+        "Margarine": {
+            "name": "Margarine",
+            "amount_per_serving": "Typical serving: One tablespoon = 14g",
+            "gCO2e_per_100g": "308",
+            "description": "Medium carbon footprint"
+        },
+        "Mascarpone": {
+            "name": "Mascarpone",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "742",
+            "description": "Very High carbon footprint"
+        },
+        "Milk": {
+            "name": "Milk",
+            "amount_per_serving": "Typical serving: One piece = 10g",
+            "gCO2e_per_100g": "421",
+            "description": "Medium carbon footprint"
+        },
+        "Mozzarella": {
+            "name": "Mozzarella",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "644",
+            "description": "Very High carbon footprint"
+        },
+        "Oat milk": {
+            "name": "Oat milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "36",
+            "description": "Very Low carbon footprint"
+        },
+        "Oatly oat drink": {
+            "name": "Oatly oat drink",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "32",
+            "description": "Very Low carbon footprint"
+        },
+        "Paneer": {
+            "name": "Paneer",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Parmesan": {
+            "name": "Parmesan",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Plant-based cream": {
+            "name": "Plant-based cream",
+            "amount_per_serving": "Typical serving: Half tub = 150g",
+            "gCO2e_per_100g": "187",
+            "description": "Low carbon footprint"
+        },
+        "Plant-based milk": {
+            "name": "Plant-based milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "55",
+            "description": "Very Low carbon footprint"
+        },
+        "Prato": {
+            "name": "Prato",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "742",
+            "description": "Very High carbon footprint"
+        },
+        "Quark": {
+            "name": "Quark",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "245",
+            "description": "Low carbon footprint"
+        },
+        "Sheeps milk": {
+            "name": "Sheeps milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "840",
+            "description": "Very High carbon footprint"
+        },
+        "Single cream": {
+            "name": "Single cream",
+            "amount_per_serving": "Typical serving: Half tub = 150g",
+            "gCO2e_per_100g": "372",
+            "description": "Medium carbon footprint"
+        },
+        "Sour cream": {
+            "name": "Sour cream",
+            "amount_per_serving": "Typical serving: About 2 tablespoons = 60g",
+            "gCO2e_per_100g": "250",
+            "description": "Low carbon footprint"
+        },
+        "Soy milk": {
+            "name": "Soy milk",
+            "amount_per_serving": "Typical serving: Small glass = 200g",
+            "gCO2e_per_100g": "78",
+            "description": "Very Low carbon footprint"
+        },
+        "Stilton": {
+            "name": "Stilton",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "742",
+            "description": "Very High carbon footprint"
+        },
+        "Vegan cheese": {
+            "name": "Vegan cheese",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "272",
+            "description": "Low carbon footprint"
+        },
+        "Whipping cream": {
+            "name": "Whipping cream",
+            "amount_per_serving": "Typical serving: Half tub = 150g",
+            "gCO2e_per_100g": "372",
+            "description": "Medium carbon footprint"
+        },
+        "Yogurt": {
+            "name": "Yogurt",
+            "amount_per_serving": "Typical serving: About 4 tablespoons = 120g",
+            "gCO2e_per_100g": "220",
+            "description": "Low carbon footprint"
+        },
+        "Plant-based yogurt": {
+            "name": "Plant-based yogurt",
+            "amount_per_serving": "Typical serving: About 4 tablespoons = 120g",
+            "gCO2e_per_100g": "73",
+            "description": "Very Low carbon footprint"
+        }
+    },
+    "Drinks": {
+        "Americano": {
+            "name": "Americano",
+            "amount_per_serving": "Typical serving: Small Americano = 120g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "Apple juice": {
+            "name": "Apple juice",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "244",
+            "description": "Low carbon footprint"
+        },
+        "Beer": {
+            "name": "Beer",
+            "amount_per_serving": "Typical serving: One glass = 400g",
+            "gCO2e_per_100g": "77",
+            "description": "Very Low carbon footprint"
+        },
+        "Beer bottle": {
+            "name": "Beer bottle",
+            "amount_per_serving": "Typical serving: One bottle = 500g",
+            "gCO2e_per_100g": "88",
+            "description": "Very Low carbon footprint"
+        },
+        "Beer can": {
+            "name": "Beer can",
+            "amount_per_serving": "Typical serving: One can = 330g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Black instant coffee": {
+            "name": "Black instant coffee",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "Black tea": {
+            "name": "Black tea",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "61",
+            "description": "Very Low carbon footprint"
+        },
+        "Bottled water": {
+            "name": "Bottled water",
+            "amount_per_serving": "Typical serving: One bottle = 500g",
+            "gCO2e_per_100g": "32",
+            "description": "Very Low carbon footprint"
+        },
+        "Brandy": {
+            "name": "Brandy",
+            "amount_per_serving": "Typical serving: Two 25ml shots = 50g",
+            "gCO2e_per_100g": "232",
+            "description": "Low carbon footprint"
+        },
+        "Cappuccino": {
+            "name": "Cappuccino",
+            "amount_per_serving": "Typical serving: Small Cappuccino = 140g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Cider": {
+            "name": "Cider",
+            "amount_per_serving": "Typical serving: One glass = 400g",
+            "gCO2e_per_100g": "77",
+            "description": "Very Low carbon footprint"
+        },
+        "Cider bottle": {
+            "name": "Cider bottle",
+            "amount_per_serving": "Typical serving: One bottle = 500g",
+            "gCO2e_per_100g": "88",
+            "description": "Very Low carbon footprint"
+        },
+        "Cider can": {
+            "name": "Cider can",
+            "amount_per_serving": "Typical serving: One can = 330g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Espresso": {
+            "name": "Espresso",
+            "amount_per_serving": "Typical serving: One shot of espresso = 30g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "Flat white": {
+            "name": "Flat white",
+            "amount_per_serving": "Typical serving: Small Flat White = 160g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Fruit cordial": {
+            "name": "Fruit cordial",
+            "amount_per_serving": "Typical serving: Cordial for medium glass = 50g",
+            "gCO2e_per_100g": "193",
+            "description": "Low carbon footprint"
+        },
+        "Fruit juice": {
+            "name": "Fruit juice",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "171",
+            "description": "Very Low carbon footprint"
+        },
+        "Fruit tea": {
+            "name": "Fruit tea",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "61",
+            "description": "Very Low carbon footprint"
+        },
+        "Grapefruit juice": {
+            "name": "Grapefruit juice",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "206",
+            "description": "Low carbon footprint"
+        },
+        "Green tea": {
+            "name": "Green tea",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "61",
+            "description": "Very Low carbon footprint"
+        },
+        "Herbal tea": {
+            "name": "Herbal tea",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "61",
+            "description": "Very Low carbon footprint"
+        },
+        "Hot chocolate": {
+            "name": "Hot chocolate",
+            "amount_per_serving": "Typical serving: Teaspoon = 2g",
+            "gCO2e_per_100g": "444",
+            "description": "High carbon footprint"
+        },
+        "Hot chocolate with milk": {
+            "name": "Hot chocolate with milk",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "273",
+            "description": "Low carbon footprint"
+        },
+        "Hot chocolate with water": {
+            "name": "Hot chocolate with water",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "9",
+            "description": "Very Low carbon footprint"
+        },
+        "Instant coffee": {
+            "name": "Instant coffee",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "71",
+            "description": "Very Low carbon footprint"
+        },
+        "Instant coffee with milk": {
+            "name": "Instant coffee with milk",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Jasmin tea": {
+            "name": "Jasmin tea",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "61",
+            "description": "Very Low carbon footprint"
+        },
+        "Latte": {
+            "name": "Latte",
+            "amount_per_serving": "Typical serving: Small Latte = 240g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Lemon juice": {
+            "name": "Lemon juice",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "62",
+            "description": "Very Low carbon footprint"
+        },
+        "Lime juice": {
+            "name": "Lime juice",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "62",
+            "description": "Very Low carbon footprint"
+        },
+        "Mocha": {
+            "name": "Mocha",
+            "amount_per_serving": "Typical serving: Small Mocha = 120g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Orange juice": {
+            "name": "Orange juice",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "200",
+            "description": "Low carbon footprint"
+        },
+        "Other spirits": {
+            "name": "Other spirits",
+            "amount_per_serving": "Typical serving: Two 25ml shots = 50g",
+            "gCO2e_per_100g": "232",
+            "description": "Low carbon footprint"
+        },
+        "Pineapple juice": {
+            "name": "Pineapple juice",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "252",
+            "description": "Low carbon footprint"
+        },
+        "Rum": {
+            "name": "Rum",
+            "amount_per_serving": "Typical serving: One cup = 112g",
+            "gCO2e_per_100g": "121",
+            "description": "Very Low carbon footprint"
+        },
+        "Sherry": {
+            "name": "Sherry",
+            "amount_per_serving": "Typical serving: Medium glass = 150g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        },
+        "Soft drink": {
+            "name": "Soft drink",
+            "amount_per_serving": "Typical serving: One can = 330g",
+            "gCO2e_per_100g": "62",
+            "description": "Very Low carbon footprint"
+        },
+        "Tequila": {
+            "name": "Tequila",
+            "amount_per_serving": "Typical serving: Two 25ml shots = 50g",
+            "gCO2e_per_100g": "232",
+            "description": "Low carbon footprint"
+        },
+        "Vodka": {
+            "name": "Vodka",
+            "amount_per_serving": "Typical serving: Two 25ml shots = 50g",
+            "gCO2e_per_100g": "232",
+            "description": "Low carbon footprint"
+        },
+        "Water": {
+            "name": "Water",
+            "amount_per_serving": "Typical serving: One bottle = 500g",
+            "gCO2e_per_100g": "32",
+            "description": "Very Low carbon footprint"
+        },
+        "Whiskey": {
+            "name": "Whiskey",
+            "amount_per_serving": "Typical serving: Two 25ml shots = 50g",
+            "gCO2e_per_100g": "232",
+            "description": "Low carbon footprint"
+        },
+        "White tea": {
+            "name": "White tea",
+            "amount_per_serving": "Typical serving: One mug = 400g",
+            "gCO2e_per_100g": "63",
+            "description": "Very Low carbon footprint"
+        },
+        "Wine": {
+            "name": "Wine",
+            "amount_per_serving": "Typical serving: Medium glass = 150g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        }
+    },
+    "Eggs": {
+        "Eggs": {
+            "name": "Eggs",
+            "amount_per_serving": "Typical serving: One egg = 60g",
+            "gCO2e_per_100g": "451",
+            "description": "High carbon footprint"
+        }
+    },
+    "Fish and seafood": {
+        "Anchovies": {
+            "name": "Anchovies",
+            "amount_per_serving": "Typical serving: Four tablespoons = 80g",
+            "gCO2e_per_100g": "422",
+            "description": "Medium carbon footprint"
+        },
+        "Caviar": {
+            "name": "Caviar",
+            "amount_per_serving": "Typical serving: Three tablespoons = 30g",
+            "gCO2e_per_100g": "529",
+            "description": "High carbon footprint"
+        },
+        "Clams": {
+            "name": "Clams",
+            "amount_per_serving": "Typical serving: Five clams = 73g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Cockles": {
+            "name": "Cockles",
+            "amount_per_serving": "Typical serving: Five cockles = 125g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Cod": {
+            "name": "Cod",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "321",
+            "description": "Medium carbon footprint"
+        },
+        "Coley": {
+            "name": "Coley",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Crab": {
+            "name": "Crab",
+            "amount_per_serving": "Typical serving: One medium crab = 65g",
+            "gCO2e_per_100g": "1775",
+            "description": "Very High carbon footprint"
+        },
+        "Crayfish": {
+            "name": "Crayfish",
+            "amount_per_serving": "Typical serving: = 65g",
+            "gCO2e_per_100g": "1775",
+            "description": "Very High carbon footprint"
+        },
+        "Eel": {
+            "name": "Eel",
+            "amount_per_serving": "Typical serving: = 113g",
+            "gCO2e_per_100g": "422",
+            "description": "Medium carbon footprint"
+        },
+        "Fish fingers": {
+            "name": "Fish fingers",
+            "amount_per_serving": "Typical serving: Three fish fingers = 90g",
+            "gCO2e_per_100g": "375",
+            "description": "Medium carbon footprint"
+        },
+        "Fish sticks": {
+            "name": "Fish sticks",
+            "amount_per_serving": "Typical serving: Three sticks = 51g",
+            "gCO2e_per_100g": "191",
+            "description": "Low carbon footprint"
+        },
+        "Flatfish": {
+            "name": "Flatfish",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Flounder": {
+            "name": "Flounder",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Haddock": {
+            "name": "Haddock",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Hake": {
+            "name": "Hake",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Halibut": {
+            "name": "Halibut",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Herring": {
+            "name": "Herring",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "159",
+            "description": "Very Low carbon footprint"
+        },
+        "Hoki": {
+            "name": "Hoki",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Kipper": {
+            "name": "Kipper",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "422",
+            "description": "Medium carbon footprint"
+        },
+        "Krill": {
+            "name": "Krill",
+            "amount_per_serving": "Typical serving: Ten krill = 20g",
+            "gCO2e_per_100g": "1775",
+            "description": "Very High carbon footprint"
+        },
+        "Lemon sole": {
+            "name": "Lemon sole",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Lobster": {
+            "name": "Lobster",
+            "amount_per_serving": "Typical serving: Medium lobster = 295g",
+            "gCO2e_per_100g": "1775",
+            "description": "Very High carbon footprint"
+        },
+        "Mackerel": {
+            "name": "Mackerel",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "90",
+            "description": "Very Low carbon footprint"
+        },
+        "Mixed fish": {
+            "name": "Mixed fish",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "617",
+            "description": "Very High carbon footprint"
+        },
+        "Molluscs": {
+            "name": "Molluscs",
+            "amount_per_serving": "Typical serving: = 75g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Mussels": {
+            "name": "Mussels",
+            "amount_per_serving": "Typical serving: Five mussels = 80g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Octopus": {
+            "name": "Octopus",
+            "amount_per_serving": "Typical serving: = 57g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Oysters": {
+            "name": "Oysters",
+            "amount_per_serving": "Typical serving: Five oysters = 70g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Pangasius": {
+            "name": "Pangasius",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Plaice": {
+            "name": "Plaice",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Pollock": {
+            "name": "Pollock",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "321",
+            "description": "Medium carbon footprint"
+        },
+        "Prawn": {
+            "name": "Prawn",
+            "amount_per_serving": "Typical serving: Six prawns = 90g",
+            "gCO2e_per_100g": "1775",
+            "description": "Very High carbon footprint"
+        },
+        "Salmon": {
+            "name": "Salmon",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "479",
+            "description": "High carbon footprint"
+        },
+        "Sardines": {
+            "name": "Sardines",
+            "amount_per_serving": "Typical serving: About 4 tablespoons = 80g",
+            "gCO2e_per_100g": "422",
+            "description": "Medium carbon footprint"
+        },
+        "Scallops": {
+            "name": "Scallops",
+            "amount_per_serving": "Typical serving: Four scallops = 120g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Scampi": {
+            "name": "Scampi",
+            "amount_per_serving": "Typical serving: About 4 tablespoons = 80g",
+            "gCO2e_per_100g": "1775",
+            "description": "Very High carbon footprint"
+        },
+        "Sea bass": {
+            "name": "Sea bass",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Seabass": {
+            "name": "Seabass",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Seaweed": {
+            "name": "Seaweed",
+            "amount_per_serving": "Typical serving: = 5g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Shrimp": {
+            "name": "Shrimp",
+            "amount_per_serving": "Typical serving: About 4 tablespoons = 80g",
+            "gCO2e_per_100g": "1775",
+            "description": "Very High carbon footprint"
+        },
+        "Skate": {
+            "name": "Skate",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        },
+        "Smoked salmon": {
+            "name": "Smoked salmon",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "479",
+            "description": "High carbon footprint"
+        },
+        "Squid": {
+            "name": "Squid",
+            "amount_per_serving": "Typical serving: One squid = 272g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Trout": {
+            "name": "Trout",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "422",
+            "description": "Medium carbon footprint"
+        },
+        "Tuna": {
+            "name": "Tuna",
+            "amount_per_serving": "Typical serving: Tuna fillet = 170g",
+            "gCO2e_per_100g": "1016",
+            "description": "Very High carbon footprint"
+        },
+        "Whitebait": {
+            "name": "Whitebait",
+            "amount_per_serving": "Typical serving: About 4 tablespoons = 80g",
+            "gCO2e_per_100g": "422",
+            "description": "Medium carbon footprint"
+        },
+        "Whiting": {
+            "name": "Whiting",
+            "amount_per_serving": "Typical serving: The size of half to a whole hand = 170g",
+            "gCO2e_per_100g": "436",
+            "description": "High carbon footprint"
+        }
+    },
+    "Fruit": {
+        "Apples": {
+            "name": "Apples",
+            "amount_per_serving": "Typical serving: One apple = 80g",
+            "gCO2e_per_100g": "90",
+            "description": "Very Low carbon footprint"
+        },
+        "Apricot": {
+            "name": "Apricot",
+            "amount_per_serving": "Typical serving: 4 apricots = 140g",
+            "gCO2e_per_100g": "43",
+            "description": "Very Low carbon footprint"
+        },
+        "Avocados": {
+            "name": "Avocados",
+            "amount_per_serving": "Typical serving: One avocado = 170g",
+            "gCO2e_per_100g": "240",
+            "description": "Low carbon footprint"
+        },
+        "Banana chips": {
+            "name": "Banana chips",
+            "amount_per_serving": "Typical serving: Handful = 30g",
+            "gCO2e_per_100g": "440",
+            "description": "High carbon footprint"
+        },
+        "Bananas": {
+            "name": "Bananas",
+            "amount_per_serving": "Typical serving: One banana = 120g",
+            "gCO2e_per_100g": "130",
+            "description": "Very Low carbon footprint"
+        },
+        "Berries": {
+            "name": "Berries",
+            "amount_per_serving": "Typical serving: Handful = 25g",
+            "gCO2e_per_100g": "286",
+            "description": "Low carbon footprint"
+        },
+        "Blackberries": {
+            "name": "Blackberries",
+            "amount_per_serving": "Typical serving: Handful = 20g",
+            "gCO2e_per_100g": "286",
+            "description": "Low carbon footprint"
+        },
+        "Blueberries": {
+            "name": "Blueberries",
+            "amount_per_serving": "Typical serving: Handful = 15g",
+            "gCO2e_per_100g": "286",
+            "description": "Low carbon footprint"
+        },
+        "Bottled tomatoes": {
+            "name": "Bottled tomatoes",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "233",
+            "description": "Low carbon footprint"
+        },
+        "Canned mandarins": {
+            "name": "Canned mandarins",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "250",
+            "description": "Low carbon footprint"
+        },
+        "Canned mango": {
+            "name": "Canned mango",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "440",
+            "description": "High carbon footprint"
+        },
+        "Canned nectarines": {
+            "name": "Canned nectarines",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "290",
+            "description": "Low carbon footprint"
+        },
+        "Canned peaches": {
+            "name": "Canned peaches",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "290",
+            "description": "Low carbon footprint"
+        },
+        "Canned pears": {
+            "name": "Canned pears",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "406",
+            "description": "Medium carbon footprint"
+        },
+        "Canned pineapples": {
+            "name": "Canned pineapples",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "360",
+            "description": "Medium carbon footprint"
+        },
+        "Canned plums": {
+            "name": "Canned plums",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "549",
+            "description": "High carbon footprint"
+        },
+        "Canned tomatoes": {
+            "name": "Canned tomatoes",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "196",
+            "description": "Low carbon footprint"
+        },
+        "Capers": {
+            "name": "Capers",
+            "amount_per_serving": "Typical serving: Average weight of 5 capers = 20g",
+            "gCO2e_per_100g": "46",
+            "description": "Very Low carbon footprint"
+        },
+        "Cherries": {
+            "name": "Cherries",
+            "amount_per_serving": "Typical serving: One handful, six cherries = 32g",
+            "gCO2e_per_100g": "286",
+            "description": "Low carbon footprint"
+        },
+        "Coconut": {
+            "name": "Coconut",
+            "amount_per_serving": "Typical serving: 1 teaspoon = 4g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Cranberries": {
+            "name": "Cranberries",
+            "amount_per_serving": "Typical serving: Handful = 20g",
+            "gCO2e_per_100g": "286",
+            "description": "Low carbon footprint"
+        },
+        "Currants": {
+            "name": "Currants",
+            "amount_per_serving": "Typical serving: Handful = 25g",
+            "gCO2e_per_100g": "210",
+            "description": "Low carbon footprint"
+        },
+        "Date": {
+            "name": "Date",
+            "amount_per_serving": "Typical serving: Two dates = 48g",
+            "gCO2e_per_100g": "210",
+            "description": "Low carbon footprint"
+        },
+        "Dried apples": {
+            "name": "Dried apples",
+            "amount_per_serving": "Typical serving: One apple = 80g",
+            "gCO2e_per_100g": "698",
+            "description": "Very High carbon footprint"
+        },
+        "Dried banana": {
+            "name": "Dried banana",
+            "amount_per_serving": "Typical serving: One banana = 120g",
+            "gCO2e_per_100g": "698",
+            "description": "Very High carbon footprint"
+        },
+        "Dried mango": {
+            "name": "Dried mango",
+            "amount_per_serving": "Typical serving: Handful = 30g",
+            "gCO2e_per_100g": "698",
+            "description": "Very High carbon footprint"
+        },
+        "Dried pears": {
+            "name": "Dried pears",
+            "amount_per_serving": "Typical serving: One pear = 180g",
+            "gCO2e_per_100g": "698",
+            "description": "Very High carbon footprint"
+        },
+        "Dried pineapples": {
+            "name": "Dried pineapples",
+            "amount_per_serving": "Typical serving: 1 large pineapple slice = 80g",
+            "gCO2e_per_100g": "490",
+            "description": "High carbon footprint"
+        },
+        "Dried plums": {
+            "name": "Dried plums",
+            "amount_per_serving": "Typical serving: One plum = 65g",
+            "gCO2e_per_100g": "444",
+            "description": "High carbon footprint"
+        },
+        "Frozen apples": {
+            "name": "Frozen apples",
+            "amount_per_serving": "Typical serving: One apple = 80g",
+            "gCO2e_per_100g": "212",
+            "description": "Low carbon footprint"
+        },
+        "Frozen blackberries": {
+            "name": "Frozen blackberries",
+            "amount_per_serving": "Typical serving: Handful = 20g",
+            "gCO2e_per_100g": "252",
+            "description": "Low carbon footprint"
+        },
+        "Frozen blueberries": {
+            "name": "Frozen blueberries",
+            "amount_per_serving": "Typical serving: Handful = 15g",
+            "gCO2e_per_100g": "252",
+            "description": "Low carbon footprint"
+        },
+        "Frozen cherries": {
+            "name": "Frozen cherries",
+            "amount_per_serving": "Typical serving: One handful, six cherries = 32g",
+            "gCO2e_per_100g": "252",
+            "description": "Low carbon footprint"
+        },
+        "Frozen cranberries": {
+            "name": "Frozen cranberries",
+            "amount_per_serving": "Typical serving: Handful = 20g",
+            "gCO2e_per_100g": "252",
+            "description": "Low carbon footprint"
+        },
+        "Frozen mango": {
+            "name": "Frozen mango",
+            "amount_per_serving": "Typical serving: Two slices = 80g",
+            "gCO2e_per_100g": "380",
+            "description": "Medium carbon footprint"
+        },
+        "Frozen nectarines": {
+            "name": "Frozen nectarines",
+            "amount_per_serving": "Typical serving: One nectarine = 150g",
+            "gCO2e_per_100g": "250",
+            "description": "Low carbon footprint"
+        },
+        "Frozen peaches": {
+            "name": "Frozen peaches",
+            "amount_per_serving": "Typical serving: One peach = 150g",
+            "gCO2e_per_100g": "250",
+            "description": "Low carbon footprint"
+        },
+        "Frozen raspberries": {
+            "name": "Frozen raspberries",
+            "amount_per_serving": "Typical serving: Handful = 50g",
+            "gCO2e_per_100g": "230",
+            "description": "Low carbon footprint"
+        },
+        "Frozen strawberries": {
+            "name": "Frozen strawberries",
+            "amount_per_serving": "Typical serving: Handful = 80g",
+            "gCO2e_per_100g": "233",
+            "description": "Low carbon footprint"
+        },
+        "Grapefruits": {
+            "name": "Grapefruits",
+            "amount_per_serving": "Typical serving: One grapefruit = 246g",
+            "gCO2e_per_100g": "80",
+            "description": "Very Low carbon footprint"
+        },
+        "Grapes": {
+            "name": "Grapes",
+            "amount_per_serving": "Typical serving: Handful, eight grapes = 40g",
+            "gCO2e_per_100g": "230",
+            "description": "Low carbon footprint"
+        },
+        "Kiwi": {
+            "name": "Kiwi",
+            "amount_per_serving": "Typical serving: One kiwi fruit = 76g",
+            "gCO2e_per_100g": "62",
+            "description": "Very Low carbon footprint"
+        },
+        "Lemons": {
+            "name": "Lemons",
+            "amount_per_serving": "Typical serving: One lemon = 100g",
+            "gCO2e_per_100g": "190",
+            "description": "Low carbon footprint"
+        },
+        "Lime": {
+            "name": "Lime",
+            "amount_per_serving": "Typical serving: Small glass = 150g",
+            "gCO2e_per_100g": "62",
+            "description": "Very Low carbon footprint"
+        },
+        "Mandarins": {
+            "name": "Mandarins",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "250",
+            "description": "Low carbon footprint"
+        },
+        "Mango": {
+            "name": "Mango",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "440",
+            "description": "High carbon footprint"
+        },
+        "Melons": {
+            "name": "Melons",
+            "amount_per_serving": "Typical serving: One 5cm slice of melon = 80g",
+            "gCO2e_per_100g": "90",
+            "description": "Very Low carbon footprint"
+        },
+        "Nectarines": {
+            "name": "Nectarines",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "290",
+            "description": "Low carbon footprint"
+        },
+        "Olives": {
+            "name": "Olives",
+            "amount_per_serving": "Typical serving: Eight olives = 40g",
+            "gCO2e_per_100g": "46",
+            "description": "Very Low carbon footprint"
+        },
+        "Oranges": {
+            "name": "Oranges",
+            "amount_per_serving": "Typical serving: One orange = 130g",
+            "gCO2e_per_100g": "190",
+            "description": "Low carbon footprint"
+        },
+        "Papaya": {
+            "name": "Papaya",
+            "amount_per_serving": "Typical serving: Three slices = 120g",
+            "gCO2e_per_100g": "440",
+            "description": "High carbon footprint"
+        },
+        "Passata": {
+            "name": "Passata",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "196",
+            "description": "Low carbon footprint"
+        },
+        "Peaches": {
+            "name": "Peaches",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "290",
+            "description": "Low carbon footprint"
+        },
+        "Pears": {
+            "name": "Pears",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "406",
+            "description": "Medium carbon footprint"
+        },
+        "Pineapples": {
+            "name": "Pineapples",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "360",
+            "description": "Medium carbon footprint"
+        },
+        "Plums": {
+            "name": "Plums",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "549",
+            "description": "High carbon footprint"
+        },
+        "Raisins": {
+            "name": "Raisins",
+            "amount_per_serving": "Typical serving: Handful = 25g",
+            "gCO2e_per_100g": "210",
+            "description": "Low carbon footprint"
+        },
+        "Raspberries": {
+            "name": "Raspberries",
+            "amount_per_serving": "Typical serving: Handful = 50g",
+            "gCO2e_per_100g": "230",
+            "description": "Low carbon footprint"
+        },
+        "Strawberries": {
+            "name": "Strawberries",
+            "amount_per_serving": "Typical serving: Handful = 80g",
+            "gCO2e_per_100g": "233",
+            "description": "Low carbon footprint"
+        },
+        "Tomatoes": {
+            "name": "Tomatoes",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "233",
+            "description": "Low carbon footprint"
+        }
+    },
+    "Grains, pulses, and legumes": {
+        "Barley": {
+            "name": "Barley",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "112",
+            "description": "Very Low carbon footprint"
+        },
+        "Basmati rice": {
+            "name": "Basmati rice",
+            "amount_per_serving": "Typical serving: Two handfuls = 65g",
+            "gCO2e_per_100g": "135",
+            "description": "Very Low carbon footprint"
+        },
+        "Black beans": {
+            "name": "Black beans",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Brown rice": {
+            "name": "Brown rice",
+            "amount_per_serving": "Typical serving: Two handfuls = 65g",
+            "gCO2e_per_100g": "135",
+            "description": "Very Low carbon footprint"
+        },
+        "Buckwheat": {
+            "name": "Buckwheat",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "72",
+            "description": "Very Low carbon footprint"
+        },
+        "Bulgar": {
+            "name": "Bulgar",
+            "amount_per_serving": "Typical serving: About 6 tablespoons = 120g",
+            "gCO2e_per_100g": "76",
+            "description": "Very Low carbon footprint"
+        },
+        "Chickpeas": {
+            "name": "Chickpeas",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Corn": {
+            "name": "Corn",
+            "amount_per_serving": "Typical serving: One teaspoon = 4g",
+            "gCO2e_per_100g": "89",
+            "description": "Very Low carbon footprint"
+        },
+        "Couscous": {
+            "name": "Couscous",
+            "amount_per_serving": "Typical serving: About 6 tablespoons = 120g",
+            "gCO2e_per_100g": "244",
+            "description": "Low carbon footprint"
+        },
+        "Faba beans": {
+            "name": "Faba beans",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Frozen pulses": {
+            "name": "Frozen pulses",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "183",
+            "description": "Low carbon footprint"
+        },
+        "Haricot beans": {
+            "name": "Haricot beans",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Jasmin rice": {
+            "name": "Jasmin rice",
+            "amount_per_serving": "Typical serving: Two handfuls = 65g",
+            "gCO2e_per_100g": "135",
+            "description": "Very Low carbon footprint"
+        },
+        "Kidney beans": {
+            "name": "Kidney beans",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Lentils": {
+            "name": "Lentils",
+            "amount_per_serving": "Typical serving: About 6 tablespoons = 120g",
+            "gCO2e_per_100g": "67",
+            "description": "Very Low carbon footprint"
+        },
+        "Long-grain rice": {
+            "name": "Long-grain rice",
+            "amount_per_serving": "Typical serving: Two handfuls = 65g",
+            "gCO2e_per_100g": "135",
+            "description": "Very Low carbon footprint"
+        },
+        "Macaroni": {
+            "name": "Macaroni",
+            "amount_per_serving": "Typical serving: Two handfuls = 75g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        },
+        "Maize": {
+            "name": "Maize",
+            "amount_per_serving": "Typical serving: About 6 tablespoons = 120g",
+            "gCO2e_per_100g": "51",
+            "description": "Very Low carbon footprint"
+        },
+        "Mixed grain": {
+            "name": "Mixed grain",
+            "amount_per_serving": "Typical serving: Two handfuls = 65g",
+            "gCO2e_per_100g": "76",
+            "description": "Very Low carbon footprint"
+        },
+        "Noodles": {
+            "name": "Noodles",
+            "amount_per_serving": "Typical serving: Two handfuls = 75g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        },
+        "Oats": {
+            "name": "Oats",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Other pulses": {
+            "name": "Other pulses",
+            "amount_per_serving": "Typical serving: About 6 tablespoons = 120g",
+            "gCO2e_per_100g": "330",
+            "description": "Medium carbon footprint"
+        },
+        "Pasta": {
+            "name": "Pasta",
+            "amount_per_serving": "Typical serving: Two handfuls = 75g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        },
+        "Polenta": {
+            "name": "Polenta",
+            "amount_per_serving": "Typical serving: About 6 tablespoons = 120g",
+            "gCO2e_per_100g": "76",
+            "description": "Very Low carbon footprint"
+        },
+        "Quinoa": {
+            "name": "Quinoa",
+            "amount_per_serving": "Typical serving: Half cup = 85g",
+            "gCO2e_per_100g": "82",
+            "description": "Very Low carbon footprint"
+        },
+        "Rice": {
+            "name": "Rice",
+            "amount_per_serving": "Typical serving: Three pieces = 21g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Soybeans": {
+            "name": "Soybeans",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "200",
+            "description": "Low carbon footprint"
+        },
+        "Spaghetti": {
+            "name": "Spaghetti",
+            "amount_per_serving": "Typical serving: One bunch = 75g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        },
+        "Sushi rice": {
+            "name": "Sushi rice",
+            "amount_per_serving": "Typical serving: Two handfuls = 65g",
+            "gCO2e_per_100g": "135",
+            "description": "Very Low carbon footprint"
+        },
+        "Tagliatelle": {
+            "name": "Tagliatelle",
+            "amount_per_serving": "Typical serving: Two handfuls = 75g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        },
+        "Wheat": {
+            "name": "Wheat",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "72",
+            "description": "Very Low carbon footprint"
+        },
+        "White rice": {
+            "name": "White rice",
+            "amount_per_serving": "Typical serving: Two handfuls = 65g",
+            "gCO2e_per_100g": "135",
+            "description": "Very Low carbon footprint"
+        },
+        "Wholemeal pasta": {
+            "name": "Wholemeal pasta",
+            "amount_per_serving": "Typical serving: Two handfuls = 75g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        }
+    },
+    "Meat and alternatives": {
+        "Bacon": {
+            "name": "Bacon",
+            "amount_per_serving": "Typical serving: Two rashers = 80g",
+            "gCO2e_per_100g": "663",
+            "description": "Very High carbon footprint"
+        },
+        "Beef": {
+            "name": "Beef",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "4333",
+            "description": "Very High carbon footprint"
+        },
+        "Chicken": {
+            "name": "Chicken",
+            "amount_per_serving": "Typical serving: One breast = 150g",
+            "gCO2e_per_100g": "471",
+            "description": "High carbon footprint"
+        },
+        "Cocktail sausage": {
+            "name": "Cocktail sausage",
+            "amount_per_serving": "Typical serving: Four cocktail sausages = 60g",
+            "gCO2e_per_100g": "663",
+            "description": "Very High carbon footprint"
+        },
+        "Duck": {
+            "name": "Duck",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "505",
+            "description": "High carbon footprint"
+        },
+        "Falafel": {
+            "name": "Falafel",
+            "amount_per_serving": "Typical serving: Two falafel = 40g",
+            "gCO2e_per_100g": "251",
+            "description": "Low carbon footprint"
+        },
+        "Gammon": {
+            "name": "Gammon",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "663",
+            "description": "Very High carbon footprint"
+        },
+        "Goat": {
+            "name": "Goat",
+            "amount_per_serving": "Typical serving: About the size of two thumbs = 30g",
+            "gCO2e_per_100g": "711",
+            "description": "Very High carbon footprint"
+        },
+        "Goose": {
+            "name": "Goose",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "505",
+            "description": "High carbon footprint"
+        },
+        "Guinea fowl": {
+            "name": "Guinea fowl",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "505",
+            "description": "High carbon footprint"
+        },
+        "Ham": {
+            "name": "Ham",
+            "amount_per_serving": "Typical serving: Two slices = 30g",
+            "gCO2e_per_100g": "663",
+            "description": "Very High carbon footprint"
+        },
+        "Lamb": {
+            "name": "Lamb",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "2083",
+            "description": "Very High carbon footprint"
+        },
+        "Meatless": {
+            "name": "Meatless",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "229",
+            "description": "Low carbon footprint"
+        },
+        "Pancetta": {
+            "name": "Pancetta",
+            "amount_per_serving": "Typical serving: Two slices = 30g",
+            "gCO2e_per_100g": "663",
+            "description": "Very High carbon footprint"
+        },
+        "Pork": {
+            "name": "Pork",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "663",
+            "description": "Very High carbon footprint"
+        },
+        "Quorn": {
+            "name": "Quorn",
+            "amount_per_serving": "Typical serving: = 100g",
+            "gCO2e_per_100g": "240",
+            "description": "Low carbon footprint"
+        },
+        "Quorn classic burger": {
+            "name": "Quorn classic burger",
+            "amount_per_serving": "Typical serving: = 90g",
+            "gCO2e_per_100g": "255",
+            "description": "Low carbon footprint"
+        },
+        "Quorn crispy nuggets": {
+            "name": "Quorn crispy nuggets",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "197",
+            "description": "Low carbon footprint"
+        },
+        "Quorn mince": {
+            "name": "Quorn mince",
+            "amount_per_serving": "Typical serving: = 75g",
+            "gCO2e_per_100g": "169",
+            "description": "Very Low carbon footprint"
+        },
+        "Quorn pieces": {
+            "name": "Quorn pieces",
+            "amount_per_serving": "Typical serving: = 75g",
+            "gCO2e_per_100g": "171",
+            "description": "Very Low carbon footprint"
+        },
+        "Quorn sausages": {
+            "name": "Quorn sausages",
+            "amount_per_serving": "Typical serving: = 84g",
+            "gCO2e_per_100g": "170",
+            "description": "Very Low carbon footprint"
+        },
+        "Quorn vegan nuggets": {
+            "name": "Quorn vegan nuggets",
+            "amount_per_serving": "Typical serving: = 70g",
+            "gCO2e_per_100g": "255",
+            "description": "Low carbon footprint"
+        },
+        "Quorn vegan pieces": {
+            "name": "Quorn vegan pieces",
+            "amount_per_serving": "Typical serving: = 70g",
+            "gCO2e_per_100g": "160",
+            "description": "Very Low carbon footprint"
+        },
+        "Rabbit": {
+            "name": "Rabbit",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "1102",
+            "description": "Very High carbon footprint"
+        },
+        "Steak": {
+            "name": "Steak",
+            "amount_per_serving": "Typical serving: One 8oz steak = 225g",
+            "gCO2e_per_100g": "4333",
+            "description": "Very High carbon footprint"
+        },
+        "Tempeh": {
+            "name": "Tempeh",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "109",
+            "description": "Very Low carbon footprint"
+        },
+        "Tofu": {
+            "name": "Tofu",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "186",
+            "description": "Low carbon footprint"
+        },
+        "Turkey": {
+            "name": "Turkey",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "645",
+            "description": "Very High carbon footprint"
+        },
+        "Valess": {
+            "name": "Valess",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "501",
+            "description": "High carbon footprint"
+        },
+        "Veal": {
+            "name": "Veal",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "1894",
+            "description": "Very High carbon footprint"
+        },
+        "Vegetable patty": {
+            "name": "Vegetable patty",
+            "amount_per_serving": "Typical serving: One burger = 75g",
+            "gCO2e_per_100g": "295",
+            "description": "Low carbon footprint"
+        },
+        "Venison": {
+            "name": "Venison",
+            "amount_per_serving": "Typical serving: About half the size of your hand = 160g",
+            "gCO2e_per_100g": "2099",
+            "description": "Very High carbon footprint"
+        },
+        "Pork sausage": {
+            "name": "Pork sausage",
+            "amount_per_serving": "Typical serving: One sausage = 84g",
+            "gCO2e_per_100g": "663",
+            "description": "Very High carbon footprint"
+        }
+    },
+    "NULL": {
+        "Alfalfa": {
+            "name": "Alfalfa",
+            "amount_per_serving": "0",
+            "gCO2e_per_100g": "0",
+            "description": ""
+        }
+    },
+    "Nuts and seeds": {
+        "Almonds": {
+            "name": "Almonds",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "286",
+            "description": "Low carbon footprint"
+        },
+        "Cashews": {
+            "name": "Cashews",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "209",
+            "description": "Low carbon footprint"
+        },
+        "Chestnuts": {
+            "name": "Chestnuts",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "146",
+            "description": "Very Low carbon footprint"
+        },
+        "Chia seeds": {
+            "name": "Chia seeds",
+            "amount_per_serving": "Typical serving: One tablespoon = 11g",
+            "gCO2e_per_100g": "420",
+            "description": "Medium carbon footprint"
+        },
+        "Chocolate covered hazelnuts": {
+            "name": "Chocolate covered hazelnuts",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "343",
+            "description": "Medium carbon footprint"
+        },
+        "Fennel seeds": {
+            "name": "Fennel seeds",
+            "amount_per_serving": "Typical serving: One tablespoon = 9g",
+            "gCO2e_per_100g": "420",
+            "description": "Medium carbon footprint"
+        },
+        "Mixed nuts": {
+            "name": "Mixed nuts",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "206",
+            "description": "Low carbon footprint"
+        },
+        "Mixed seeds": {
+            "name": "Mixed seeds",
+            "amount_per_serving": "Typical serving: One tablespoon = 9g",
+            "gCO2e_per_100g": "298",
+            "description": "Low carbon footprint"
+        },
+        "Mustard seeds": {
+            "name": "Mustard seeds",
+            "amount_per_serving": "Typical serving: One tablespoon = 9g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Peanut": {
+            "name": "Peanut",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "136",
+            "description": "Very Low carbon footprint"
+        },
+        "Pecans": {
+            "name": "Pecans",
+            "amount_per_serving": "Typical serving: About the amount that fits in your palm = 20g",
+            "gCO2e_per_100g": "213",
+            "description": "Low carbon footprint"
+        },
+        "Pistachio": {
+            "name": "Pistachio",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "233",
+            "description": "Low carbon footprint"
+        },
+        "Pumpkin seeds": {
+            "name": "Pumpkin seeds",
+            "amount_per_serving": "Typical serving: One tablespoon = 9g",
+            "gCO2e_per_100g": "420",
+            "description": "Medium carbon footprint"
+        },
+        "Sesame seeds": {
+            "name": "Sesame seeds",
+            "amount_per_serving": "Typical serving: One tablespoon = 8g",
+            "gCO2e_per_100g": "420",
+            "description": "Medium carbon footprint"
+        },
+        "Sunflower seeds": {
+            "name": "Sunflower seeds",
+            "amount_per_serving": "Typical serving: One tablespoon = 9g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Walnut": {
+            "name": "Walnut",
+            "amount_per_serving": "Typical serving: Handful = 24g",
+            "gCO2e_per_100g": "213",
+            "description": "Low carbon footprint"
+        }
+    },
+    "Oils": {
+        "Coconut oil": {
+            "name": "Coconut oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Corn oil": {
+            "name": "Corn oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "120",
+            "description": "Very Low carbon footprint"
+        },
+        "Cottonseed oil": {
+            "name": "Cottonseed oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "214",
+            "description": "Low carbon footprint"
+        },
+        "Groundnut oil": {
+            "name": "Groundnut oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "90",
+            "description": "Very Low carbon footprint"
+        },
+        "Mustard oil": {
+            "name": "Mustard oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "290",
+            "description": "Low carbon footprint"
+        },
+        "Olive oil": {
+            "name": "Olive oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "253",
+            "description": "Low carbon footprint"
+        },
+        "Palm oil": {
+            "name": "Palm oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "612",
+            "description": "Very High carbon footprint"
+        },
+        "Peanut oil": {
+            "name": "Peanut oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "364",
+            "description": "Medium carbon footprint"
+        },
+        "Rapeseed oil": {
+            "name": "Rapeseed oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "240",
+            "description": "Low carbon footprint"
+        },
+        "Sesame oil": {
+            "name": "Sesame oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "420",
+            "description": "Medium carbon footprint"
+        },
+        "Soybean oil": {
+            "name": "Soybean oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "158",
+            "description": "Very Low carbon footprint"
+        },
+        "Sunflower oil": {
+            "name": "Sunflower oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "254",
+            "description": "Low carbon footprint"
+        },
+        "Vegetable oil": {
+            "name": "Vegetable oil",
+            "amount_per_serving": "Typical serving: 1 tablespoon oil = 14g",
+            "gCO2e_per_100g": "320",
+            "description": "Medium carbon footprint"
+        }
+    },
+    "Potatoes": {
+        "Potatoes": {
+            "name": "Potatoes",
+            "amount_per_serving": "Typical serving: One baked potato = 220g",
+            "gCO2e_per_100g": "127",
+            "description": "Very Low carbon footprint"
+        },
+        "Sweet potato": {
+            "name": "Sweet potato",
+            "amount_per_serving": "Typical serving: One sweet potato = 115g",
+            "gCO2e_per_100g": "127",
+            "description": "Very Low carbon footprint"
+        },
+        "New potato": {
+            "name": "New potato",
+            "amount_per_serving": "Typical serving: Three new potatoes = 180g",
+            "gCO2e_per_100g": "127",
+            "description": "Very Low carbon footprint"
+        }
+    },
+    "Processed food": {
+        "Baked beans": {
+            "name": "Baked beans",
+            "amount_per_serving": "Typical serving: Half can = 200g",
+            "gCO2e_per_100g": "247",
+            "description": "Low carbon footprint"
+        },
+        "Chips": {
+            "name": "Chips",
+            "amount_per_serving": "Typical serving: Fifteen chocolate chips = 10g",
+            "gCO2e_per_100g": "576",
+            "description": "Very High carbon footprint"
+        },
+        "Corn crisps": {
+            "name": "Corn crisps",
+            "amount_per_serving": "Typical serving: One bag = 80g",
+            "gCO2e_per_100g": "133",
+            "description": "Very Low carbon footprint"
+        },
+        "Crisps": {
+            "name": "Crisps",
+            "amount_per_serving": "Typical serving: One bag = 80g",
+            "gCO2e_per_100g": "133",
+            "description": "Very Low carbon footprint"
+        },
+        "Custard": {
+            "name": "Custard",
+            "amount_per_serving": "Typical serving: Four tablespoons = 56g",
+            "gCO2e_per_100g": "245",
+            "description": "Low carbon footprint"
+        },
+        "Fruit salad": {
+            "name": "Fruit salad",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "270",
+            "description": "Low carbon footprint"
+        },
+        "Pizza": {
+            "name": "Pizza",
+            "amount_per_serving": "Typical serving: One small/medium sized pizza = 250g",
+            "gCO2e_per_100g": "383",
+            "description": "Medium carbon footprint"
+        },
+        "Tomato paste": {
+            "name": "Tomato paste",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "475",
+            "description": "High carbon footprint"
+        }
+    },
+    "Sauces and dressings": {
+        "Apple sauce": {
+            "name": "Apple sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "215",
+            "description": "Low carbon footprint"
+        },
+        "Barbeque sauce": {
+            "name": "Barbeque sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Beef gravy": {
+            "name": "Beef gravy",
+            "amount_per_serving": "Typical serving: One cup = 240g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Beef stock": {
+            "name": "Beef stock",
+            "amount_per_serving": "Typical serving: One cup = 240g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Bolognese sauce": {
+            "name": "Bolognese sauce",
+            "amount_per_serving": "Typical serving: Half a jar = 175g",
+            "gCO2e_per_100g": "243",
+            "description": "Low carbon footprint"
+        },
+        "Chicken gravy": {
+            "name": "Chicken gravy",
+            "amount_per_serving": "Typical serving: One cup = 240g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Chicken stock": {
+            "name": "Chicken stock",
+            "amount_per_serving": "Typical serving: One cup = 240g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Chutney": {
+            "name": "Chutney",
+            "amount_per_serving": "Typical serving: One tablespoon = 17g",
+            "gCO2e_per_100g": "154",
+            "description": "Very Low carbon footprint"
+        },
+        "Fish sauce": {
+            "name": "Fish sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Hoisin sauce": {
+            "name": "Hoisin sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Hummus": {
+            "name": "Hummus",
+            "amount_per_serving": "Typical serving: One tablespoon = 15g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Lamb stock": {
+            "name": "Lamb stock",
+            "amount_per_serving": "Typical serving: One cup = 240g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Marmite": {
+            "name": "Marmite",
+            "amount_per_serving": "Typical serving: One tablespoon = 15g",
+            "gCO2e_per_100g": "166",
+            "description": "Very Low carbon footprint"
+        },
+        "Mayonnaise": {
+            "name": "Mayonnaise",
+            "amount_per_serving": "Typical serving: One tablespoon = 14g",
+            "gCO2e_per_100g": "403",
+            "description": "Medium carbon footprint"
+        },
+        "Mirin": {
+            "name": "Mirin",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Mustard": {
+            "name": "Mustard",
+            "amount_per_serving": "Typical serving: One tablespoon = 9g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Oyster sauce": {
+            "name": "Oyster sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Pesto": {
+            "name": "Pesto",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "253",
+            "description": "Low carbon footprint"
+        },
+        "Relish": {
+            "name": "Relish",
+            "amount_per_serving": "Typical serving: One tablespoon = 17g",
+            "gCO2e_per_100g": "154",
+            "description": "Very Low carbon footprint"
+        },
+        "Salad cream": {
+            "name": "Salad cream",
+            "amount_per_serving": "Typical serving: One tablespoon = 15g",
+            "gCO2e_per_100g": "403",
+            "description": "Medium carbon footprint"
+        },
+        "Salad dressing": {
+            "name": "Salad dressing",
+            "amount_per_serving": "Typical serving: One tablespoon = 15g",
+            "gCO2e_per_100g": "461",
+            "description": "High carbon footprint"
+        },
+        "Soy sauce": {
+            "name": "Soy sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Stir fry sauce": {
+            "name": "Stir fry sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Sweet chilli sauce": {
+            "name": "Sweet chilli sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Tabasco sauce": {
+            "name": "Tabasco sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Tahini": {
+            "name": "Tahini",
+            "amount_per_serving": "Typical serving: One tablespoon = 15g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Tamari": {
+            "name": "Tamari",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Tomato ketchup": {
+            "name": "Tomato ketchup",
+            "amount_per_serving": "Typical serving: One tablespoon = 17g",
+            "gCO2e_per_100g": "154",
+            "description": "Very Low carbon footprint"
+        },
+        "Tomato sauce": {
+            "name": "Tomato sauce",
+            "amount_per_serving": "Typical serving: Half a jar = 175g",
+            "gCO2e_per_100g": "243",
+            "description": "Low carbon footprint"
+        },
+        "Vegetable gravy": {
+            "name": "Vegetable gravy",
+            "amount_per_serving": "Typical serving: One cup = 240g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Vegetable stock": {
+            "name": "Vegetable stock",
+            "amount_per_serving": "Typical serving: One cup = 240g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Vinegar": {
+            "name": "Vinegar",
+            "amount_per_serving": "Typical serving: One tablespoon = 15g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Worcestershire sauce": {
+            "name": "Worcestershire sauce",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Salsa": {
+            "name": "Salsa",
+            "amount_per_serving": "Typical serving: Half a jar = 175g",
+            "gCO2e_per_100g": "243",
+            "description": "Low carbon footprint"
+        },
+        "Sriracha": {
+            "name": "Sriracha",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "22",
+            "description": "Very Low carbon footprint"
+        },
+        "Coleslaw": {
+            "name": "Coleslaw",
+            "amount_per_serving": "Typical serving: One tablespoon = 14g",
+            "gCO2e_per_100g": "403",
+            "description": "Medium carbon footprint"
+        }
+    },
+    "Spreads, jams, and honeys": {
+        "Chocolate spread": {
+            "name": "Chocolate spread",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "439",
+            "description": "High carbon footprint"
+        },
+        "Golden syrup": {
+            "name": "Golden syrup",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Hazelnut paste": {
+            "name": "Hazelnut paste",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "127",
+            "description": "Very Low carbon footprint"
+        },
+        "Hazelnut spread": {
+            "name": "Hazelnut spread",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "271",
+            "description": "Low carbon footprint"
+        },
+        "Honey": {
+            "name": "Honey",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "166",
+            "description": "Very Low carbon footprint"
+        },
+        "Jam": {
+            "name": "Jam",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "215",
+            "description": "Low carbon footprint"
+        },
+        "Maple syrup": {
+            "name": "Maple syrup",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        },
+        "Marmalade": {
+            "name": "Marmalade",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "215",
+            "description": "Low carbon footprint"
+        },
+        "Peanut butter": {
+            "name": "Peanut butter",
+            "amount_per_serving": "Typical serving: One tablespoon = 16g",
+            "gCO2e_per_100g": "211",
+            "description": "Low carbon footprint"
+        },
+        "Treacle": {
+            "name": "Treacle",
+            "amount_per_serving": "Typical serving: One tablespoon = 20g",
+            "gCO2e_per_100g": "66",
+            "description": "Very Low carbon footprint"
+        }
+    },
+    "Vegetables": {
+        "Artichoke": {
+            "name": "Artichoke",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "34",
+            "description": "Very Low carbon footprint"
+        },
+        "Asparagus": {
+            "name": "Asparagus",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "703",
+            "description": "Very High carbon footprint"
+        },
+        "Aubergine": {
+            "name": "Aubergine",
+            "amount_per_serving": "Typical serving: One serving = 150g",
+            "gCO2e_per_100g": "310",
+            "description": "Medium carbon footprint"
+        },
+        "Beetroot": {
+            "name": "Beetroot",
+            "amount_per_serving": "Typical serving: One beetroot = 113g",
+            "gCO2e_per_100g": "114",
+            "description": "Very Low carbon footprint"
+        },
+        "Broccoli": {
+            "name": "Broccoli",
+            "amount_per_serving": "Typical serving: Two large broccoli spears (or 8 small florets) = 80g",
+            "gCO2e_per_100g": "108",
+            "description": "Very Low carbon footprint"
+        },
+        "Brussels sprouts": {
+            "name": "Brussels sprouts",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "75",
+            "description": "Very Low carbon footprint"
+        },
+        "Cabbage": {
+            "name": "Cabbage",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "62",
+            "description": "Very Low carbon footprint"
+        },
+        "Canned asparagus": {
+            "name": "Canned asparagus",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "418",
+            "description": "Medium carbon footprint"
+        },
+        "Canned carrots": {
+            "name": "Canned carrots",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "193",
+            "description": "Low carbon footprint"
+        },
+        "Canned green beans": {
+            "name": "Canned green beans",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "153",
+            "description": "Very Low carbon footprint"
+        },
+        "Canned spinach": {
+            "name": "Canned spinach",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "179",
+            "description": "Low carbon footprint"
+        },
+        "Canned sweetcorn": {
+            "name": "Canned sweetcorn",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "261",
+            "description": "Low carbon footprint"
+        },
+        "Carrot": {
+            "name": "Carrot",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "193",
+            "description": "Low carbon footprint"
+        },
+        "Cauliflower": {
+            "name": "Cauliflower",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "97",
+            "description": "Very Low carbon footprint"
+        },
+        "Cauliflower - pre-cut": {
+            "name": "Cauliflower - pre-cut",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "202",
+            "description": "Low carbon footprint"
+        },
+        "Celery": {
+            "name": "Celery",
+            "amount_per_serving": "Typical serving: One stalk = 50g",
+            "gCO2e_per_100g": "84",
+            "description": "Very Low carbon footprint"
+        },
+        "Chilli pepper": {
+            "name": "Chilli pepper",
+            "amount_per_serving": "Typical serving: Small, fresh chilli pepper = 15g",
+            "gCO2e_per_100g": "202",
+            "description": "Low carbon footprint"
+        },
+        "Corn on the cob": {
+            "name": "Corn on the cob",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "158",
+            "description": "Very Low carbon footprint"
+        },
+        "Courgette": {
+            "name": "Courgette",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "86",
+            "description": "Very Low carbon footprint"
+        },
+        "Cucumber": {
+            "name": "Cucumber",
+            "amount_per_serving": "Typical serving: 5cm piece of cucumber = 80g",
+            "gCO2e_per_100g": "193",
+            "description": "Low carbon footprint"
+        },
+        "Dried and canned peas": {
+            "name": "Dried and canned peas",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "232",
+            "description": "Low carbon footprint"
+        },
+        "Dried peas (shelled)": {
+            "name": "Dried peas (shelled)",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "239",
+            "description": "Low carbon footprint"
+        },
+        "Frozen asparagus": {
+            "name": "Frozen asparagus",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "304",
+            "description": "Medium carbon footprint"
+        },
+        "Frozen brussels sprouts": {
+            "name": "Frozen brussels sprouts",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "188",
+            "description": "Low carbon footprint"
+        },
+        "Frozen carrots": {
+            "name": "Frozen carrots",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "244",
+            "description": "Low carbon footprint"
+        },
+        "Frozen cauliflower": {
+            "name": "Frozen cauliflower",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "227",
+            "description": "Low carbon footprint"
+        },
+        "Frozen green beans": {
+            "name": "Frozen green beans",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "168",
+            "description": "Very Low carbon footprint"
+        },
+        "Frozen onion": {
+            "name": "Frozen onion",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "231",
+            "description": "Low carbon footprint"
+        },
+        "Frozen peas": {
+            "name": "Frozen peas",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "251",
+            "description": "Low carbon footprint"
+        },
+        "Frozen spinach": {
+            "name": "Frozen spinach",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "157",
+            "description": "Very Low carbon footprint"
+        },
+        "Frozen sweetcorn": {
+            "name": "Frozen sweetcorn",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "252",
+            "description": "Low carbon footprint"
+        },
+        "Garlic": {
+            "name": "Garlic",
+            "amount_per_serving": "Typical serving: One clove = 3g",
+            "gCO2e_per_100g": "45",
+            "description": "Very Low carbon footprint"
+        },
+        "Ginger": {
+            "name": "Ginger",
+            "amount_per_serving": "Typical serving: One thumb or a tablespoon of chopped ginger = 7g",
+            "gCO2e_per_100g": "45",
+            "description": "Very Low carbon footprint"
+        },
+        "Green beans": {
+            "name": "Green beans",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "153",
+            "description": "Very Low carbon footprint"
+        },
+        "Green peppers": {
+            "name": "Green peppers",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "202",
+            "description": "Low carbon footprint"
+        },
+        "Jalepeno pepper": {
+            "name": "Jalepeno pepper",
+            "amount_per_serving": "Typical serving: Small, fresh chilli pepper = 15g",
+            "gCO2e_per_100g": "202",
+            "description": "Low carbon footprint"
+        },
+        "Kale": {
+            "name": "Kale",
+            "amount_per_serving": "Typical serving: One bunch = 198g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Leek": {
+            "name": "Leek",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "105",
+            "description": "Very Low carbon footprint"
+        },
+        "Lettuce": {
+            "name": "Lettuce",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Mushrooms": {
+            "name": "Mushrooms",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "140",
+            "description": "Very Low carbon footprint"
+        },
+        "Onion": {
+            "name": "Onion",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "231",
+            "description": "Low carbon footprint"
+        },
+        "Packaged sweetcorn": {
+            "name": "Packaged sweetcorn",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "241",
+            "description": "Low carbon footprint"
+        },
+        "Parsnips": {
+            "name": "Parsnips",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "68",
+            "description": "Very Low carbon footprint"
+        },
+        "Peas": {
+            "name": "Peas",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "85",
+            "description": "Very Low carbon footprint"
+        },
+        "Peppers": {
+            "name": "Peppers",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "202",
+            "description": "Low carbon footprint"
+        },
+        "Pickled beetroot": {
+            "name": "Pickled beetroot",
+            "amount_per_serving": "Typical serving: One beetroot = 113g",
+            "gCO2e_per_100g": "361",
+            "description": "Medium carbon footprint"
+        },
+        "Pickled cabbage": {
+            "name": "Pickled cabbage",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "257",
+            "description": "Low carbon footprint"
+        },
+        "Pickled cucumber": {
+            "name": "Pickled cucumber",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "407",
+            "description": "Medium carbon footprint"
+        },
+        "Pickled onion": {
+            "name": "Pickled onion",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "254",
+            "description": "Low carbon footprint"
+        },
+        "Pickled peppers": {
+            "name": "Pickled peppers",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "384",
+            "description": "Medium carbon footprint"
+        },
+        "Pre-chopped carrots": {
+            "name": "Pre-chopped carrots",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "216",
+            "description": "Low carbon footprint"
+        },
+        "Pre-cut cabbage": {
+            "name": "Pre-cut cabbage",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "137",
+            "description": "Very Low carbon footprint"
+        },
+        "Pre-cut lettuce": {
+            "name": "Pre-cut lettuce",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "206",
+            "description": "Low carbon footprint"
+        },
+        "Red onion": {
+            "name": "Red onion",
+            "amount_per_serving": "Typical serving: One red onion = 120g",
+            "gCO2e_per_100g": "105",
+            "description": "Very Low carbon footprint"
+        },
+        "Red peppers": {
+            "name": "Red peppers",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "202",
+            "description": "Low carbon footprint"
+        },
+        "Rhubarb": {
+            "name": "Rhubarb",
+            "amount_per_serving": "Typical serving: One stick = 133g",
+            "gCO2e_per_100g": "84",
+            "description": "Very Low carbon footprint"
+        },
+        "Rocket": {
+            "name": "Rocket",
+            "amount_per_serving": "Typical serving: Handful = 25g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Salad leaves": {
+            "name": "Salad leaves",
+            "amount_per_serving": "Typical serving: One bunch = 198g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Shallot": {
+            "name": "Shallot",
+            "amount_per_serving": "Typical serving: Two shallots = 40g",
+            "gCO2e_per_100g": "105",
+            "description": "Very Low carbon footprint"
+        },
+        "Shelled and canned peas": {
+            "name": "Shelled and canned peas",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "248",
+            "description": "Low carbon footprint"
+        },
+        "Spinach": {
+            "name": "Spinach",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "179",
+            "description": "Low carbon footprint"
+        },
+        "Split and canned peas": {
+            "name": "Split and canned peas",
+            "amount_per_serving": "Typical serving: Half a can = 200g",
+            "gCO2e_per_100g": "232",
+            "description": "Low carbon footprint"
+        },
+        "Spring onion": {
+            "name": "Spring onion",
+            "amount_per_serving": "Typical serving: Three spring onions = 45g",
+            "gCO2e_per_100g": "105",
+            "description": "Very Low carbon footprint"
+        },
+        "Squash": {
+            "name": "Squash",
+            "amount_per_serving": "Typical serving: One cup = 140g",
+            "gCO2e_per_100g": "116",
+            "description": "Very Low carbon footprint"
+        },
+        "Swedes": {
+            "name": "Swedes",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "68",
+            "description": "Very Low carbon footprint"
+        },
+        "Turnips": {
+            "name": "Turnips",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "68",
+            "description": "Very Low carbon footprint"
+        },
+        "Unshelled peas": {
+            "name": "Unshelled peas",
+            "amount_per_serving": "Typical serving: Three heaped serving spoons = 80g",
+            "gCO2e_per_100g": "394",
+            "description": "Medium carbon footprint"
+        },
+        "Vegetables": {
+            "name": "Vegetables",
+            "amount_per_serving": "Typical serving: = 80g",
+            "gCO2e_per_100g": "204",
+            "description": "Low carbon footprint"
+        },
+        "Watercress": {
+            "name": "Watercress",
+            "amount_per_serving": "Typical serving: Handful = 25g",
+            "gCO2e_per_100g": "161",
+            "description": "Very Low carbon footprint"
+        },
+        "Garlic clove": {
+            "name": "Garlic clove",
+            "amount_per_serving": "Typical serving: One clove = 3g",
+            "gCO2e_per_100g": "45",
+            "description": "Very Low carbon footprint"
+        }
+    }
+}
