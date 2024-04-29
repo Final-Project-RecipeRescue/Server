@@ -29,9 +29,9 @@ To start the server, run the following command:
     uvicorn main:app --reload
 
 
-##Endpoints
+Endpoints
 
-###Recipes
+Recipes
 
     GET /recipes/getRecipesByIngredients
         Retrieves recipes based on provided ingredients.
