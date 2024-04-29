@@ -24,9 +24,6 @@ def encoded_email(email: str) -> str:
 def decoded_email(email: str) -> str:
     return email.replace(',', '.')
 
-
-with open('config/ingredientId_map.json', 'r') as file:
-    ingredientId_map = json.load(file)
 date_format = "%Y-%m-%d"
 
 
