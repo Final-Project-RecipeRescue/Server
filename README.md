@@ -25,12 +25,12 @@ RecipeRescue API is a RESTful web service built with Python and FastAPI. It prov
 
 To start the server, run the following command:
 
-```bash
-uvicorn main:app --reload
+    ```bash
+    uvicorn main:app --reload
 
 
-Endpoints
-Recipes
+##Endpoints
+###Recipes
 
     GET /recipes/getRecipesByIngredients
         Retrieves recipes based on provided ingredients.
@@ -52,7 +52,7 @@ Recipes
         Retrieves recipes by their names.
         recipe_name: Name of the recipe.
 
-Users and Household Operations
+###Users and Household Operations
 
     POST /users_household/createNewHousehold
         Creates a new household.
@@ -73,8 +73,8 @@ Users and Household Operations
         Retrieves all users in a household.
         household_name: Name of the household.
 
-Object Definitions
-RecipeBoundary
+##Object Definitions
+###RecipeBoundary
 
 Represents a recipe object returned by the API.
 
@@ -83,7 +83,7 @@ Represents a recipe object returned by the API.
     ingredients: List of ingredients in the recipe, each represented by an IngredientBoundary object.
     image_url: URL of the image associated with the recipe.
 
-IngredientBoundary
+###IngredientBoundary
 
 Represents an ingredient object returned by the API.
 
@@ -93,7 +93,7 @@ Represents an ingredient object returned by the API.
     unit: Unit of measurement for the amount.
     purchase_date: Date the ingredient was purchased.
 
-HouseholdBoundary
+###HouseholdBoundary
 
 Represents a household object returned by the API.
 
@@ -104,7 +104,7 @@ Represents a household object returned by the API.
     ingredients: Dictionary of ingredients in the household, where keys are ingredient names and values are lists of IngredientBoundary objects.
     meals: List of meals in the household, each represented by a RecipeBoundary object.
 
-UserBoundary
+###UserBoundary
 
 Represents a user object returned by the API.
 
