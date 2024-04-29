@@ -30,6 +30,7 @@ To start the server, run the following command:
 
 
 ##Endpoints
+
 ###Recipes
 
     GET /recipes/getRecipesByIngredients
