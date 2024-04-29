@@ -28,6 +28,7 @@ To start the server, run the following command:
 ```bash
 uvicorn main:app --reload
 
+
 Endpoints
 Recipes
 
