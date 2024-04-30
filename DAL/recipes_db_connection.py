@@ -1,7 +1,9 @@
+import asyncio
 import json
 import os
 from typing import List
 
+from Data.Recipe_stepsEntity import Recipe_stepsEntity
 from Data.recipe_entity import RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular,RecipeEntity
 import requests
 from dotenv import load_dotenv
@@ -32,7 +34,7 @@ class SpoonacularAPI:
 
 
     async def find_recipes_by_ingredients(self, ingredients:List[str], number=10, ranking=2,ignorePantry=True) -> List[RecipeEntityByIngredientSpoonacular]:
-        '''url = f"{self.base_url}/recipes/findByIngredients"
+        url = f"{self.base_url}/recipes/findByIngredients"
         headers = {
             "x-api-key": self.api_key
         }
@@ -42,28 +44,25 @@ class SpoonacularAPI:
             "ranking":ranking,
             "ignorePantry":ignorePantry
         }
-        response = requests.get(url,headers=headers, params=params)'''
-        #TODO: Remove the comments for real testing
-        if True:###response.status_code == 200:
+        response = requests.get(url,headers=headers, params=params)
+        if response.status_code == 200:
             recipes = []
-            for recipe in recipes_json_by_ingredients["recipes"]:###response.json():
+            for recipe in response.json():
                 recipes.append(RecipeEntityByIngredientSpoonacular(recipe))
-            '''for recipe in recipes:
-                print(recipe.title)'''
             return recipes
         else:
-            ##print("Error:", response.status_code)
+            print("Error:", response.status_code)
             return None
 
 
     async def find_recipe_by_id(self, recipeId : int) -> RecipeEntityByIDSpoonacular:
-        '''url = f"{self.base_url}/recipes/{recipeId}/information?includeNutrition=false?addWinePairing=false"
+        url = f"{self.base_url}/recipes/{recipeId}/information?includeNutrition=false?addWinePairing=false"
         headers = {
             "x-api-key": self.api_key
         }
-        response = requests.get(url,headers=headers)'''
-        if True: ###response.status_code == 200:
-            return RecipeEntityByIDSpoonacular(recipes_json_by_ID)###(response.json())
+        response = requests.get(url,headers=headers)
+        if response.status_code == 200:
+            return RecipeEntityByIDSpoonacular(response.json())
         else:
             return None
     async def find_recipe_by_ids(self, recipeId : [int]) -> List[RecipeEntityByIDSpoonacular]:
@@ -85,15 +84,27 @@ class SpoonacularAPI:
             return None
 
     async def find_recipe_by_name(self, recipeName : str) -> List[RecipeEntity]:
-        '''url = f"{self.base_url}/recipes/complexSearch/?query={recipeName}"
+        url = f"{self.base_url}/recipes/complexSearch/?query={recipeName}"
         headers = {
             "x-api-key": self.api_key
         }
-        response = requests.get(url,headers=headers)'''
-        if True:#response.status_code == 200:
+        response = requests.get(url,headers=headers)
+        if response.status_code == 200:
             recipes = []
-            '''for recipe in response.json()["results"]:
-                recipes.append(RecipeEntity(recipe))'''
+            for recipe in response.json()["results"]:
+                recipes.append(RecipeEntity(recipe))
             return recipes
         else:
             return None
+
+    async def get_analyzed_recipe_instructions(self,recipeId : int) -> List[Recipe_stepsEntity]:
+        url = f"{self.base_url}/recipes/{recipeId}/analyzedInstructions"
+        headers = {
+            "x-api-key": self.api_key
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            recipes = []
+            for recipe_stepsEntity in response.json():
+                recipes.append(Recipe_stepsEntity(recipe_stepsEntity))
+            return recipes

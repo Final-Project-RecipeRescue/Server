@@ -17,6 +17,9 @@ async def get_recipes(ingredients: str):
     logger.debug(f"Received request to get recipes by ingredients: {ingredients_list}")
     try:
         recipes = await recipes_service.get_recipes_by_ingredients_lst(ingredients_list, missed_ingredients=True)
+        if recipes is None:
+            logger.info("No recipes found for ingredients")
+            raise HTTPException(status_code=404, detail="from this ingredients list there is no recipes")
         logger.info("Retrieved recipes successfully")
         return recipes
     except Exception as e:
@@ -29,6 +32,9 @@ async def get_recipes_without_missed_ingredients(ingredients: str):
     logger.debug(f"Received request to get recipes by ingredients without missed ingredients: {ingredients_list}")
     try:
         recipes = await recipes_service.get_recipes_by_ingredients_lst(ingredients_list, missed_ingredients=False)
+        if recipes is None:
+            logger.info("No recipes found for ingredients")
+            raise HTTPException(status_code=404, detail="from this ingredients list there is no recipes")
         logger.info("Retrieved recipes without missed ingredients successfully")
         return recipes
     except Exception as e:
@@ -73,8 +79,26 @@ async def get_recipes_by_name(recipe_name: str):
     logger.debug(f"Received request to get recipes by name: {recipe_name}")
     try:
         recipes = await recipes_service.get_recipe_by_name(recipe_name)
+        if recipes is None or len(recipes) == 0:
+            logger.info(f"No recipes found for the name {recipe_name}")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Recipe with name {recipe_name} not found")
         logger.info(f"Retrieved recipes by name: {recipe_name}")
         return recipes
     except Exception as e:
         logger.error(f"Error retrieving recipes by name: {recipe_name}, {e}")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
+
+@router.get("/getRecipeInstructions/{recipe_id}")
+async def get_recipe_instructions(recipe_id: str):
+    logger.debug(f"Received request to get instructions for recipe: {recipe_id}")
+    try:
+        instructions = await recipes_service.get_recipe_instructions(recipe_id)
+        if instructions == None:
+            logger.info(f"No instructions for recipe: {recipe_id}")
+            return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No instructions for recipe {recipe_id}")
+        else:
+            logger.info(f"Retrieved instructions for recipe: {recipe_id}")
+        return instructions
+    except Exception as e:
+        logger.error(f"Error retrieving instructions for recipe: {recipe_id}, {e}")
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.__str__())
