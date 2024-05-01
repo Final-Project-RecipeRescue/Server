@@ -119,8 +119,9 @@ async def add_list_ingredients_to_household(user_email: str, household_id: str, 
     # Optionally, you can handle the results array or errors as needed
     return {"status": "success", "results": results}
 
-
-# Removing an ingredient from a household
+'''
+Remove ingredient from a certain date
+'''
 @router.delete("/remove_ingredient_from_household_by_date")
 async def remove_ingredient_from_household_by_date(user_email: str, household_id: str, ingredient_name: str,
                                            ingredient_amount: float, year: int, month: int, day: int):
@@ -141,6 +142,7 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
         logger.error(f"Error removing ingredient {ingredient_name} from household: {household_id} error : {e}")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
+# Removing an ingredient from a household
 @router.delete("/remove_ingredient_from_household")
 async def remove_ingredient_from_household(user_email: str, household_id: str, ingredient_name: str,
                                            ingredient_amount: float):

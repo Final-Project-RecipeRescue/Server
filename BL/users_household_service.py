@@ -291,6 +291,7 @@ class UsersHouseholdService:
             raise InvalidArgException(f"'{ingredient_name}' not found in household ingredients")
 
         ingredient_lst = household.ingredients[ingredient_name]
+        ingredient_lst.sort(key=lambda x: x.purchase_date)
         sum_amounts = sum([ing.amount for ing in ingredient_lst])
 
         if sum_amounts < ingredient_amount:
