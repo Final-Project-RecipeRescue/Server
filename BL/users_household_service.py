@@ -24,6 +24,7 @@ def encoded_email(email: str) -> str:
 def decoded_email(email: str) -> str:
     return email.replace(',', '.')
 
+
 date_format = "%Y-%m-%d"
 
 
@@ -253,12 +254,14 @@ class UsersHouseholdService:
 
         self.firebase_instance.update_firebase_data(f'households/{household_id}',
                                                     to_household_entity(household).__dict__)
-    async def remove_household_ingredients(self,user_mail: str, household_id, ingredient_name : str, ingredient_amount : float, ingredient_date: datetime.date ):
-        household = await self.get_household_user_by_id(user_mail,household_id)
+
+    async def remove_household_ingredients(self, user_mail: str, household_id, ingredient_name: str,
+                                           ingredient_amount: float, ingredient_date: datetime.date):
+        household = await self.get_household_user_by_id(user_mail, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
         try:
             for ing in household.ingredients[ingredient_name]:
-                if isinstance(ing,ingredient_boundary):
+                if isinstance(ing, ingredient_boundary):
                     if ing.purchase_date == ingredient_date.strftime(date_format):
                         print(ing.amount)
                         if ing.amount >= ingredient_amount:
@@ -273,28 +276,11 @@ class UsersHouseholdService:
             raise InvalidArgException(f"No such ingredient {ingredient_name} in household {household_id}")
 
     async def get_all_ingredients_in_household(self, user_email, household_id) -> dict:
-        household = await self.get_household_user_by_id(user_email,household_id)
-        if isinstance(household,HouseholdBoundary):
-            ingredients = {}
+        household = await self.get_household_user_by_id(user_email, household_id)
+        if isinstance(household, HouseholdBoundary):
             for ingredient_name, data in household.ingredients.items():
-                dates = [ing.purchase_date for ing in data if ing.purchase_date is not None]
-                oldest_date = None
-                if dates:
-                    oldest_date = min(dates, key=lambda date_str: datetime.strptime(date_str, "%Y-%m-%d"))
-                    oldest_date = datetime.strptime(oldest_date, date_format)
-
-                total_amount = reduce(operator.add, [ing.amount for ing in data])
-                unit = data[0].unit if data else None
-                ingredients[ingredient_name] = ingredient_boundary(
-                    data[0].ingredient_id,
-                    ingredient_name,
-                    total_amount,
-                    unit,
-                    oldest_date)
-
-            return ingredients
-
-
+                household.ingredients[ingredient_name].sort(key=lambda x: x.purchase_date)
+            return household.ingredients
 
 
 class HouseholdException(Exception):
