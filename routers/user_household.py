@@ -121,8 +121,8 @@ async def add_list_ingredients_to_household(user_email: str, household_id: str, 
 
 
 # Removing an ingredient from a household
-@router.delete("/remove_ingredient_from_household")
-async def remove_ingredient_from_household(user_email: str, household_id: str, ingredient_name: str,
+@router.delete("/remove_ingredient_from_household_by_date")
+async def remove_ingredient_from_household_by_date(user_email: str, household_id: str, ingredient_name: str,
                                            ingredient_amount: float, year: int, month: int, day: int):
     ingredient_date = None
     try:
@@ -133,12 +133,24 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
         raise HTTPException(status_code=400, detail="Invalid date provided")
 
     try:
-        await user_household_service.remove_household_ingredients(user_email, household_id, ingredient_name,
+        await user_household_service.remove_household_ingredient_by_date(user_email, household_id, ingredient_name,
                                                                   ingredient_amount, ingredient_date)
+        logger.info(
+            f"Ingredient '{ingredient_name}' in {ingredient_date} removed from household '{household_id}' successfully by user '{user_email}'")
+    except InvalidArgException as e:
+        logger.error(f"Error removing ingredient {ingredient_name} from household: {household_id} error : {e}")
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+
+@router.delete("/remove_ingredient_from_household")
+async def remove_ingredient_from_household(user_email: str, household_id: str, ingredient_name: str,
+                                           ingredient_amount: float):
+    try:
+        await user_household_service.remove_household_ingredient(user_email, household_id, ingredient_name,
+                                                                  ingredient_amount)
         logger.info(
             f"Ingredient '{ingredient_name}' removed from household '{household_id}' successfully by user '{user_email}'")
     except InvalidArgException as e:
-        logger.error(f"Error removing ingredient {ingredient_name} from household: {e}")
+        logger.error(f"Error removing ingredient {ingredient_name} from household: {household_id} error : {e}")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 # Getting all ingredients in a household

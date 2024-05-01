@@ -255,25 +255,63 @@ class UsersHouseholdService:
         self.firebase_instance.update_firebase_data(f'households/{household_id}',
                                                     to_household_entity(household).__dict__)
 
-    async def remove_household_ingredients(self, user_mail: str, household_id, ingredient_name: str,
-                                           ingredient_amount: float, ingredient_date: datetime.date):
+    async def remove_household_ingredient_by_date(self, user_mail: str, household_id, ingredient_name: str,
+                                                  ingredient_amount: float, ingredient_date: datetime.date):
         household = await self.get_household_user_by_id(user_mail, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
         try:
             for ing in household.ingredients[ingredient_name]:
                 if isinstance(ing, ingredient_boundary):
                     if ing.purchase_date == ingredient_date.strftime(date_format):
-                        print(ing.amount)
+                        if ingredient_amount > ing.amount:
+                            raise InvalidArgException(
+                                f"The amount you wanted to remove from the household {household.household_name}"
+                                f" is greater than the amount that is in ingredient {ingredient_name} on this date. The maximum amount is {ing.amount}")
                         if ing.amount >= ingredient_amount:
                             ing.amount -= ingredient_amount
                         if ing.amount <= 0:
                             household.ingredients[ingredient_name].remove(ing)
-                        print(ing.amount)
                         self.firebase_instance.update_firebase_data(f'households/{household_id}'
                                                                     , to_household_entity(household).__dict__)
-                        break
+                        return
+            raise InvalidArgException(
+                f"No such ingredient '{ingredient_name}' in household '{household.household_name}' with date {ingredient_date.strftime(date_format)}")
         except KeyError as e:
-            raise InvalidArgException(f"No such ingredient {ingredient_name} in household {household_id}")
+            raise InvalidArgException(f"No such ingredient {ingredient_name} in household {household.household_name}")
+
+    async def remove_household_ingredient(self, user_mail: str, household_id, ingredient_name: str,
+                                          ingredient_amount: float):
+        if ingredient_amount < 0:
+            raise InvalidArgException("Invalid ingredient amount, it cannot be a negative number")
+
+        household = await self.get_household_user_by_id(user_mail, household_id)
+        ingredient_name = ingredient_name.capitalize()  # Convert to title case
+
+        if ingredient_name not in household.ingredients:
+            raise InvalidArgException(f"'{ingredient_name}' not found in household ingredients")
+
+        ingredient_lst = household.ingredients[ingredient_name]
+        sum_amounts = sum([ing.amount for ing in ingredient_lst])
+
+        if sum_amounts < ingredient_amount:
+            raise InvalidArgException(
+                f"The max amount to remove of ingredient '{ingredient_name}' is {sum_amounts}")
+
+        remaining_amount = ingredient_amount
+        updated_ingredients = []
+
+        for ing in ingredient_lst:
+            if ing.amount <= remaining_amount:
+                remaining_amount -= ing.amount
+                ing.amount = 0
+            else:
+                ing.amount -= remaining_amount
+                remaining_amount = 0
+            if ing.amount > 0:
+                updated_ingredients.append(ing)
+
+        household.ingredients[ingredient_name] = updated_ingredients
+        self.firebase_instance.update_firebase_data(f'households/{household_id}', to_household_entity(household).__dict__)
 
     async def get_all_ingredients_in_household(self, user_email, household_id) -> dict:
         household = await self.get_household_user_by_id(user_email, household_id)
