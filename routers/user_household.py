@@ -1,6 +1,5 @@
 import asyncio
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
 from routers_boundaries.IngredientBoundary import IngredientBoundary
@@ -216,5 +215,5 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: Meal
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @router.get("/get_meal_types")
-async def get_meal_types():
+def get_meal_types():
     return [f'{meal_type}' for meal_type in meal_types]
