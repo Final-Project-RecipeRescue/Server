@@ -1,7 +1,7 @@
 import datetime
 import logging
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from Data.HouseholdEntity import HouseholdEntity
 from Data.MealEntity import MealEntityWithIngredients
 from Data.UserEntity import UserEntity
@@ -226,7 +226,7 @@ class UsersHouseholdService:
         self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
 
     # TODO:need to add option to enter image
-    async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str, state: str):
+    async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str, state: Optional[str]):
         self.check_email(user_mail)
         if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') != None:
             raise UserException("User already exists")

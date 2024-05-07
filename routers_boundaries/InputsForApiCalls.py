@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -6,7 +8,7 @@ class UserInputForAddUser(BaseModel):
     last_name: str
     email: str
     country: str
-    state: str
+    state: Optional[str]
 
 
 class IngredientInput(BaseModel):
