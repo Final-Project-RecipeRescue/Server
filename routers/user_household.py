@@ -33,7 +33,8 @@ async def createNewHousehold(user_mail: str, household_name: str):
 async def add_user(user: UserInputForAddUser):
     # Logic to add a new user
     try:
-        await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country, user.state)
+        await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country,
+                                                 user.state if user.state else None)
         logger.info(f"User '{user.email}' added successfully")
         return {"message": "Successfully Added User"}
     except UserException as e:
@@ -213,6 +214,7 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: Meal
         return HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 
 @router.get("/get_meal_types")
 def get_meal_types():

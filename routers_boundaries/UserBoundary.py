@@ -1,6 +1,5 @@
 import re
-from typing import List
-
+from typing import List, Optional
 from routers_boundaries.MealBoundary import  MealBoundaryWithIngredients
 
 
@@ -11,7 +10,7 @@ def is_valid_email(email):
 
 class UserBoundary:
     def __init__(self, first_name: str, last_name: str, user_email: str, image, households_ids: List[str],
-                 meals: {str: list[MealBoundaryWithIngredients]}, country: str, state: str):
+                 meals: {str: list[MealBoundaryWithIngredients]}, country: str, state: Optional[str]):
         self.first_name = first_name
         self.last_name = last_name
         self.user_email = user_email if is_valid_email(user_email) else None

@@ -21,7 +21,6 @@ class UserEntity:
                         meals[date].append(entity_meal.__dict__)
                     except KeyError:
                         meals[date] = [entity_meal.__dict__]
-
         self.meals = meals
         self.country = data.get('country') if data.get('country') else None
         self.state = data.get('state') if data.get('state') else None
