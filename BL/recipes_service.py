@@ -4,7 +4,7 @@ from Data.Recipe_stepsEntity import Recipe_stepsEntity
 from Data.recipe_entity import RecipeEntity, RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular
 from Data.IngredientEntity import IngredientEntitySpoonacular
 from routers_boundaries.recipe_boundary import RecipeBoundary
-from routers_boundaries.Ingredient_boundary import ingredient_boundary
+from routers_boundaries.IngredientBoundary import IngredientBoundary
 from protocols.ServiceProtocol import Service
 from DAL.recipes_db_connection import SpoonacularAPI
 from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary, Step
@@ -34,7 +34,6 @@ class RecipesService(Service):
             return self.toBoundaryRecipe(await (self.spoonacular_instance.find_recipe_by_id(recipe_id)))
         except Exception as e:
             logger.error("In get_recipe_by_id: %s", e)
-            return None
 
     '''
     With this action we can get some recipes but it's not the most important because it takes a lot of points on the spoonacular server
@@ -90,7 +89,7 @@ class RecipesService(Service):
         return recipes_instructions
 
     def toBoundaryRecipe(self, recipeEntity: RecipeEntity) -> RecipeBoundary:
-        recipeBoundary = RecipeBoundary(id=int(recipeEntity.id)
+        recipeBoundary = RecipeBoundary(recipe_id=int(recipeEntity.id)
                                         , recipe_name=recipeEntity.title
                                         , ingredients=[]
                                         , image_url=recipeEntity.image)
@@ -105,9 +104,9 @@ class RecipesService(Service):
             recipeBoundary.summery = recipeEntity.summary
         return recipeBoundary
 
-    def toBoundryIngredient(self, ingredient: IngredientEntitySpoonacular) -> ingredient_boundary:
-        return ingredient_boundary(ingredient_id=int(ingredient.id)
-                                   , name=ingredient.name
-                                   , amount=ingredient.amount
-                                   , unit=ingredient.unit
-                                   , purchase_date=None)
+    def toBoundryIngredient(self, ingredient: IngredientEntitySpoonacular) -> IngredientBoundary:
+        return IngredientBoundary(ingredient_id=int(ingredient.id)
+                                  , name=ingredient.name
+                                  , amount=ingredient.amount
+                                  , unit=ingredient.unit
+                                  , purchase_date=None)

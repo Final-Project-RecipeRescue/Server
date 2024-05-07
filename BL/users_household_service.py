@@ -1,20 +1,23 @@
 import datetime
-import operator
+import logging
 from datetime import datetime
-import json
-from functools import reduce
 from typing import List
 from Data.HouseholdEntity import HouseholdEntity
+from Data.MealEntity import MealEntityWithIngredients
+from Data.UserEntity import UserEntity
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 import uuid
 from DAL.firebase_db_connection import FirebaseDbConnection
-from routers_boundaries.Ingredient_boundary import ingredient_boundary
+from routers_boundaries.IngredientBoundary import IngredientBoundary
+from routers_boundaries.MealBoundary import MealBoundary, MealBoundaryWithIngredients, Ing
+from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.UserBoundary import UserBoundary
 import routers_boundaries.UserBoundary as user_entity_py
 from Data.IngredientEntity import IngredientEntity
 from DAL.IngredientsCRUD import IngredientsCRUD
+from BL.recipes_service import RecipesService
 
-ingredients_crud = IngredientsCRUD()
+logger = logging.getLogger("my_logger")
 
 
 def encoded_email(email: str) -> str:
@@ -28,9 +31,9 @@ def decoded_email(email: str) -> str:
 date_format = "%Y-%m-%d"
 
 
-def to_ingredient_boundary(ingredient: object) -> ingredient_boundary:
+def to_ingredient_boundary(ingredient: object) -> IngredientBoundary:
     try:
-        return ingredient_boundary(
+        return IngredientBoundary(
             int(ingredient['id']),
             ingredient['name'],
             float(ingredient['amount']),
@@ -40,27 +43,40 @@ def to_ingredient_boundary(ingredient: object) -> ingredient_boundary:
         return None
 
 
+def to_boundary_meal(meal: object):
+    mealEntity = MealEntityWithIngredients(meal)
+    return MealBoundaryWithIngredients(
+        datetime.strptime(mealEntity.used_date, date_format).date() if mealEntity.used_date is not None else None,
+        mealEntity.type,
+        mealEntity.users,
+        mealEntity.recipe_id,
+        float(mealEntity.number_of_dishes),
+        mealEntity.ingredients)
+
+
 def to_user_boundary(user_data: object) -> UserBoundary:
-    first_name = user_data['first_name']
-    last_name = user_data['last_name']
-    email = user_data['user_email']
-    country = user_data['country']
-    state = user_data['state']
-    image = None
+    user_entity = UserEntity(user_data)
+    first_name = user_entity.first_name
+    last_name = user_entity.last_name
+    email = user_entity.user_email
+    country = user_entity.country
+    state = user_entity.state
+    image = user_entity.image
     households = []
-    meals = []
-    try:
-        image = user_data['image']
-    except KeyError:
-        pass
-    try:
-        households = user_data['households']
-    except KeyError:
-        pass
-    try:
-        meals = user_data['meals']
-    except KeyError:
-        pass
+    meals = {}
+    for household in user_entity.households:
+        if household:
+            households.append(household)
+    for date, meals_day in user_entity.meals.items():
+        for meal in meals_day:
+            meal['used_date'] = date
+            meal_boundary = to_boundary_meal(meal)
+            meal_boundary.users = [email]
+            try:
+                meals[date].append(meal_boundary)
+            except KeyError:
+                meals[date] = [meal_boundary]
+
     return UserBoundary(first_name, last_name, email, image, households, meals, country, state)
 
 
@@ -83,15 +99,36 @@ def to_household_boundary(household_data: object) -> HouseholdBoundary:
                 ingredients[f'{ingredient_name}'] = temp_lst
     except KeyError:
         pass
-    meals = []
+    meals = {}
     try:
-        meals = household_data['meals']
+        for date, meal_types in household_data['meals'].items():
+            for type, recipe_ids in meal_types.items():
+                for recipe_id, data in recipe_ids.items():
+                    meal = MealBoundary(datetime.strptime(
+                        f'{date}',
+                        date_format),
+                        type,
+                        data['users'],
+                        recipe_id,
+                        data['number of dishes'])
+                    try:
+                        dates = meals[date]
+                        try:
+                            types = dates[type]
+                            try:
+                                types[recipe_id] = meal
+                            except KeyError as e:
+                                meals[date][type] = {recipe_id: meal}
+                        except KeyError as e:
+                            meals[date] = {type: {recipe_id: meal}}
+                    except KeyError as e:
+                        meals = {date: {type: {recipe_id: meal}}}
     except KeyError:
         pass
     return HouseholdBoundary(household_id, household_name, household_image, participants, ingredients, meals)
 
 
-def to_ingredient_entity(ingredient: ingredient_boundary) -> IngredientEntity:
+def to_ingredient_entity(ingredient: IngredientBoundary) -> IngredientEntity:
     return IngredientEntity(
         ingredient.ingredient_id,
         ingredient.name,
@@ -103,24 +140,56 @@ def to_ingredient_entity(ingredient: ingredient_boundary) -> IngredientEntity:
 def to_household_entity(household: HouseholdBoundary) -> HouseholdEntity:
     ingredients = {}
     if household.ingredients:
-        for ingredient_id, ingredient_lst in household.ingredients.items():
+        for ingredient_name, ingredient_lst in household.ingredients.items():
             temp_dict = {}
             for ingredient in ingredient_lst:
                 temp_dict[ingredient.purchase_date] = to_ingredient_entity(ingredient).__dict__
             if ingredient_lst.__len__() > 0:
                 ingredients[ingredient_lst[0].name] = temp_dict
+    meals = {}
+    if household.meals:
+        for date, meal_types in household.meals.items():
+            for type, meal_recipe_ids in meal_types.items():
+                for recipe_id, meal in meal_recipe_ids.items():
+                    try:
+                        dates = meals[date]
+                        try:
+                            types = dates[type]
+                            try:
+                                meal = types[recipe_id]
+                                meals[date][type][recipe_id]['users'] = meal.users
+                                meals[date][type][recipe_id]['number of dishes'] = meal.number_of_dishes
+                            except KeyError as e:
+                                meals[date][type] = {recipe_id: {
+                                    'users': meal.users,
+                                    'number of dishes': meal.number_of_dishes}}
+                        except KeyError as e:
+                            meals[date] = {type: {recipe_id: {
+                                'users': meal.users,
+                                'number of dishes': meal.number_of_dishes}}}
+                    except KeyError as e:
+                        meals = {date: {type: {recipe_id: {
+                            'users': meal.users,
+                            'number of dishes': meal.number_of_dishes}}}}
+
     return HouseholdEntity(
         household.household_id,
         household.household_name,
         household.household_image,
         household.participants,
         ingredients,
-        {})
+        meals)
+
+
+def to_user_entity(user: UserBoundary) -> UserEntity:
+    return UserEntity(user.__dict__)
 
 
 class UsersHouseholdService:
     def __init__(self):
         self.firebase_instance = FirebaseDbConnection.get_instance()
+        self.recipes_service = RecipesService()
+        self.ingredientsCRUD = IngredientsCRUD()
 
     def check_email(self, email: str):
         if not user_entity_py.is_valid_email(email):
@@ -144,8 +213,8 @@ class UsersHouseholdService:
                                       household_name,
                                       None,
                                       [user.user_email],
-                                      [],
-                                      [])
+                                      {},
+                                      {})
 
         self.firebase_instance.write_firebase_data(f'households/{household_id}',
                                                    to_household_entity(household).__dict__)
@@ -154,7 +223,7 @@ class UsersHouseholdService:
             user.households.append(household_id)
         else:
             user.households = [household_id]
-        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}', user.__dict__)
+        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
 
     # TODO:need to add option to enter image
     async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str, state: str):
@@ -168,10 +237,10 @@ class UsersHouseholdService:
                             user_mail,
                             None,
                             [],
-                            [],
+                            {},
                             country,
                             state)
-        self.firebase_instance.write_firebase_data(f'users/{encoded_email(user_mail)}', user.__dict__)
+        self.firebase_instance.write_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
 
     async def get_user(self, email: str) -> UserBoundary:
         self.check_email(email)
@@ -179,8 +248,8 @@ class UsersHouseholdService:
         user = self.firebase_instance.get_firebase_data(f'users/{e_email}')
         if not user:
             raise UserException("User does not exist")
-        user_boundray = to_user_boundary(user)
-        return user_boundray
+        user_boundary = to_user_boundary(user)
+        return user_boundary
 
     async def get_household_user_by_id(self, user_email: str, household_id: str) -> HouseholdBoundary:
         user = await self.get_user(user_email)
@@ -226,18 +295,19 @@ class UsersHouseholdService:
 
             self.firebase_instance.update_firebase_data(f'households/{household_id}',
                                                         to_household_entity(household).__dict__)
-            self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', user_boundary.__dict__)
+            self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
+                                                        to_user_entity(user_boundary).__dict__)
 
     async def add_ingredient_to_household_by_ingredient_name(self, user_email: str, household_id: str,
                                                              ingredient_name: str,
                                                              ingredient_amount: float):
         household = await self.get_household_user_by_id(user_email, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
-        ingredient_data = ingredients_crud.search_ingredient(ingredient_name)
+        ingredient_data = self.ingredientsCRUD.search_ingredient(ingredient_name)
         if ingredient_data is None:
             raise ValueError(f"Ingredient {ingredient_name} Not Found")
-        new_ingredient = ingredient_boundary(ingredient_data['id'], ingredient_data['name'], ingredient_amount, "",
-                                             datetime.now())
+        new_ingredient = IngredientBoundary(ingredient_data['id'], ingredient_data['name'], ingredient_amount, "",
+                                            datetime.now())
         try:
             existing_ingredients = household.ingredients[ingredient_name]
             found = False
@@ -248,9 +318,9 @@ class UsersHouseholdService:
                     break
             if not found:
                 existing_ingredients.append(new_ingredient)
-            household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
+            household.ingredients[new_ingredient.name] = existing_ingredients
         except KeyError as e:
-            household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
+            household.ingredients[new_ingredient.name] = [new_ingredient]
 
         self.firebase_instance.update_firebase_data(f'households/{household_id}',
                                                     to_household_entity(household).__dict__)
@@ -261,7 +331,7 @@ class UsersHouseholdService:
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
         try:
             for ing in household.ingredients[ingredient_name]:
-                if isinstance(ing, ingredient_boundary):
+                if isinstance(ing, IngredientBoundary):
                     if ing.purchase_date == ingredient_date.strftime(date_format):
                         if ingredient_amount > ing.amount:
                             raise InvalidArgException(
@@ -312,7 +382,8 @@ class UsersHouseholdService:
                 updated_ingredients.append(ing)
 
         household.ingredients[ingredient_name] = updated_ingredients
-        self.firebase_instance.update_firebase_data(f'households/{household_id}', to_household_entity(household).__dict__)
+        self.firebase_instance.update_firebase_data(f'households/{household_id}',
+                                                    to_household_entity(household).__dict__)
 
     async def get_all_ingredients_in_household(self, user_email, household_id) -> dict:
         household = await self.get_household_user_by_id(user_email, household_id)
@@ -320,6 +391,93 @@ class UsersHouseholdService:
             for ingredient_name, data in household.ingredients.items():
                 household.ingredients[ingredient_name].sort(key=lambda x: x.purchase_date)
             return household.ingredients
+
+    async def correct_recipe_ingredient_name(self, recipe_ingredient: IngredientBoundary):
+        recipe_ingredient.name = recipe_ingredient.name[0].upper() + recipe_ingredient.name[1:].lower()
+        ingredient_data = self.ingredientsCRUD.search_ingredient(recipe_ingredient.name)
+        if ingredient_data is None:
+            raise ValueError(f"Ingredient {recipe_ingredient.name} Not Found")
+        recipe_ingredient.ingredient_id = ingredient_data['id']
+        recipe_ingredient.name = ingredient_data['name']
+
+    async def check_ingredient_availability(self, household: HouseholdBoundary,
+                                            recipe_ingredient: IngredientBoundary, recipe_id: str,
+                                            dishes_number: float):
+        try:
+            sum_amount = sum(ingredient.amount for ingredient in household.ingredients[recipe_ingredient.name])
+            if sum_amount < recipe_ingredient.amount * dishes_number:
+                message = (f"Household '{household.household_name}' id : '{household.household_id}'"
+                           f" does not have enough '{recipe_ingredient.name}' ingredient for"
+                           f" recipe '{recipe_id}'. Needed: {recipe_ingredient.amount * dishes_number}, Available: {sum_amount}")
+                logger.error(message)
+                raise InvalidArgException(message)
+        except KeyError:
+            logger.error(f"Household '{household.household_name}' id : '{household.household_id}'"
+                         f" does not have the '{recipe_ingredient.name}' ingredient")
+            raise InvalidArgException(f"Household '{household.household_name}' id : '{household.household_id}'"
+                                      f" does not have the '{recipe_ingredient.name}' ingredient")
+
+    def add_meal_to_household(self, household: HouseholdBoundary, new_meal: MealBoundary):
+        try:
+            date_meals = household.meals[new_meal.used_date]
+            try:
+                type_meals = date_meals[new_meal.type]
+                try:
+                    meal = type_meals[new_meal.recipe_id]
+                    for new_user in new_meal.users:
+                        exist = False
+                        for user in meal.users:
+                            if user == new_user:
+                                exist = True
+                        if exist is False:
+                            meal.users.append(new_user)
+                    meal.number_of_dishes += new_meal.number_of_dishes
+                except KeyError:
+                    type_meals[new_meal.recipe_id] = new_meal
+            except KeyError:
+                date_meals[new_meal.type] = {new_meal.recipe_id:
+                                                 new_meal}
+        except KeyError:
+            household.meals[new_meal.used_date] = {new_meal.type:
+                                                       {new_meal.recipe_id:
+                                                            new_meal}}
+
+    def add_meal_to_user(self, user: UserBoundary, new_meal: MealBoundaryWithIngredients):
+        try:
+            meals = user.meals[new_meal.used_date]
+            meals.append(new_meal)
+        except KeyError:
+            user.meals[new_meal.used_date] = [new_meal]
+
+    async def use_recipe(self, user_email: str, household_id: str, recipe_id: str,
+                         recipe_ingredients: [IngredientBoundary], mealType: meal_types, dishes_number: float):
+        household = await self.get_household_user_by_id(user_email, household_id)
+        if isinstance(household, HouseholdBoundary):
+            for recipe_ingredient in recipe_ingredients:
+                await self.correct_recipe_ingredient_name(recipe_ingredient)
+                await self.check_ingredient_availability(household, recipe_ingredient, recipe_id, dishes_number)
+            '''Removing the ingredients in a household'''
+            for recipe_ingredient in recipe_ingredients:
+                await self.remove_household_ingredient(user_email, household_id, recipe_ingredient.name,
+                                                       recipe_ingredient.amount * dishes_number)
+            household = await self.get_household_user_by_id(user_email, household_id)
+            new_meal = MealBoundary(datetime.now(), mealType, [user_email], recipe_id, dishes_number)
+            self.add_meal_to_household(household, new_meal)
+            new_meal = MealBoundaryWithIngredients(
+                datetime.strptime(new_meal.used_date, date_format).date(),
+                new_meal.type,
+                new_meal.users,
+                new_meal.recipe_id,
+                new_meal.number_of_dishes,
+                [Ing(ingredient.name, ingredient.amount * dishes_number) for ingredient in recipe_ingredients])
+
+            user = await self.get_user(user_email)
+            if isinstance(user, UserBoundary):
+                self.add_meal_to_user(user, new_meal)
+                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
+                                                            to_user_entity(user).__dict__)
+                self.firebase_instance.update_firebase_data(f'households/{household_id}',
+                                                            to_household_entity(household).__dict__)
 
 
 class HouseholdException(Exception):

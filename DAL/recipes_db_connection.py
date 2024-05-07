@@ -9,11 +9,11 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
-with open('DAL/spoonacular_test_by_ingredients.json', 'r') as file:
-    recipes_json_by_ingredients = json.load(file)
+#with open('DAL/spoonacular_test_by_ingredients.json', 'r') as file:
+    #recipes_json_by_ingredients = json.load(file)
 
-with open('DAL/spoonacular_test_by_ID.json', 'r') as file:
-    recipes_json_by_ID = json.load(file)
+#with open('DAL/spoonacular_test_by_ID.json', 'r') as file:
+    #recipes_json_by_ID = json.load(file)
 
 class SpoonacularAPI:
     _instance = None
@@ -26,7 +26,8 @@ class SpoonacularAPI:
         return SpoonacularAPI._instance
     def __init__(self):
         if SpoonacularAPI._instance is not None:
-            raise Exception("Singleton instance spoonacular already exists.")
+            pass
+            #raise Exception("Singleton instance spoonacular already exists.")
         self.base_url = "https://api.spoonacular.com"
         self.initialized = True
         self.api_key=os.getenv("SPOONACULAR_API_KEY")
