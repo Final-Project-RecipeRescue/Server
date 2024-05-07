@@ -200,7 +200,7 @@ class UsersHouseholdService:
             raise UserException("User not exists")
 
     # TODO:need to add option to enter image
-    async def create_household(self, user_mail: str, household_name: str):
+    async def create_household(self, user_mail: str, household_name: str) -> str:
         self.check_email(user_mail)
         await self.check_user_if_user_exist(user_mail)
         user_data = self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}')
@@ -224,6 +224,7 @@ class UsersHouseholdService:
         else:
             user.households = [household_id]
         self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
+        return household_id
 
     # TODO:need to add option to enter image
     async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str, state: Optional[str]):
