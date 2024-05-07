@@ -230,7 +230,7 @@ class UsersHouseholdService:
         self.check_email(user_mail)
         if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') != None:
             raise UserException("User already exists")
-        if user_first_name == "" or user_last_name == "" or country == "" or state == "":
+        if user_first_name == "" or user_last_name == "" or country == "":
             raise InvalidArgException("Fill all fields before")
         user = UserBoundary(user_first_name,
                             user_last_name,
