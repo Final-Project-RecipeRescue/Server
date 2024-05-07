@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 import logging
 from DAL.IngredientsCRUD import IngredientsCRUD
-from routers_boundaries.Ingredient_boundary import ingredient_boundary
+from routers_boundaries.IngredientBoundary import IngredientBoundary
 
 router = APIRouter(prefix='/ingredients', tags=['ingredients'])  ## tag is description of router
 logger = logging.getLogger("my_logger")
@@ -17,7 +17,7 @@ async def getAllSystemIngredients():
         for ingredient in ingredientsCRUD.get_all_ingredients():
             id = ingredient['id']
             name = ingredient['name']
-            ingredients.append(ingredient_boundary(id, name, None, None, None))
+            ingredients.append(IngredientBoundary(id, name, None, None, None))
         logger.info("Retrieved all system ingredients")
         return ingredients
     except Exception as e:
@@ -35,7 +35,7 @@ async def autocompleteIngredient(partial_name: str):
         for ingredient in ingredientsCRUD.autocomplete_ingredient(partial_name):
             id = ingredient['id']
             name = ingredient['name']
-            ingredients.append(ingredient_boundary(id, name, None, None, None))
+            ingredients.append(IngredientBoundary(id, name, None, None, None))
         logger.info("Autocompleted ingredients")
         return ingredients
     except Exception as e:

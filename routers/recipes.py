@@ -13,6 +13,8 @@ This function is designed to provide service to the customer
 '''
 @router.get("/getRecipesByIngredients")
 async def get_recipes(ingredients: str):
+    if ingredients.strip() == "":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The list of ingredients is empty")
     ingredients_list = ingredients.split(',')
     logger.debug(f"Received request to get recipes by ingredients: {ingredients_list}")
     try:
@@ -57,7 +59,7 @@ async def get_recipe_by_id(recipe_id: str):
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
 
 
-@router.get("/getRecipesByIDs")
+'''@router.get("/getRecipesByIDs")
 async def get_recipes_by_ids(recipe_ids: str):
     recipe_ids_list = recipe_ids.split(',')
     logger.debug(f"Received request to get recipes by IDs: {recipe_ids_list}")
@@ -67,7 +69,7 @@ async def get_recipes_by_ids(recipe_ids: str):
         return recipes
     except Exception as e:
         logger.error(f"Error retrieving recipes by IDs: {recipe_ids_list}, {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())'''
 
 
 '''
