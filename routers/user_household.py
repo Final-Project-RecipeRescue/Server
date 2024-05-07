@@ -1,4 +1,6 @@
 import asyncio
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
@@ -18,11 +20,13 @@ logger = logging.getLogger("my_logger")
 
 # Adding a new household with the user who created it
 @router.post("/createNewHousehold")
-async def createNewHousehold(user_mail: str, household_name: str):
+async def createNewHousehold(user_mail: str, household_name: str, ingredients: Optional[ListIngredientsInput]):
     try:
-        await user_household_service.create_household(user_mail, household_name)
+        household_id = await user_household_service.create_household(user_mail, household_name)
+        if ingredients is not None:
+            await add_list_ingredients_to_household(user_mail, household_id, ingredients)
         logger.info(f"Household '{household_name}' added successfully by user '{user_mail}'")
-        return {"message": "Household added successfully"}
+        return {"message": "Household added successfully", 'household_id': household_id}
     except UserException as e:
         logger.error(f"Error creating household: {e.message}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
@@ -118,8 +122,7 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
     # Create a list of coroutine objects for each ingredient addition
     tasks = [
-        add_ingredient_to_household_by_ingredient_name(user_email, household_id, ingredient.IngredientName,
-                                                       ingredient.IngredientAmount)
+        add_ingredient_to_household_by_ingredient_name(user_email, household_id,ingredient)
         for ingredient in list_ingredients.ingredients
     ]
 
