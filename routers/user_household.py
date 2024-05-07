@@ -34,7 +34,7 @@ async def add_user(user: UserInputForAddUser):
     # Logic to add a new user
     try:
         await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country,
-                                                 user.state if user.state else None)
+                                                 user.state)
         logger.info(f"User '{user.email}' added successfully")
         return {"message": "Successfully Added User"}
     except UserException as e:
