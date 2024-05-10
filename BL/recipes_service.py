@@ -63,12 +63,7 @@ class RecipesService(Service):
             recipe_id = int(recipe_id)
             recipes_instructions = await (self.spoonacular_instance.get_analyzed_recipe_instructions(recipe_id))
             recipes_instructions_boundary = self.toBoundaryRecipeInstructions(recipes_instructions)
-            if recipes_instructions_boundary.__len__() > 1:
-                return recipes_instructions_boundary
-            elif recipes_instructions_boundary.__len__() == 1:
-                return recipes_instructions_boundary[0]
-            else:
-                return None
+            return recipes_instructions_boundary
         except Exception as e:
             logger.error("In get_recipe_instructions: %s", e)
             return None

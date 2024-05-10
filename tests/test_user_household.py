@@ -20,11 +20,7 @@ class Test(TestCase):
         mock_response = Mock()
         response_dict = {"message": "Successfully Added User"}
         mock_response.json.return_value = response_dict
-
         mock_get.return_value = mock_response
-
-
-
         user_input = UserInputForAddUser()
         user_input.first_name = 'John'
         user_input.last_name = 'Doe'

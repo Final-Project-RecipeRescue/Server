@@ -15,9 +15,9 @@ async def getAllSystemIngredients():
     try:
         ingredients = []
         for ingredient in ingredientsCRUD.get_all_ingredients():
-            id = ingredient['id']
+            ingredient_id = ingredient['id']
             name = ingredient['name']
-            ingredients.append(IngredientBoundary(id, name, None, None, None))
+            ingredients.append({"ingredient_id": ingredient_id, "name": name})
         logger.info("Retrieved all system ingredients")
         return ingredients
     except Exception as e:
@@ -33,9 +33,9 @@ async def autocompleteIngredient(partial_name: str):
     try:
         ingredients = []
         for ingredient in ingredientsCRUD.autocomplete_ingredient(partial_name):
-            id = ingredient['id']
+            ingredient_id = ingredient['id']
             name = ingredient['name']
-            ingredients.append(IngredientBoundary(id, name, None, None, None))
+            ingredients.append({"ingredient_id": ingredient_id, "name": name})
         logger.info("Autocompleted ingredients")
         return ingredients
     except Exception as e:
