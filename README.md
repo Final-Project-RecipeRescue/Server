@@ -102,6 +102,11 @@ Users and Household Operations
         user_mail: Email of the user.
         household_name : Name of household
 
+    GET /get_all_household_details_by_user_mail
+        Detailed information about the user's households, including a list of each household's available ingredients. 
+        Return a list of HouseholdBoundary or Null if there is a problem with the user's email 
+        user_mail: Email of the user.
+
     POST /users_household/addUserToHousehold
         Adds a user to an existing household.
         user_mail: Email of the user to add.

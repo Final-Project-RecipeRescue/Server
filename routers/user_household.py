@@ -1,13 +1,17 @@
 import asyncio
+from csv import excel
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
+
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, MealInput, ListIngredientsInput)
+from routers_boundaries.UserBoundary import UserBoundary
 
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 from datetime import date
@@ -64,11 +68,12 @@ async def get_user(user_email: str):
 @router.get("/get_household_user_by_id")
 async def get_household_user_by_id(user_email: str, household_id: str):
     try:
+        logger.info(f"Looking for user with '{user_email}' and '{household_id}'...")
         household = await user_household_service.get_household_user_by_id(user_email, household_id)
         logger.info(f"Household '{household_id}' user retrieved successfully for user '{user_email}'")
         return household
     except (UserException, InvalidArgException, HouseholdException) as e:
-        logger.error(f"Error retrieving household user by ID: {e}")
+        logger.error(f"Error retrieving household user by ID: '{household_id}'")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
         return HTTPException(status_code=status_code, detail=str(e.message))
 
@@ -84,6 +89,21 @@ async def get_household_user_by_name(user_email: str, household_name: str):
         logger.error(f"Error retrieving household users by name: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
         return HTTPException(status_code=status_code, detail=str(e.message))
+
+
+@router.get("get_all_household_details_by_user_mail")
+async def get_all_household_details_by_user_mail(user_email: str):
+    user = await get_user(user_email)
+    if isinstance(user,HTTPException):
+        return user
+
+    households = []
+    if isinstance(user, UserBoundary):
+        for _ in user.households:
+            household_details = await get_household_user_by_id(user_email, _)
+            if isinstance(household_details, HouseholdBoundary):
+                households.append(household_details)
+    return households
 
 
 # Adding a user to a household
@@ -122,7 +142,7 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
     # Create a list of coroutine objects for each ingredient addition
     tasks = [
-        add_ingredient_to_household_by_ingredient_name(user_email, household_id,ingredient)
+        add_ingredient_to_household_by_ingredient_name(user_email, household_id, ingredient)
         for ingredient in list_ingredients.ingredients
     ]
 
