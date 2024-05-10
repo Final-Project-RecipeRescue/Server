@@ -220,19 +220,23 @@ UserInputForAddUser
     state: Optional[String]
 
 IngredientInput
+
     IngredientName: The name of the ingredient. (String)
     IngredientAmount: The amount of the ingredient in grams. (Double)
 
 ListIngredientsInput
+
     ingredients: [IngredientInput]
 
 IngredientToRemoveByDateInput
+
     ingredient_data: IngredientInput
     year: int
     mount: int
     day: int
 
 MealInput
+
     recipe_id: String
     meal_type: Must be one of them "Breakfast","Lunch" ,"Dinner","Snakes" String
     dishes_num: Double
