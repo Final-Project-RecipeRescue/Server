@@ -480,6 +480,17 @@ class UsersHouseholdService:
                 self.firebase_instance.update_firebase_data(f'households/{household_id}',
                                                             to_household_entity(household).__dict__)
 
+    async def delete_user(self, user_email):
+        user = await self.get_user(user_email)
+        if isinstance(user, UserBoundary):
+            for household_id in user.households:
+                household = await self.get_household_user_by_id(user_email,household_id)
+                if isinstance(household, HouseholdBoundary):
+                    household.participants.remove(user.user_email)
+                    self.firebase_instance.update_firebase_data(f'households/{household_id}'
+                                                                ,to_household_entity(household).__dict__)
+            self.firebase_instance.delete_firebase_data(f'users/{encoded_email(user_email)}')
+
 
 class HouseholdException(Exception):
     def __init__(self, message: str):

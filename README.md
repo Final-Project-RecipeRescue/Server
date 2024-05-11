@@ -91,6 +91,10 @@ Users and Household Operations
 
     GET /get_user
         Return UserBoundary by user mail
+    
+    DELETE /delete_user
+        Remove user from system and remove him from households
+        user_mail: Email of the user creating the household.
 
     GET /get_household_user_by_id
         Retuen a HouseholdBoundary by user mail and household id.
