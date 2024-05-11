@@ -63,7 +63,15 @@ async def get_user(user_email: str):
         logger.error(f"Error retrieving user: {e}")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
-
+@router.delete("/delete_user")
+async def delete_user(user_email: str):
+    try:
+        logger.info(f"Try to delete user '{user_email}'")
+        await user_household_service.delete_user(user_email)
+        logger.info(f"Deleted user '{user_email}'")
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Error retrieving user: {e}")
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 # Getting a household user by ID
 @router.get("/get_household_user_by_id")
 async def get_household_user_by_id(user_email: str, household_id: str):
@@ -242,3 +250,4 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: Meal
 @router.get("/get_meal_types")
 def get_meal_types():
     return [f'{meal_type}' for meal_type in meal_types]
+
