@@ -16,11 +16,10 @@ class Test(TestCase):
             state="Haifa"
         )
         response = requests.post(base_url + "/users_household/add_user", json=user.model_dump())
-        self.assertEqual(response.status_code, 200)  # Adjusted for 200 status code
-        # Now, let's get the user and verify it was added
+        self.assertEqual(response.status_code, 200)
         response = requests.get(base_url + f"/users_household/get_user?user_email={user.email}")
         self.assertEqual(response.status_code, 200)
-        user_data = response.json()  # Extract user data from response
+        user_data = response.json()
         user_boundary = UserBoundary(
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],
@@ -36,6 +35,31 @@ class Test(TestCase):
         self.assertEqual(response.status_code,200)
         response = requests.get(base_url + f"/users_household/get_user?user_email={user.email}")
         self.assertEqual(response.status_code, 404)
+
+    def test_add_wrong_users(self):
+        user = UserInputForAddUser(
+            first_name="Test",
+            last_name="User",
+            email="test@.test",
+            country="Israel",
+            state="Haifa"
+        )
+        response = requests.post(base_url + "/users_household/add_user", json=user.model_dump())
+        self.assertEqual(response.status_code, 400)
+        user.email = ""
+        response = requests.post(base_url + "/users_household/add_user", json=user.model_dump())
+        self.assertEqual(response.status_code, 400)
+        user.email = "test"
+        response = requests.post(base_url + "/users_household/add_user", json=user.model_dump())
+        self.assertEqual(response.status_code, 400)
+        user.email = None
+        response = requests.post(base_url + "/users_household/add_user", json=user.model_dump())
+        self.assertEqual(response.status_code, 422)
+        user.email = "@a.c"
+        response = requests.post(base_url + "/users_household/add_user", json=user.model_dump())
+        self.assertEqual(response.status_code, 400)
+
+
 
 
 if __name__ == '__main__':
