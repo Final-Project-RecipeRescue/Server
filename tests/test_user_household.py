@@ -32,6 +32,11 @@ class Test(TestCase):
             state=user_data["state"]
         )
         self.assertEqual(user_boundary.user_email, user.email)
+        response = requests.delete(base_url+f"/users_household/delete_user?user_email={user.email}")
+        self.assertEqual(response.status_code,200)
+        response = requests.get(base_url + f"/users_household/get_user?user_email={user.email}")
+        self.assertEqual(response.status_code, 404)
+
 
 if __name__ == '__main__':
     unittest.main()

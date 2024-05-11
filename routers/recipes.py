@@ -26,7 +26,7 @@ async def get_recipes(ingredients: str):
         return recipes
     except Exception as e:
         logger.error(f"Error retrieving recipes: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
 
 @router.get("/getRecipesByIngredientsWithoutMissedIngredients")
 async def get_recipes_without_missed_ingredients(ingredients: str):
@@ -41,7 +41,7 @@ async def get_recipes_without_missed_ingredients(ingredients: str):
         return recipes
     except Exception as e:
         logger.error(f"Error retrieving recipes without missed ingredients: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
 
 '''
 This function is designed to let the user find recipes by their ID,
@@ -56,7 +56,7 @@ async def get_recipe_by_id(recipe_id: str):
         return recipe
     except Exception as e:
         logger.error(f"Error retrieving recipe by ID: {recipe_id}, {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
 
 
 '''@router.get("/getRecipesByIDs")
@@ -88,7 +88,7 @@ async def get_recipes_by_name(recipe_name: str):
         return recipes
     except Exception as e:
         logger.error(f"Error retrieving recipes by name: {recipe_name}, {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
 
 @router.get("/getRecipeInstructions/{recipe_id}")
 async def get_recipe_instructions(recipe_id: str):
@@ -103,4 +103,4 @@ async def get_recipe_instructions(recipe_id: str):
         return instructions
     except Exception as e:
         logger.error(f"Error retrieving instructions for recipe: {recipe_id}, {e}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.__str__())
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.__str__())

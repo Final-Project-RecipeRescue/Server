@@ -46,10 +46,10 @@ async def add_user(user: UserInputForAddUser):
         logger.info(f"User '{user.email}' added successfully")
         return {"message": "Successfully Added User"}
     except UserException as e:
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
     except InvalidArgException as e:
         logger.error(f"Error adding user: {e}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
 # Getting a user by email
@@ -61,7 +61,7 @@ async def get_user(user_email: str):
         return user
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 @router.delete("/delete_user")
 async def delete_user(user_email: str):
@@ -71,7 +71,7 @@ async def delete_user(user_email: str):
         logger.info(f"Deleted user '{user_email}'")
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 # Getting a household user by ID
 @router.get("/get_household_user_by_id")
 async def get_household_user_by_id(user_email: str, household_id: str):
@@ -83,7 +83,7 @@ async def get_household_user_by_id(user_email: str, household_id: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving household user by ID: '{household_id}'")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
 # Getting a household user by name
@@ -96,7 +96,7 @@ async def get_household_user_by_name(user_email: str, household_name: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving household users by name: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
 @router.get("get_all_household_details_by_user_mail")
@@ -122,7 +122,7 @@ async def add_user_to_household(user_email: str, household_id: str):
         logger.info(f"User '{user_email}' added to household '{household_id}' successfully")
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error adding user to household: {e}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
 # Adding an ingredient to a household by name
@@ -139,10 +139,10 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error adding ingredient to household by name: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e))
+        raise HTTPException(status_code=status_code, detail=str(e))
     except ValueError as e:
         logger.error(f"Ingredient {ingredient.IngredientName} dose not exist: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # Adding a list of ingredients to a household
@@ -189,7 +189,7 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient {ingredient.ingredient_data.IngredientName}"
                      f" from household: {household_id} error : {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
 # Removing an ingredient from a household
@@ -204,7 +204,7 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient"
                      f" {ingredient.IngredientName} from household: {household_id} error : {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
 # Getting all ingredients in a household
@@ -217,7 +217,7 @@ async def get_all_ingredients_in_household(user_email: str, household_id: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving all ingredients from household: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
 @router.post("/use_recipe_by_recipe_id")
@@ -242,9 +242,9 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: Meal
                                                 meal.dishes_num)
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.get("/get_meal_types")
