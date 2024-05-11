@@ -26,6 +26,7 @@ logger = logging.getLogger("my_logger")
 @router.post("/createNewHousehold")
 async def createNewHousehold(user_mail: str, household_name: str, ingredients: Optional[ListIngredientsInput]):
     try:
+        logger.info(f"Creating new household with ingredients : {ingredients.ingredients} and name : {household_name}")
         household_id = await user_household_service.create_household(user_mail, household_name)
         if ingredients is not None:
             await add_list_ingredients_to_household(user_mail, household_id, ingredients)
@@ -34,6 +35,19 @@ async def createNewHousehold(user_mail: str, household_name: str, ingredients: O
     except UserException as e:
         logger.error(f"Error creating household: {e.message}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+    except InvalidArgException as e:
+        logger.error(f"Error getting user: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+
+@router.delete("/delete_household")
+async def delete_household_by_id(household_id: str):
+    try:
+        logger.info(f"Try to delete household '{household_id}'")
+        await user_household_service.delete_household(household_id)
+        logger.info(f"Household deleted successfully")
+    except HouseholdException as e:
+        logger.error(f"Error deleting household: {e.message}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e.message))
 
 
 # Adding a new user

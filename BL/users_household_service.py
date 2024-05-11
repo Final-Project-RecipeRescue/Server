@@ -201,7 +201,10 @@ class UsersHouseholdService:
 
     # TODO:need to add option to enter image
     async def create_household(self, user_mail: str, household_name: str) -> str:
-        self.check_email(user_mail)
+        try:
+            self.check_email(user_mail)
+        except InvalidArgException as e:
+            raise InvalidArgException("Invalid email format")
         await self.check_user_if_user_exist(user_mail)
         user_data = self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}')
 
@@ -218,11 +221,7 @@ class UsersHouseholdService:
 
         self.firebase_instance.write_firebase_data(f'households/{household_id}',
                                                    to_household_entity(household).__dict__)
-
-        if user.households is not None:
-            user.households.append(household_id)
-        else:
-            user.households = [household_id]
+        user.households.append(household_id)
         self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
         return household_id
 
@@ -490,6 +489,24 @@ class UsersHouseholdService:
                     self.firebase_instance.update_firebase_data(f'households/{household_id}'
                                                                 ,to_household_entity(household).__dict__)
             self.firebase_instance.delete_firebase_data(f'users/{encoded_email(user_email)}')
+
+    async def delete_household(self, household_id:str):
+        household = self.get_household_by_id(household_id)
+        if household is None:
+            raise HouseholdException("No such household")
+        if isinstance(household, HouseholdBoundary):
+            for user_email in household.participants:
+                user = await self.get_user(user_email)
+                user.households.remove(household_id)
+                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',to_user_entity(user).__dict__)
+            self.firebase_instance.delete_firebase_data(f'households/{household_id}')
+
+    def get_household_by_id(self,household_id:str) -> HouseholdBoundary:
+        try:
+            household = self.firebase_instance.get_firebase_data(f'households/{household_id}')
+            return to_household_boundary(household)
+        except Exception as e:
+            raise HouseholdException("Dose not exist")
 
 
 class HouseholdException(Exception):
