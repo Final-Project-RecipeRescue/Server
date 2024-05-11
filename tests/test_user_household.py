@@ -7,7 +7,7 @@ import requests
 base_url = "http://127.0.0.1:8000"
 
 class Test(TestCase):
-    def test_add_user(self):
+    def test_add_user_to_system(self):
         user = UserInputForAddUser(
             first_name="Test",
             last_name="User",
