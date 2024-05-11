@@ -83,6 +83,10 @@ Users and Household Operations
         Creates a new household.
         user_mail: Email of the user creating the household.
         household_name: Name of the household.
+    
+    DELETE /delete_household
+        Delete household by householdID
+        household_id : Id of household
 
     POST /add_user
         Create new user in system
