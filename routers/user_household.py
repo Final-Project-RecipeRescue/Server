@@ -10,7 +10,7 @@ from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, MealInput, ListIngredientsInput)
 from routers_boundaries.UserBoundary import UserBoundary
-from routers.recipes import get_recipes_without_missed_ingredients
+from routers.recipes import get_recipes_without_missed_ingredients,get_recipes
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 from datetime import date
 import logging
@@ -280,5 +280,7 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
     ingredients_str = ", ".join(ingredients_lst)
     print(ingredients_str)
     recipes = await get_recipes_without_missed_ingredients(ingredients_str)
+    if recipes is None:
+        recipes = await get_recipes(ingredients_lst)
     return recipes
 
