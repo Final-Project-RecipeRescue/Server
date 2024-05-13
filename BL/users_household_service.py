@@ -34,7 +34,7 @@ date_format = "%Y-%m-%d"
 def to_ingredient_boundary(ingredient: object) -> IngredientBoundary:
     try:
         return IngredientBoundary(
-            int(ingredient['id']),
+            ingredient['id'],
             ingredient['name'],
             float(ingredient['amount']),
             ingredient['unit'],

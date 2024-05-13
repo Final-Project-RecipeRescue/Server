@@ -5,7 +5,7 @@ import datetime
 
 
 class IngredientEntity:
-    def __init__(self, ingredient_id: int, name: str, amount: float, unit: str, purchase_date: str):
+    def __init__(self, ingredient_id: str, name: str, amount: float, unit: str, purchase_date: str):
         self.id = ingredient_id
         self.name = name
         self.amount = amount

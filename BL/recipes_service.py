@@ -100,7 +100,7 @@ class RecipesService(Service):
         return recipeBoundary
 
     def toBoundryIngredient(self, ingredient: IngredientEntitySpoonacular) -> IngredientBoundary:
-        return IngredientBoundary(ingredient_id=int(ingredient.id)
+        return IngredientBoundary(ingredient_id=ingredient.id
                                   , name=ingredient.name
                                   , amount=ingredient.amount
                                   , unit=ingredient.unit

@@ -3,7 +3,7 @@ import datetime
 
 class IngredientBoundary:
 
-    def __init__(self, ingredient_id: int, name: str, amount: float, unit: str, purchase_date: datetime.date):
+    def __init__(self, ingredient_id: str, name: str, amount: float, unit: str, purchase_date: datetime.date):
         self.ingredient_id = ingredient_id
         self.name = name
         self.amount = amount
