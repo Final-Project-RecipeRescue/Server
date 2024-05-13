@@ -157,6 +157,11 @@ Users and Household Operations
 
     GET /get_meal_types
         Return list of meals types
+
+    GET /get_all_recipes_that_household_can_make
+        Return list of recipes that household can make or 404 if there no recipes
+        user_mail: Email of the user to add.
+        household_id: Id of the household.
         
 Object Definitions
 

@@ -1,18 +1,16 @@
 import asyncio
 from csv import excel
 from typing import Optional
-
 from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
-
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, MealInput, ListIngredientsInput)
 from routers_boundaries.UserBoundary import UserBoundary
-
+from routers.recipes import get_recipes_without_missed_ingredients
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 from datetime import date
 import logging
@@ -39,6 +37,7 @@ async def createNewHousehold(user_mail: str, household_name: str, ingredients: O
         logger.error(f"Error getting user: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
+
 @router.delete("/delete_household")
 async def delete_household_by_id(household_id: str):
     try:
@@ -47,7 +46,7 @@ async def delete_household_by_id(household_id: str):
         logger.info(f"Household deleted successfully")
     except HouseholdException as e:
         logger.error(f"Error deleting household: {e.message}")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
 # Adding a new user
@@ -78,6 +77,7 @@ async def get_user(user_email: str):
         logger.error(f"Error retrieving user: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
+
 @router.delete("/delete_user")
 async def delete_user(user_email: str):
     try:
@@ -87,6 +87,8 @@ async def delete_user(user_email: str):
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+
+
 # Getting a household user by ID
 @router.get("/get_household_user_by_id")
 async def get_household_user_by_id(user_email: str, household_id: str):
@@ -114,18 +116,21 @@ async def get_household_user_by_name(user_email: str, household_name: str):
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
-@router.get("get_all_household_details_by_user_mail")
+@router.get("/get_all_household_details_by_user_mail")
 async def get_all_household_details_by_user_mail(user_email: str):
     user = await get_user(user_email)
-    if isinstance(user,HTTPException):
+    if isinstance(user, HTTPException):
         return user
 
     households = []
     if isinstance(user, UserBoundary):
         for _ in user.households:
-            household_details = await get_household_user_by_id(user_email, _)
-            if isinstance(household_details, HouseholdBoundary):
-                households.append(household_details)
+            try:
+                household_details = await get_household_user_by_id(user_email, _)
+                if isinstance(household_details, HouseholdBoundary):
+                    households.append(household_details)
+            except Exception as e:
+                pass
     return households
 
 
@@ -144,6 +149,7 @@ async def add_user_to_household(user_email: str, household_id: str):
 @router.post("/add_ingredient_to_household_by_ingredient_name")
 async def add_ingredient_to_household_by_ingredient_name(user_email: str, household_id: str,
                                                          ingredient: IngredientInput):
+    logger.info(f"ingredient: {ingredient.IngredientName} : {ingredient.IngredientAmount}")
     try:
         await user_household_service.add_ingredient_to_household_by_ingredient_name(user_email, household_id,
                                                                                     ingredient.IngredientName,
@@ -265,4 +271,14 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: Meal
 @router.get("/get_meal_types")
 def get_meal_types():
     return [f'{meal_type}' for meal_type in meal_types]
+
+
+@router.get("/get_all_recipes_that_household_can_make")
+async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
+    user = await get_user(user_email)
+    ingredients_lst = await get_all_ingredients_in_household(user_email, household_id)
+    ingredients_str = ", ".join(ingredients_lst)
+    print(ingredients_str)
+    recipes = await get_recipes_without_missed_ingredients(ingredients_str)
+    return recipes
 

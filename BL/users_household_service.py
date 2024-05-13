@@ -226,7 +226,8 @@ class UsersHouseholdService:
         return household_id
 
     # TODO:need to add option to enter image
-    async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str, state: Optional[str]):
+    async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str,
+                          state: Optional[str]):
         self.check_email(user_mail)
         if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') != None:
             raise UserException("User already exists")
@@ -301,6 +302,8 @@ class UsersHouseholdService:
     async def add_ingredient_to_household_by_ingredient_name(self, user_email: str, household_id: str,
                                                              ingredient_name: str,
                                                              ingredient_amount: float):
+        if ingredient_amount <= 0:
+            raise ValueError(f"IngredientAmount need to be grater then 0")
         household = await self.get_household_user_by_id(user_email, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
         ingredient_data = self.ingredientsCRUD.search_ingredient(ingredient_name)
@@ -483,30 +486,25 @@ class UsersHouseholdService:
         user = await self.get_user(user_email)
         if isinstance(user, UserBoundary):
             for household_id in user.households:
-                household = await self.get_household_user_by_id(user_email,household_id)
+                household = await self.get_household_user_by_id(user_email, household_id)
                 if isinstance(household, HouseholdBoundary):
                     household.participants.remove(user.user_email)
                     self.firebase_instance.update_firebase_data(f'households/{household_id}'
-                                                                ,to_household_entity(household).__dict__)
+                                                                , to_household_entity(household).__dict__)
             self.firebase_instance.delete_firebase_data(f'users/{encoded_email(user_email)}')
 
-    async def delete_household(self, household_id:str):
-        household = self.get_household_by_id(household_id)
+    async def delete_household(self, household_id: str):
+        household = await self.get_household_by_Id(household_id)
         if household is None:
             raise HouseholdException("No such household")
         if isinstance(household, HouseholdBoundary):
             for user_email in household.participants:
                 user = await self.get_user(user_email)
                 user.households.remove(household_id)
-                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',to_user_entity(user).__dict__)
+                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
+                                                            to_user_entity(user).__dict__)
             self.firebase_instance.delete_firebase_data(f'households/{household_id}')
 
-    def get_household_by_id(self,household_id:str) -> HouseholdBoundary:
-        try:
-            household = self.firebase_instance.get_firebase_data(f'households/{household_id}')
-            return to_household_boundary(household)
-        except Exception as e:
-            raise HouseholdException("Dose not exist")
 
 
 class HouseholdException(Exception):
