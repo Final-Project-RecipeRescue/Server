@@ -89,10 +89,11 @@ class RecipesService(Service):
                                         , ingredients=[]
                                         , image_url=recipeEntity.image)
         if isinstance(recipeEntity, RecipeEntityByIngredientSpoonacular):
-            recipeBoundary.ingredients = [
-                [self.toBoundryIngredient(ingredient) for ingredient in recipeEntity.missed_ingredients] +
-                [self.toBoundryIngredient(ingredient) for ingredient in recipeEntity.used_ingredients]
-            ]
+            recipeBoundary.ingredients = ([self.toBoundryIngredient(ingredient)
+                                           for ingredient in recipeEntity.missed_ingredients]
+                                          + [self.toBoundryIngredient(ingredient)
+                                             for ingredient in recipeEntity.used_ingredients])
+
         elif isinstance(recipeEntity, RecipeEntityByIDSpoonacular):
             recipeBoundary.ingredients = [self.toBoundryIngredient(ingredient) for ingredient in
                                           recipeEntity.extendedIngredients]
