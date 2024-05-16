@@ -275,7 +275,6 @@ def get_meal_types():
 
 @router.get("/get_all_recipes_that_household_can_make")
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
-    user = await get_user(user_email)
     ingredients_lst = await get_all_ingredients_in_household(user_email, household_id)
     ingredients_str = ", ".join(ingredients_lst)
     recipes = await get_recipes_without_missed_ingredients(ingredients_str)
