@@ -254,7 +254,7 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: Meal
                                  detail=f"Invalid meal meals type is : {meal_types}")
         await user_household_service.use_recipe(user_email, household_id, meal.recipe_id, [
             IngredientBoundary(
-                0,
+                "0",
                 ing.IngredientName,
                 ing.IngredientAmount,
                 "",

@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from routers_boundaries.IngredientBoundary import IngredientBoundary
+
 meal_types = ("Breakfast", "Lunch", "Dinner", "Snakes")
 
 
@@ -25,6 +27,6 @@ class Ing:
 
 class MealBoundaryWithIngredients(MealBoundary):
     def __init__(self, used_date: datetime.date, mealType: meal_types, users: list[str], recipe_id: str,
-                 number_of_dishes: float, ingredients: list[Ing]):
+                 number_of_dishes: float, ingredients: [IngredientBoundary]):
         super().__init__(used_date, mealType, users, recipe_id, number_of_dishes)
         self.ingredients = ingredients

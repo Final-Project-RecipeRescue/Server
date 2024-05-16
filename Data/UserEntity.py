@@ -15,12 +15,12 @@ class UserEntity:
                 for meal in meals_list:
                     if isinstance(meal,MealBoundaryWithIngredients):
                         meal = meal.__dict__
-                    entity_meal = MealEntityWithIngredients(meal)
-                    entity_meal.used_date = None
-                    try:
-                        meals[date].append(entity_meal.__dict__)
-                    except KeyError:
-                        meals[date] = [entity_meal.__dict__]
+                        entity_meal = MealEntityWithIngredients(meal)
+                        entity_meal.used_date = None
+                        try:
+                            meals[date].append(entity_meal.__dict__)
+                        except KeyError:
+                            meals[date] = [entity_meal.__dict__]
         self.meals = meals
         self.country = data.get('country') if data.get('country') else None
         self.state = data.get('state') if data.get('state') else None

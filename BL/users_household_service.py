@@ -472,7 +472,7 @@ class UsersHouseholdService:
                 new_meal.users,
                 new_meal.recipe_id,
                 new_meal.number_of_dishes,
-                [Ing(ingredient.name, ingredient.amount * dishes_number) for ingredient in recipe_ingredients])
+                recipe_ingredients)
 
             user = await self.get_user(user_email)
             if isinstance(user, UserBoundary):

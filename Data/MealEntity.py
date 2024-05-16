@@ -10,7 +10,7 @@ class MealEntity:
 class MealEntityWithIngredients(MealEntity):
     def __init__(self, data):
         super().__init__(data)
-
-        self.ingredients = [{list(ingredient.keys())[0]: list(ingredient.values())[0]}
-                            for ingredient in data.get('ingredients', [])] \
-            if data.get('ingredients') is not None else []
+        ingredients = data.get('ingredients', [])
+        self.ingredients = [{ingredient.name: ingredient.amount}
+                            for ingredient in ingredients] \
+            if ingredients is not None else []
