@@ -12,8 +12,10 @@ class UserInputForAddUser(BaseModel):
 
 
 class IngredientInput(BaseModel):
-    IngredientName: str  # The name of the ingredient
-    IngredientAmount: float  # The amount of the ingredient in grams
+    ingredient_id: Optional[str]
+    name: str  # The name of the ingredient
+    amount: float  # The amount of the ingredient in grams
+    unit: Optional[str]
 
 
 class ListIngredientsInput(BaseModel):
@@ -27,8 +29,13 @@ class IngredientToRemoveByDateInput(BaseModel):
     day: int
 
 
+class RecipeInput(BaseModel):
+    recipe_id: int
+    recipe_name: str
+    ingredients: list[IngredientInput]
+
+
 class MealInput(BaseModel):
-    recipe_id: str
     meal_type: str
     dishes_num: float
-    ingredients: list[IngredientInput]
+    recipe: RecipeInput

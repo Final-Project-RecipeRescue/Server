@@ -1,5 +1,4 @@
 import asyncio
-from csv import excel
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
@@ -150,20 +149,20 @@ async def add_user_to_household(user_email: str, household_id: str):
 @router.post("/add_ingredient_to_household_by_ingredient_name")
 async def add_ingredient_to_household_by_ingredient_name(user_email: str, household_id: str,
                                                          ingredient: IngredientInput):
-    logger.info(f"ingredient: {ingredient.IngredientName} : {ingredient.IngredientAmount}")
+    logger.info(f"ingredient: {ingredient.name} : {ingredient.amount}")
     try:
         await user_household_service.add_ingredient_to_household_by_ingredient_name(user_email, household_id,
-                                                                                    ingredient.IngredientName,
-                                                                                    ingredient.IngredientAmount)
+                                                                                    ingredient.name,
+                                                                                    ingredient.amount)
         logger.info(
-            f"Ingredient '{ingredient.IngredientName}' added to household '{household_id}' successfully by user "
+            f"Ingredient '{ingredient.name}' added to household '{household_id}' successfully by user "
             f"'{user_email}'")
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error adding ingredient to household by name: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
         return HTTPException(status_code=status_code, detail=str(e))
     except ValueError as e:
-        logger.error(f"Ingredient {ingredient.IngredientName} dose not exist: {e}")
+        logger.error(f"Ingredient {ingredient.name} dose not exist: {e}")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
@@ -202,8 +201,8 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
     try:
         await user_household_service.remove_household_ingredient_by_date(user_email,
                                                                          household_id,
-                                                                         ingredient.ingredient_data.IngredientName,
-                                                                         ingredient.ingredient_data.IngredientAmount,
+                                                                         ingredient.ingredient_data.name,
+                                                                         ingredient.ingredient_data.amount,
                                                                          ingredient_date)
         logger.info(
             f"Ingredient '{ingredient.ingredient_data.IngredientName}' in {ingredient_date}"
@@ -218,14 +217,14 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
 @router.delete("/remove_ingredient_from_household")
 async def remove_ingredient_from_household(user_email: str, household_id: str, ingredient: IngredientInput):
     try:
-        await user_household_service.remove_household_ingredient(user_email, household_id, ingredient.IngredientName,
-                                                                 ingredient.IngredientAmount)
+        await user_household_service.remove_household_ingredient(user_email, household_id, ingredient.name,
+                                                                 ingredient.amount)
         logger.info(
-            f"Ingredient '{ingredient.IngredientName}' "
+            f"Ingredient '{ingredient.name}' "
             f"removed from household '{household_id}' successfully by user '{user_email}'")
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient"
-                     f" {ingredient.IngredientName} from household: {household_id} error : {e}")
+                     f" {ingredient.name} from household: {household_id} error : {e}")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
@@ -252,14 +251,14 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: Meal
         if mealT is None:
             print(mealT)
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=f"Invalid meal meals type is : {meal_types}")
-        await user_household_service.use_recipe(user_email, household_id, meal.recipe_id, [
+                                 detail=f"Invalid meal meals type is : {meal_types}")
+        await user_household_service.use_recipe(user_email, household_id, str(meal.recipe.recipe_id), [
             IngredientBoundary(
-                "0",
-                ing.IngredientName,
-                ing.IngredientAmount,
-                "",
-                date.today()) for ing in meal.ingredients],
+                ing.ingredient_id,
+                ing.name,
+                ing.amount,
+                ing.unit,
+                date.today()) for ing in meal.recipe.ingredients],
                                                 mealT,
                                                 meal.dishes_num)
     except (UserException, InvalidArgException, HouseholdException) as e:
