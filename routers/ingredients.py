@@ -10,6 +10,8 @@ ingredientsCRUD = IngredientsCRUD()
 '''
 This action transfers to the client all food ingredients that exist in the system
 '''
+
+
 @router.get("/getAllSystemIngredients")
 async def getAllSystemIngredients():
     try:
@@ -22,12 +24,14 @@ async def getAllSystemIngredients():
         return ingredients
     except Exception as e:
         logger.error(f"Error in retrieving all system ingredients: {str(e)}")
-        return  HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
 
 
 '''
 This action returns a list of ingredients that match the provided partial name
 '''
+
+
 @router.get("/autocompleteIngredient")
 async def autocompleteIngredient(partial_name: str):
     try:
@@ -40,4 +44,4 @@ async def autocompleteIngredient(partial_name: str):
         return ingredients
     except Exception as e:
         logger.error(f"Error in autocompleting ingredients: {str(e)}")
-        return  HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
