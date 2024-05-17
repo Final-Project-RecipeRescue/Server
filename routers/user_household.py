@@ -275,7 +275,11 @@ def get_meal_types():
 
 @router.get("/get_all_recipes_that_household_can_make")
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
-    ingredients_lst = await get_all_ingredients_in_household(user_email, household_id)
-    ingredients_str = ", ".join(ingredients_lst)
+    ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
+    ingredients_str = ""
+    for ingredient_id, ingredients in ingredients_dict.items():
+        unique_names = list(set([ing.name for ing in ingredients]))
+        ingredients_str += ", ".join(unique_names) + ", "  # Accumulate ingredients
+    ingredients_str = ingredients_str.rstrip(', ')  # Remove the trailing comma and space
     recipes = await get_recipes_without_missed_ingredients(ingredients_str)
     return recipes
