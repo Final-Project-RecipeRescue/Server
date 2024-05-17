@@ -280,3 +280,6 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
     ingredients_str = ", ".join(ingredients_lst)
     recipes = await get_recipes_without_missed_ingredients(ingredients_str)
     return recipes
+
+
+
