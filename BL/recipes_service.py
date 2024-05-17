@@ -82,7 +82,7 @@ class RecipesService(Service):
             if not self.recipeDB.get_recipe_by_id(str(recipe.recipe_id)):
                 await self.recipeDB.add_recipe(str(recipe.recipe_id), recipe)
             else:
-                print(f"Recipe with id {recipe.recipe_id} already exists")
+                logger.info(f"Recipe with id {recipe.recipe_id} already exists")
         except Exception as e:
             logger.error("In add_recipe_to_mongoDB: %s\n recipe_id = %d", e, recipe.recipe_id)
 
