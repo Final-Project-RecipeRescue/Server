@@ -14,7 +14,7 @@ class IngredientEntity:
 
 class IngredientEntitySpoonacular(IngredientEntity):
     def __init__(self, ingredient_data):
-        super().__init__(ingredient_data.get('id'), ingredient_data.get('name'), ingredient_data.get('amount'), ingredient_data.get('unit'), "")
+        super().__init__(str(ingredient_data.get('id')), ingredient_data.get('name'), ingredient_data.get('amount'), ingredient_data.get('unit'), "")
         self.aisle = ingredient_data.get('aisle')
         self.image = ingredient_data.get('image')
         self.meta = ingredient_data.get('meta')
