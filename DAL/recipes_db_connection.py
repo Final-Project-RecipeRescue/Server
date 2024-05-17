@@ -7,6 +7,11 @@ from Data.Recipe_stepsEntity import Recipe_stepsEntity
 from Data.recipe_entity import RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular,RecipeEntity
 import requests
 from dotenv import load_dotenv
+
+from routers_boundaries.IngredientBoundary import IngredientBoundary
+from routers_boundaries.recipe_boundary import RecipeBoundary
+from config.db import collection_recipes
+
 load_dotenv()
 
 #with open('DAL/spoonacular_test_by_ingredients.json', 'r') as file:
@@ -109,3 +114,48 @@ class SpoonacularAPI:
             for recipe_stepsEntity in response.json():
                 recipes.append(Recipe_stepsEntity(recipe_stepsEntity))
             return recipes
+
+
+class RecipesCRUD:
+    def __init__(self):
+        self.collection = collection_recipes
+
+    def add_recipe(self, recipe_id: str, recipe: RecipeBoundary):
+        recipe_data = {
+            "_id": recipe_id,
+            "recipe_name": recipe.recipe_name,
+            "ingredients": [
+                {
+                    "ingredient_id": ingredient.ingredient_id,
+                    "name": ingredient.name,
+                    "amount": ingredient.amount,
+                    "unit": ingredient.unit,
+                }
+                for ingredient in recipe.ingredients
+            ],
+            "image_url": recipe.image_url
+        }
+        self.collection.insert_one(recipe_data)
+
+    def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundary:
+        recipe_data = self.collection.find_one({"_id": recipe_id})
+        if recipe_data is None:
+            return None
+
+        ingredients = [
+            IngredientBoundary(
+                ingredient["ingredient_id"],
+                ingredient["name"],
+                ingredient["amount"],
+                ingredient["unit"],
+                None
+            )
+            for ingredient in recipe_data["ingredients"]
+        ]
+
+        recipe = RecipeBoundary(int(recipe_id),
+                                recipe_data["recipe_name"],
+                                ingredients,
+                                recipe_data["image_url"]
+        )
+        return recipe

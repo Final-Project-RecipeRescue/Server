@@ -27,15 +27,3 @@ class IngredientToRemoveByDateInput(BaseModel):
     year: int
     mount: int
     day: int
-
-
-class RecipeInput(BaseModel):
-    recipe_id: int
-    recipe_name: str
-    ingredients: list[IngredientInput]
-
-
-class MealInput(BaseModel):
-    meal_type: str
-    dishes_num: float
-    recipe: RecipeInput

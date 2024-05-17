@@ -6,7 +6,7 @@ from Data.IngredientEntity import IngredientEntitySpoonacular
 from routers_boundaries.recipe_boundary import RecipeBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from protocols.ServiceProtocol import Service
-from DAL.recipes_db_connection import SpoonacularAPI
+from DAL.recipes_db_connection import SpoonacularAPI, RecipesCRUD
 from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary, Step
 
 logger = logging.getLogger("my_logger")
@@ -15,6 +15,7 @@ logger = logging.getLogger("my_logger")
 class RecipesService(Service):
     def __init__(self):
         self.spoonacular_instance = SpoonacularAPI().get_instance()
+        self.recipeDB = RecipesCRUD()
 
     async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missed_ingredients: bool) -> Optional[
         List[RecipeBoundary]]:
@@ -24,6 +25,8 @@ class RecipesService(Service):
                 result = [self.toBoundaryRecipe(recipe) for recipe in recipes]
             else:
                 result = [self.toBoundaryRecipe(recipe) for recipe in recipes if recipe.missed_ingredient_count == 0]
+            for recipe in result:
+                await self.add_recipe_to_mongoDB(recipe)
             return result if result else None
         except Exception as e:
             logger.error("In get_recipes_by_ingredients_lst func: %s", e)
@@ -31,7 +34,13 @@ class RecipesService(Service):
     async def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundary:
         try:
             recipe_id = int(recipe_id)
-            return self.toBoundaryRecipe(await (self.spoonacular_instance.find_recipe_by_id(recipe_id)))
+            recipe = self.recipeDB.get_recipe_by_id(str(recipe_id))
+            if recipe is None:
+                logger.info(f"Get from spoonacular recipe with recipe id {recipe_id}")
+                recipe = self.toBoundaryRecipe(await (self.spoonacular_instance.find_recipe_by_id(recipe_id)))
+                if recipe is not None:
+                    await self.add_recipe_to_mongoDB(recipe)
+            return recipe
         except Exception as e:
             logger.error("In get_recipe_by_id: %s", e)
 
@@ -68,6 +77,15 @@ class RecipesService(Service):
             logger.error("In get_recipe_instructions: %s", e)
             return None
 
+    async def add_recipe_to_mongoDB(self, recipe: RecipeBoundary):
+        try:
+            if not self.recipeDB.get_recipe_by_id(str(recipe.recipe_id)):
+                await self.recipeDB.add_recipe(str(recipe.recipe_id), recipe)
+            else:
+                print(f"Recipe with id {recipe.recipe_id} already exists")
+        except Exception as e:
+            logger.error("In add_recipe_to_mongoDB: %s\n recipe_id = %d", e, recipe.recipe_id)
+
     def toBoundaryRecipeInstructions(self, recipes: List[Recipe_stepsEntity]) -> list[recipe_instructionsBoundary]:
         recipes_instructions = []
         for recipe in recipes:
@@ -84,10 +102,10 @@ class RecipesService(Service):
         return recipes_instructions
 
     def toBoundaryRecipe(self, recipeEntity: RecipeEntity) -> RecipeBoundary:
-        recipeBoundary = RecipeBoundary(recipe_id=int(recipeEntity.id)
-                                        , recipe_name=recipeEntity.title
-                                        , ingredients=[]
-                                        , image_url=recipeEntity.image)
+        recipeBoundary = RecipeBoundary(int(recipeEntity.id)
+                                        , recipeEntity.title
+                                        , []
+                                        , recipeEntity.image)
         if isinstance(recipeEntity, RecipeEntityByIngredientSpoonacular):
             recipeBoundary.ingredients = ([self.toBoundryIngredient(ingredient)
                                            for ingredient in recipeEntity.missed_ingredients]
@@ -101,8 +119,8 @@ class RecipesService(Service):
         return recipeBoundary
 
     def toBoundryIngredient(self, ingredient: IngredientEntitySpoonacular) -> IngredientBoundary:
-        return IngredientBoundary(ingredient_id=ingredient.id
-                                  , name=ingredient.name
-                                  , amount=ingredient.amount
-                                  , unit=ingredient.unit
-                                  , purchase_date=None)
+        return IngredientBoundary(ingredient.id
+                                  , ingredient.name
+                                  , ingredient.amount
+                                  , ingredient.unit_long if ingredient.unit_long is not None else ingredient.unit
+                                  , None)

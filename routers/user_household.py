@@ -7,7 +7,7 @@ from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
-, IngredientToRemoveByDateInput, MealInput, ListIngredientsInput)
+, IngredientToRemoveByDateInput, ListIngredientsInput)
 from routers_boundaries.UserBoundary import UserBoundary
 from routers.recipes import get_recipes_without_missed_ingredients, get_recipes
 
@@ -242,25 +242,17 @@ async def get_all_ingredients_in_household(user_email: str, household_id: str):
 
 
 @router.post("/use_recipe_by_recipe_id")
-async def use_recipe_by_recipe_id(user_email: str, household_id: str, meal: MealInput):
+async def use_recipe_by_recipe_id(user_email: str, household_id: str,
+                                  meal: str, dishes_num: float,recipe_id: str):
     try:
         mealT = None
         for meal_type in meal_types:
-            if meal_type == meal.meal_type:
+            if meal_type == meal:
                 mealT = meal_type
         if mealT is None:
-            print(mealT)
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                  detail=f"Invalid meal meals type is : {meal_types}")
-        await user_household_service.use_recipe(user_email, household_id, str(meal.recipe.recipe_id), [
-            IngredientBoundary(
-                ing.ingredient_id,
-                ing.name,
-                ing.amount,
-                ing.unit,
-                date.today()) for ing in meal.recipe.ingredients],
-                                                mealT,
-                                                meal.dishes_num)
+        await user_household_service.use_recipe(user_email, household_id,mealT,dishes_num,recipe_id)
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
         return HTTPException(status_code=status_code, detail=str(e.message))
