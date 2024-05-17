@@ -114,7 +114,7 @@ async def get_household_user_by_name(user_email: str, household_name: str):
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
-@router.get("get_all_household_details_by_user_mail")
+@router.get("/get_all_household_details_by_user_mail")
 async def get_all_household_details_by_user_mail(user_email: str):
     user = await get_user(user_email)
     if isinstance(user,HTTPException):
