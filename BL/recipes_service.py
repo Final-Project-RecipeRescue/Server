@@ -22,11 +22,10 @@ class RecipesService(Service):
         try:
             recipes = await self.spoonacular_instance.find_recipes_by_ingredients(ingredients)
             if missed_ingredients:
-                result = [self.toBoundaryRecipe(recipe) for recipe in recipes]
+                result = [await self.add_recipe_to_mongoDB(self.toBoundaryRecipe(recipe)) for recipe in recipes]
             else:
-                result = [self.toBoundaryRecipe(recipe) for recipe in recipes if recipe.missed_ingredient_count == 0]
-            for recipe in result:
-                await self.add_recipe_to_mongoDB(recipe)
+                result = [await self.add_recipe_to_mongoDB(self.toBoundaryRecipe(recipe)) for recipe in recipes if
+                          recipe.missed_ingredient_count == 0]
             return result if result else None
         except Exception as e:
             logger.error("In get_recipes_by_ingredients_lst func: %s", e)
@@ -43,20 +42,6 @@ class RecipesService(Service):
             return recipe
         except Exception as e:
             logger.error("In get_recipe_by_id: %s", e)
-
-    '''
-    With this action we can get some recipes but it's not the most important because it takes a lot of points on the spoonacular server
-    '''
-
-    async def get_recipe_by_ids(self, recipe_ids: [str]) -> [RecipeBoundary]:
-        try:
-            ids = [int(id) for id in recipe_ids]
-            return [self.toBoundaryRecipe(recipe)
-                    for recipe in
-                    (await (self.spoonacular_instance.find_recipe_by_ids(ids)))]
-        except Exception as e:
-            logger.error("In get_recipe_by_ids: %s", e)
-            return None
 
     async def get_recipe_by_name(self, recipe_name) -> List[RecipeBoundary]:
         try:
@@ -77,12 +62,21 @@ class RecipesService(Service):
             logger.error("In get_recipe_instructions: %s", e)
             return None
 
-    async def add_recipe_to_mongoDB(self, recipe: RecipeBoundary):
+    async def add_recipe_to_mongoDB(self, recipe: RecipeBoundary) -> RecipeBoundary:
         try:
-            if not self.recipeDB.get_recipe_by_id(str(recipe.recipe_id)):
+            existing_recipe = await self.recipeDB.get_recipe_by_id(str(recipe.recipe_id))
+            if existing_recipe is None:
+                for ingredient in recipe.ingredients:
+                    if ingredient.unit != 'g' and ingredient.unit != 'gram':
+                        ingredient.amount = await self.spoonacular_instance.convertIngredientAmountToGrams(
+                            ingredient.name, ingredient.amount, ingredient.unit)
+                        ingredient.unit = "gram"
                 await self.recipeDB.add_recipe(str(recipe.recipe_id), recipe)
+                logger.info(f"Recipe {recipe.recipe_id} added to mongoDB")
             else:
+                recipe = existing_recipe
                 logger.info(f"Recipe with id {recipe.recipe_id} already exists")
+            return recipe
         except Exception as e:
             logger.error("In add_recipe_to_mongoDB: %s\n recipe_id = %d", e, recipe.recipe_id)
 

@@ -252,7 +252,8 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
         if mealT is None:
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                  detail=f"Invalid meal meals type is : {meal_types}")
-        await user_household_service.use_recipe(user_email, household_id,mealT,dishes_num,recipe_id)
+        await user_household_service.use_recipe(user_email, household_id,recipe_id,
+                                                mealT,dishes_num)
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
         return HTTPException(status_code=status_code, detail=str(e.message))

@@ -11,6 +11,6 @@ class MealEntityWithIngredients(MealEntity):
     def __init__(self, data):
         super().__init__(data)
         ingredients = data.get('ingredients', [])
-        self.ingredients = [{ingredient.name: ingredient.amount}
+        self.ingredients = [{ingredient.id: ingredient.amount}
                             for ingredient in ingredients] \
             if ingredients is not None else []

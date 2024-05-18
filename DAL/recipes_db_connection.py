@@ -4,7 +4,7 @@ import os
 from typing import List
 
 from Data.Recipe_stepsEntity import Recipe_stepsEntity
-from Data.recipe_entity import RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular,RecipeEntity
+from Data.recipe_entity import RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular, RecipeEntity
 import requests
 from dotenv import load_dotenv
 
@@ -14,11 +14,12 @@ from config.db import collection_recipes
 
 load_dotenv()
 
-#with open('DAL/spoonacular_test_by_ingredients.json', 'r') as file:
-    #recipes_json_by_ingredients = json.load(file)
 
-#with open('DAL/spoonacular_test_by_ID.json', 'r') as file:
-    #recipes_json_by_ID = json.load(file)
+# with open('DAL/spoonacular_test_by_ingredients.json', 'r') as file:
+# recipes_json_by_ingredients = json.load(file)
+
+# with open('DAL/spoonacular_test_by_ID.json', 'r') as file:
+# recipes_json_by_ID = json.load(file)
 
 class SpoonacularAPI:
     _instance = None
@@ -29,17 +30,18 @@ class SpoonacularAPI:
         if SpoonacularAPI._instance is None:
             SpoonacularAPI._instance = SpoonacularAPI()
         return SpoonacularAPI._instance
+
     def __init__(self):
         if SpoonacularAPI._instance is not None:
             pass
-            #raise Exception("Singleton instance spoonacular already exists.")
+            # raise Exception("Singleton instance spoonacular already exists.")
         self.base_url = "https://api.spoonacular.com"
         self.initialized = True
-        self.api_key=os.getenv("SPOONACULAR_API_KEY")
+        self.api_key = os.getenv("SPOONACULAR_API_KEY")
         SpoonacularAPI._instance = self
 
-
-    async def find_recipes_by_ingredients(self, ingredients:List[str], number=10, ranking=2,ignorePantry=True) -> List[RecipeEntityByIngredientSpoonacular]:
+    async def find_recipes_by_ingredients(self, ingredients: List[str], number=10, ranking=2, ignorePantry=True) -> \
+    List[RecipeEntityByIngredientSpoonacular]:
         url = f"{self.base_url}/recipes/findByIngredients"
         headers = {
             "x-api-key": self.api_key
@@ -47,10 +49,10 @@ class SpoonacularAPI:
         params = {
             "ingredients": ",".join(ingredients),
             "number": number,
-            "ranking":ranking,
-            "ignorePantry":ignorePantry
+            "ranking": ranking,
+            "ignorePantry": ignorePantry
         }
-        response = requests.get(url,headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
             recipes = []
             for recipe in response.json():
@@ -60,41 +62,23 @@ class SpoonacularAPI:
             print("Error:", response.status_code)
             return None
 
-
-    async def find_recipe_by_id(self, recipeId : int) -> RecipeEntityByIDSpoonacular:
+    async def find_recipe_by_id(self, recipeId: int) -> RecipeEntityByIDSpoonacular:
         url = f"{self.base_url}/recipes/{recipeId}/information?includeNutrition=false?addWinePairing=false"
         headers = {
             "x-api-key": self.api_key
         }
-        response = requests.get(url,headers=headers)
+        response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return RecipeEntityByIDSpoonacular(response.json())
         else:
             return None
-    async def find_recipe_by_ids(self, recipeId : [int]) -> List[RecipeEntityByIDSpoonacular]:
-        #TODO : complete the function that will work properly because it falls and does not bring the user anything
-        '''url = f"{self.base_url}/recipes/informationBulk"
-        headers = {
-            "x-api-key": self.api_key
-        }
-        params = {
-            "ids": ",".join(str(recipeId))
-        }
-        response = requests.get(url,headers=headers,params=params)'''
-        if True:#response.status_code == 200:
-            recipes = []
-            '''for recipe in response.json():
-                recipes.append(RecipeEntityByIDSpoonacular(recipe))'''
-            return recipes ###(response.json())
-        else:
-            return None
 
-    async def find_recipe_by_name(self, recipeName : str) -> List[RecipeEntity]:
+    async def find_recipe_by_name(self, recipeName: str) -> List[RecipeEntity]:
         url = f"{self.base_url}/recipes/complexSearch/?query={recipeName}"
         headers = {
             "x-api-key": self.api_key
         }
-        response = requests.get(url,headers=headers)
+        response = requests.get(url, headers=headers)
         if response.status_code == 200:
             recipes = []
             for recipe in response.json()["results"]:
@@ -103,7 +87,7 @@ class SpoonacularAPI:
         else:
             return None
 
-    async def get_analyzed_recipe_instructions(self,recipeId : int) -> List[Recipe_stepsEntity]:
+    async def get_analyzed_recipe_instructions(self, recipeId: int) -> List[Recipe_stepsEntity]:
         url = f"{self.base_url}/recipes/{recipeId}/analyzedInstructions"
         headers = {
             "x-api-key": self.api_key
@@ -114,6 +98,19 @@ class SpoonacularAPI:
             for recipe_stepsEntity in response.json():
                 recipes.append(Recipe_stepsEntity(recipe_stepsEntity))
             return recipes
+
+    async def convertIngredientAmountToGrams(self, ingredient_name: str, sourceNumber: float, sourceUnit: str):
+        url = (f"{self.base_url}/recipes/"
+               f"convert?ingredientName={ingredient_name}"
+               f"&sourceAmount={sourceNumber}&"
+               f"sourceUnit={sourceUnit}&"
+               f"targetUnit=grams")
+        headers = {
+            "x-api-key": self.api_key
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return response.json().get("targetAmount")
 
 
 class RecipesCRUD:
@@ -137,7 +134,7 @@ class RecipesCRUD:
         }
         self.collection.insert_one(recipe_data)
 
-    def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundary:
+    async def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundary:
         recipe_data = self.collection.find_one({"_id": recipe_id})
         if recipe_data is None:
             return None
@@ -157,5 +154,10 @@ class RecipesCRUD:
                                 recipe_data["recipe_name"],
                                 ingredients,
                                 recipe_data["image_url"]
-        )
+                                )
         return recipe
+
+    def delete_all_recipes(self):
+        result = self.collection.delete_many({})
+        return result.deleted_count
+

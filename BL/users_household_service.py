@@ -188,6 +188,9 @@ def to_user_entity(user: UserBoundary) -> UserEntity:
     return UserEntity(user.__dict__)
 
 
+
+
+
 class UsersHouseholdService:
     def __init__(self):
         self.firebase_instance = FirebaseDbConnection.get_instance()
@@ -402,23 +405,6 @@ class UsersHouseholdService:
                 household.ingredients[ingredient_id].sort(key=lambda x: x.purchase_date)
             return household.ingredients
 
-    async def check_ingredient_availability(self, household: HouseholdBoundary,
-                                            recipe_ingredient: IngredientBoundary, recipe_id: str,
-                                            dishes_number: float):
-        try:
-            sum_amount = sum(ingredient.amount for ingredient in household.ingredients[recipe_ingredient.ingredient_id])
-            if sum_amount < recipe_ingredient.amount * dishes_number:
-                message = (f"Household '{household.household_name}' id : '{household.household_id}'"
-                           f" does not have enough '{recipe_ingredient.name}' ingredient for"
-                           f" recipe '{recipe_id}'. Needed: {recipe_ingredient.amount * dishes_number}, Available: {sum_amount}")
-                logger.error(message)
-                raise InvalidArgException(message)
-        except KeyError:
-            logger.error(f"Household '{household.household_name}' id : '{household.household_id}'"
-                         f" does not have the '{recipe_ingredient.name}' ingredient")
-            raise InvalidArgException(f"Household '{household.household_name}' id : '{household.household_id}'"
-                                      f" does not have the '{recipe_ingredient.name}' ingredient")
-
     def add_meal_to_household(self, household: HouseholdBoundary, new_meal: MealBoundary):
         try:
             date_meals = household.meals[new_meal.used_date]
@@ -451,14 +437,49 @@ class UsersHouseholdService:
         except KeyError:
             user.meals[new_meal.used_date] = [new_meal]
 
+    async def check_ingredient_availability(self,household: HouseholdBoundary,
+                                            recipe_ingredient: IngredientBoundary,
+                                            dishes_number: float):
+        try:
+            sum_amount = sum(
+                ingredient.amount for ingredient in household.ingredients[recipe_ingredient.ingredient_id])
+            if sum_amount < recipe_ingredient.amount * dishes_number:
+                return False
+            return True
+        except KeyError as e:
+            ing_data = self.ingredientsCRUD.search_ingredient(recipe_ingredient.name.capitalize())
+            if ing_data is None:
+                print(recipe_ingredient.name)
+                return False
+            id = ing_data["id"]
+            if id != recipe_ingredient.ingredient_id:
+                recipe_ingredient.ingredient_id = id
+                try:
+                    sum_amount = sum(
+                        ingredient.amount for ingredient in household.ingredients[recipe_ingredient.ingredient_id])
+                    if sum_amount < recipe_ingredient.amount * dishes_number:
+                        return False
+                    return True
+                except KeyError as e:
+                    logger.error(
+                        f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name} is not available in the household")
+                    return False
     async def use_recipe(self, user_email: str, household_id: str, recipe_id: str,
-                         recipe_ingredients: [IngredientBoundary], mealType: meal_types, dishes_number: float):
+                         mealType: meal_types, dishes_number: float):
         household = await self.get_household_user_by_id(user_email, household_id)
+        recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         if isinstance(household, HouseholdBoundary):
-            for recipe_ingredient in recipe_ingredients:
-                await self.check_ingredient_availability(household, recipe_ingredient, recipe_id, dishes_number)
+            for ingredient in recipe.ingredients:
+                if await self.check_ingredient_availability(household, ingredient, dishes_number) == False:
+                    message = (f"Household '{household.household_name}' id : '{household.household_id}'"
+                               f" does not have enough '{ingredient.name}' : '{ingredient.ingredient_id}' ingredient for"
+                               f" recipe '{recipe_id}'. Needed: {ingredient.amount * dishes_number}, Available: "
+                               f"{sum(ingredient.amount for ingredient in household.ingredients[ingredient.ingredient_id])}")
+                    logger.error(message)
+                    raise InvalidArgException(message)
+            '''There is enough of all the ingredients to use in the recipe'''
             '''Removing the ingredients in a household'''
-            for recipe_ingredient in recipe_ingredients:
+            for recipe_ingredient in recipe.ingredients:
                 await self.remove_household_ingredient(user_email, household_id, recipe_ingredient.name,
                                                        recipe_ingredient.amount * dishes_number)
             household = await self.get_household_user_by_id(user_email, household_id)
@@ -470,7 +491,7 @@ class UsersHouseholdService:
                 new_meal.users,
                 new_meal.recipe_id,
                 new_meal.number_of_dishes,
-                recipe_ingredients)
+                recipe.ingredients)
 
             user = await self.get_user(user_email)
             if isinstance(user, UserBoundary):
