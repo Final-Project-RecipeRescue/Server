@@ -1,17 +1,23 @@
 import logging
+from datetime import datetime
 from typing import List, Optional
+from Data.IngredientEntity import IngredientEntity
 from Data.Recipe_stepsEntity import Recipe_stepsEntity
 from Data.recipe_entity import RecipeEntity, RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular
-from Data.IngredientEntity import IngredientEntitySpoonacular
-from routers_boundaries.recipe_boundary import RecipeBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
+from routers_boundaries.recipe_boundary import RecipeBoundary
 from protocols.ServiceProtocol import Service
 from DAL.recipes_db_connection import SpoonacularAPI, RecipesCRUD
 from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary, Step
-
 logger = logging.getLogger("my_logger")
-
-
+date_format = "%Y-%m-%d"
+def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
+    return IngredientBoundary(
+        ingredient.id,
+        ingredient.name,
+        ingredient.amount,
+        ingredient.unit,
+        None)
 class RecipesService(Service):
     def __init__(self):
         self.spoonacular_instance = SpoonacularAPI().get_instance()
@@ -33,7 +39,7 @@ class RecipesService(Service):
     async def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundary:
         try:
             recipe_id = int(recipe_id)
-            recipe = self.recipeDB.get_recipe_by_id(str(recipe_id))
+            recipe = await self.recipeDB.get_recipe_by_id(str(recipe_id))
             if recipe is None:
                 logger.info(f"Get from spoonacular recipe with recipe id {recipe_id}")
                 recipe = self.toBoundaryRecipe(await (self.spoonacular_instance.find_recipe_by_id(recipe_id)))
@@ -101,20 +107,13 @@ class RecipesService(Service):
                                         , []
                                         , recipeEntity.image)
         if isinstance(recipeEntity, RecipeEntityByIngredientSpoonacular):
-            recipeBoundary.ingredients = ([self.toBoundryIngredient(ingredient)
+            recipeBoundary.ingredients = ([to_ingredient_boundary(ingredient)
                                            for ingredient in recipeEntity.missed_ingredients]
-                                          + [self.toBoundryIngredient(ingredient)
+                                          + [to_ingredient_boundary(ingredient)
                                              for ingredient in recipeEntity.used_ingredients])
 
         elif isinstance(recipeEntity, RecipeEntityByIDSpoonacular):
-            recipeBoundary.ingredients = [self.toBoundryIngredient(ingredient) for ingredient in
+            recipeBoundary.ingredients = [to_ingredient_boundary(ingredient) for ingredient in
                                           recipeEntity.extendedIngredients]
             recipeBoundary.summery = recipeEntity.summary
         return recipeBoundary
-
-    def toBoundryIngredient(self, ingredient: IngredientEntitySpoonacular) -> IngredientBoundary:
-        return IngredientBoundary(ingredient.id
-                                  , ingredient.name
-                                  , ingredient.amount
-                                  , ingredient.unit_long if ingredient.unit_long is not None else ingredient.unit
-                                  , None)

@@ -4,7 +4,6 @@ from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
-from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, ListIngredientsInput)
@@ -250,14 +249,19 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
             if meal_type == meal:
                 mealT = meal_type
         if mealT is None:
+            logger.error(f"No meal type")
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                  detail=f"Invalid meal meals type is : {meal_types}")
+        logger.info(f"User {user_email} using recipe {recipe_id} for household {household_id}")
         await user_household_service.use_recipe(user_email, household_id,recipe_id,
                                                 mealT,dishes_num)
+        logger.info(f"Successfully using recipe")
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
+        logger.error(f"Error retrieving : {e}")
         return HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
+        logger.error(f"Error retrieving : {e}")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 

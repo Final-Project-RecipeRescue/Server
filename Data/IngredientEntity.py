@@ -5,16 +5,16 @@ import datetime
 
 
 class IngredientEntity:
-    def __init__(self, ingredient_id: str, name: str, amount: float, unit: str, purchase_date: str):
-        self.id = ingredient_id
-        self.name = name
-        self.amount = amount
-        self.unit = unit
-        self.purchase_date = purchase_date
+    def __init__(self, data):
+        self.id = str(data.get("id")) if data.get("id") else None
+        self.name = data.get("name") if data.get("name") else None
+        self.amount = data.get("amount") if data.get("amount") else None
+        self.unit = data.get("unit") if data.get("unit") else "gram"
+        self.purchase_date = data.get("purchase_date") if data.get("purchase_date") else None
 
 class IngredientEntitySpoonacular(IngredientEntity):
     def __init__(self, ingredient_data):
-        super().__init__(str(ingredient_data.get('id')), ingredient_data.get('name'), ingredient_data.get('amount'), ingredient_data.get('unit'), "")
+        super().__init__(data=ingredient_data)
         self.aisle = ingredient_data.get('aisle')
         self.image = ingredient_data.get('image')
         self.meta = ingredient_data.get('meta')
