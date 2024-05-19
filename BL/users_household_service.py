@@ -350,9 +350,13 @@ class UsersHouseholdService:
 
     async def remove_household_ingredient_by_date(self, user_mail: str, household_id, ingredient_name: str,
                                                   ingredient_amount: float, ingredient_date: datetime.date):
+        if ingredient_amount <= 0 :
+            raise InvalidArgException(f"Ingredient amount need to be greater than 0")
         household = await self.get_household_user_by_id(user_mail, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
         ingredient_data = self.ingredientsCRUD.search_ingredient(ingredient_name)
+        if not ingredient_data:
+            raise InvalidArgException(f"The ingredient {ingredient_name} dose not exist in the system")
         ing_id = ingredient_data['id']
         try:
             for ing in household.ingredients[ing_id]:
@@ -433,7 +437,7 @@ class UsersHouseholdService:
             ing_data = self.ingredientsCRUD.search_ingredient(recipe_ingredient.name.capitalize())
             if ing_data is None:
                 logger.error(f"Ingredient {recipe_ingredient.name} not exist in system")
-                return False
+                return True
             id = ing_data["id"]
             if id != recipe_ingredient.ingredient_id:
                 recipe_ingredient.ingredient_id = id
@@ -458,10 +462,20 @@ class UsersHouseholdService:
                 if not await self.check_ingredient_availability(household, ingredient, dishes_number):
                     message = (f"Household '{household.household_name}' id : '{household.household_id}'"
                                f" does not have enough '{ingredient.name}' : '{ingredient.ingredient_id}' ingredient for"
-                               f" recipe '{recipe_id}'. Needed: {ingredient.amount * dishes_number}, Available: "
-                               f"{sum(ingredient.amount for ingredient in household.ingredients[ingredient.ingredient_id])}")
+                               f" recipe '{recipe_id}'. Needed: {ingredient.amount * dishes_number}")
+                    try:
+                        s = sum(ingredient.amount for ingredient in household.ingredients[ingredient.ingredient_id])
+                        message += f"Available: {s}"
+                    except KeyError as e:
+                        pass
+
                     logger.error(message)
                     raise InvalidArgException(message)
+            for ingredient in recipe.ingredients:
+                try :
+                    ingredient = household.ingredients[ingredient.ingredient_id]
+                except KeyError as e:
+                    recipe.ingredients.remove(ingredient)
             '''There is enough of all the ingredients to use in the recipe'''
             '''Removing the ingredients in a household'''
             for recipe_ingredient in recipe.ingredients:

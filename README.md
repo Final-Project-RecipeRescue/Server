@@ -410,6 +410,8 @@ getRecipeInstructions
 
 Ingredients
 
+getAllSystemIngredients
+
     GET /getAllSystemIngredients
      Retrieves a list of ingredients in this from:
       {
@@ -417,6 +419,8 @@ Ingredients
         "name": Name of the ingredient
       }
     
+autocompleteIngredient
+
     GET /autocompleteIngredient
     Retrieves a list of ingredients whose prefix is ​​a partial_name in this from:
       {
@@ -427,52 +431,259 @@ Ingredients
 
 Users and Household Operations
 
+createNewHousehold
+
     POST /users_household/createNewHousehold
         Creates a new household.
         user_mail: Email of the user creating the household.
         household_name: Name of the household.
-    
+        
+    Example
+    http://127.0.0.1:8000/users_household/createNewHousehold?user_mail=example%40example.example&household_name=example
+    with body
+        {
+          "ingredients": [
+            {
+              "ingredient_id": null,
+              "name": "Avocado",
+              "amount": 15,
+              "unit": null
+            }
+          ]
+        }
+    **The list of components is optional, meaning you don't have to do it
+    Return value
+    {
+      "message": "Household added successfully",
+      "household_id": "e69f3780-7eaa-4602-8b86-1fd6b38ccd64"
+    }
+        
+delete_household
+
     DELETE /delete_household
         Delete household by householdID
         household_id : Id of household
+
+add_user
 
     POST /add_user
         Create new user in system
         user : UserInputForAddUser
         user_mail: Email of the user.
+    
+    Example
+    http://127.0.0.1:8000/users_household/add_user
+        with this body 
+        {
+          "first_name": "example",
+          "last_name": "example",
+          "email": "example@example.example",
+          "country": "example",
+          "state": "example"
+        }
+    Return value
+        {
+          "message": "Successfully Added User"
+        }
+
+get_user
 
     GET /get_user
         Return UserBoundary by user mail
     
+    Example
+    http://127.0.0.1:8000/users_household/get_user?user_email=example%40example.example
+    
+    Return value:
+    {
+        "first_name": "example",
+        "last_name": "example",
+        "user_email": "example@example.example",
+        "image": null,
+        "households": [
+          "2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3"
+        ],
+        "meals": {
+          "2024-05-19": {
+            "Lunch": {
+              "634435": {
+                "users": [
+                  "example@example.example"
+                ],
+                "number_of_dishes": 2
+              }
+            }
+          }
+        },
+        "country": "example",
+        "state": "example"
+      }
+
+delete_user
+
     DELETE /delete_user
         Remove user from system and remove him from households
         user_mail: Email of the user creating the household.
+
+get_household_user_by_id
 
     GET /get_household_user_by_id
         Retuen a HouseholdBoundary by user mail and household id.
         user_mail: Email of the user.
         household_id : Id of household
+    Example:
+    http://127.0.0.1:8000/users_household/get_household_user_by_id?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3
+      
+      Return value
+      {
+        "household_id": "2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3",
+        "household_name": "example",
+        "household_image": null,
+        "participants": [
+          "example@example.example"
+        ],
+        "ingredients": {
+          "1033": [
+            {
+              "ingredient_id": "1033",
+              "name": "Parmesan cheese",
+              "amount": 1971.6599999999999,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "2044": [
+            {
+              "ingredient_id": "2044",
+              "name": "Basil",
+              "amount": 952,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "2047": [
+            {
+              "ingredient_id": "2047",
+              "name": "Salt",
+              "amount": 1000,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "4053": [
+            {
+              "ingredient_id": "4053",
+              "name": "Olive oil",
+              "amount": 1000,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "5062": [
+            {
+              "ingredient_id": "5062",
+              "name": "Chicken breast",
+              "amount": 2000,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "11165": [
+            {
+              "ingredient_id": "11165",
+              "name": "Cilantro",
+              "amount": 1000,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "11215": [
+            {
+              "ingredient_id": "11215",
+              "name": "Garlic",
+              "amount": 1000,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "11216": [
+            {
+              "ingredient_id": "11216",
+              "name": "Ginger",
+              "amount": 2000,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+          "11529": [
+            {
+              "ingredient_id": "11529",
+              "name": "Tomato",
+              "amount": 1000,
+              "unit": "gram",
+              "purchase_date": "2024-05-19"
+            }
+          ],
+        },
+        "meals": {
+          "2024-05-19": {
+            "Lunch": {
+              "634435": [
+                {
+                  "users": [
+                    "example@example.example"
+                  ],
+                  "number_of_dishes": 1
+                },
+                {
+                  "users": [
+                    "example@example.example"
+                  ],
+                  "number_of_dishes": 1
+                }
+              ]
+            }
+          }
+        }
+      }
+
+get_household_user_by_name
 
     GET /get_household_user_by_name
         Return a list of HouseholdBoundary with this household_name.
         user_mail: Email of the user.
         household_name : Name of household
 
+get_all_household_details_by_user_mail
+
     GET /get_all_household_details_by_user_mail
         Detailed information about the user's households, including a list of each household's available ingredients. 
         Return a list of HouseholdBoundary or Null if there is a problem with the user's email 
         user_mail: Email of the user.
+
+addUserToHousehold
 
     POST /users_household/addUserToHousehold
         Adds a user to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
+add_ingredient_to_household_by_ingredient_name
+
     POST /add_ingredient_to_household_by_ingredient_name
         Adds a ingredient to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
-        ingredient: IngredientInput
+        
+         body:
+            {
+              "ingredient_id": Optional - "string",
+              "name": "string",
+              "amount": greater than 0,
+              "unit": Optional - "string"
+            }
+
+add_list_ingredients_to_household
 
     POST /add_list_ingredients_to_household
         Adds a ingredients to an existing household.
@@ -480,28 +691,65 @@ Users and Household Operations
         household_id: Id of the household.
         list_ingredients: ListIngredientsInput
 
+remove_ingredient_from_household_by_date
+
     DELETE /remove_ingredient_from_household_by_date
         Remove ingredient in household on a specific date.
         user_mail: Email of the user to add.
         household_id: Id of the household.
-        list_ingredients: IngredientToRemoveByDateInput
+        ingredient : IngredientToRemoveByDateInput
+         body example :
+            {
+              "ingredient_data": {
+                "ingredient_id": "1001",
+                "name": "Butter",
+                "amount": 3,
+                "unit": "string"
+              },
+              "year": 2024,
+              "mount": 5,
+              "day": 19
+         }
+
+remove_ingredient_from_household
 
     DELETE /remove_ingredient_from_household
         Remove ingredient in household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
-        list_ingredients: IngredientInput
+        ingredient: IngredientInput
+       body eample:
+         {
+           "ingredient_id": "string",
+           "name": "string",
+           "amount": 0,
+           "unit": "string"
+         }
+
+get_all_ingredients_in_household
 
     GET /get_all_ingredients_in_household
         Retrieves a list of IngredientBoundary in household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
+use_recipe_by_recipe_id
+
     POST /use_recipe_by_recipe_id
         Add to the history of consumption of meals at household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
-        meal : MealInput
+        meal : [
+              "Breakfast",
+              "Lunch",
+              "Dinner",
+              "Snakes"
+            ] need to be on of them
+         dishes_num : flout
+         recipe_id : id of recipe to use : string
+      Example:
+         http://127.0.0.1:8000/users_household/use_recipe_by_recipe_id?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3&meal=Lunch&dishes_num=1&recipe_id=634435
+      return Null if sucseessful 
 
     GET /get_meal_types
         Return list of meals types
