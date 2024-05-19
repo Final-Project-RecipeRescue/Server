@@ -765,93 +765,60 @@ RecipeBoundary
 
 Represents a recipe object returned by the API.
 
-    recipe_id: Unique identifier for the recipe.
-    recipe_name: Name of the recipe.
-    ingredients: List of ingredients in the recipe, each represented by an IngredientBoundary object.
-    image_url: URL of the image associated with the recipe.
+    recipe_id: Unique identifier for the recipe. : int
+    recipe_name: Name of the recipe. : string
+    ingredients: List of ingredients in the recipe, each represented by an IngredientBoundary object. : [IngredientBoundary]
+    image_url: URL of the image associated with the recipe. : string
 
 recipe_instructionsBoundary
 
 Represents a instructions of recipe object returned by the API.
-    name: Name of the recipe.
-    steps : list of steps objects
 
-stepObject
+       name: Name of the recipe. : string
+       steps : list of steps objects : [Step]
 
-    equipment: List of equipments needed to prepare the recipe : [String]
-    ingredients: List of ingredients needed to prepare the recipe  : [String]
-    length : Time to prepare the recipe : Int
-    number : Step number : Int
-    description : Description of what to do in this step : String
+      stepObject
+       equipment: List of equipments needed to prepare the recipe : [equipment name : equipment image url] (string:string)
+       ingredients: List of ingredients needed to prepare the recipe  : [ingredient name : ingredient image url] (string:string)
+       length : Time to prepare the recipe : flout
+       number : Step number : Int
+       description : Description of what to do in this step : String
     
 IngredientBoundary
 
 Represents an ingredient object returned by the API.
 
-    ingredient_id: Unique identifier for the ingredient.
-    name: Name of the ingredient.
-    amount: Amount of the ingredient.
-    unit: Unit of measurement for the amount.
-    purchase_date: Date the ingredient was purchased.
+    ingredient_id: Unique identifier for the ingredient. : string
+    name: Name of the ingredient. : string
+    amount: Amount of the ingredient. : flout
+    unit: Unit of measurement for the amount. : string 
+    purchase_date: Date the ingredient was purchased. : string
 
 HouseholdBoundary
 
 Represents a household object returned by the API.
 
-    household_id: Unique identifier for the household.(String)
-    household_name: Name of the household.(String)
-    household_image: Image associated with the household.(String)
-    participants: List of participants email in the household.(String)
-    ingredients: Dictionary of ingredients in the household, where keys are ingredient names and values are lists of IngredientBoundary objects.
-    meals: List of meals in the household, where keys are meal dates and values are meal types ("Breakfast", "Lunch", "Dinner", "Snacks"), the type is a dictionary of recipe ID and value is              MealBoundary.
+    household_id: Unique identifier for the household. : String
+    household_name: Name of the household. : String
+    household_image: Image associated with the household. : String
+    participants: List of participants email in the household. [String] 
+    ingredients: Dictionary of ingredients in the household, where keys are ingredient id and values are lists of IngredientBoundary objects. {string : [IngredientBoundary]}
+    meals: List of meals in the household, where keys are meal dates and values are meal types ("Breakfast", "Lunch", "Dinner", "Snacks"), the type is a dictionary of recipe ID and value is MealBoundary. {string : {string : { string : [MealBoundary]}}}
 
 MealBoundary
 
-    type : "Breakfast" Or "Lunch" Or "Dinner" Or "Snakes". (String)
     users: list of users that take a part of this meal. ([String])
-    recipe_id : id of recipe. (String)
     number_of_dishes : The number of dishes that will be made from the recipe in this meal.(Double)
 
 UserBoundary
 
 Represents a user object returned by the API.
 
-    first_name: First name of the user.
-    last_name: Last name of the user.
-    user_email: Email of the user.
-    image: Image associated with the user.
-    households_ids: List of household IDs the user belongs to.
-    meals: List of meals associated with the user, each represented by a RecipeBoundary object.
-    country: Country of the user.
-    state: State of the user.
-
-UserInputForAddUser
-
-    first_name: String
-    last_name: String
-    email: String
-    country: String
-    state: Optional[String]
-
-IngredientInput
-
-    IngredientName: The name of the ingredient. (String)
-    IngredientAmount: The amount of the ingredient in grams. (Double)
-
-ListIngredientsInput
-
-    ingredients: [IngredientInput]
-
-IngredientToRemoveByDateInput
-
-    ingredient_data: IngredientInput
-    year: int
-    mount: int
-    day: int
-
-MealInput
-
-    recipe_id: String
-    meal_type: Must be one of them "Breakfast","Lunch" ,"Dinner","Snakes" String
-    dishes_num: Double
-    ingredients: [IngredientInput]
+    first_name: First name of the user. : string
+    last_name: Last name of the user. : string
+    user_email: Email of the user. : string in email format
+    image: Image associated with the user.  : string
+    households_ids: List of household IDs the user belongs to. [string]
+    meals: date -> meal type -> recipe id -> meal. {string : {string : {string : MealBoundary}}}
+    country: Country of the user. : string
+    state: State of the user. : string
