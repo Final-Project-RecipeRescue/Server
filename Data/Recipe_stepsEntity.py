@@ -24,8 +24,14 @@ class Length:
 class Step:
     def __init__(self,data):
         super().__init__()
-        self.equipments = [Equipment(equipment) for equipment in data.get("equipment")]
-        self.ingredients = [Ingredient(ingredient) for ingredient in data.get("ingredients")]
+        if data.get("equipment") is not None:
+            self.equipments = [Equipment(equipment) for equipment in data.get("equipment") ]
+        else:
+            self.equipments = []
+        if data.get("ingredient") is not None:
+            self.ingredients = [Ingredient(ingredient) for ingredient in data.get("ingredients")]
+        else:
+            self.ingredients = []
         self.length = Length(data.get("length")) if data.get("length") is not None else None
         self.number = data.get("number") if data.get("number") is not None else None
         self.step = data.get("step") if data.get("step") is not None else None

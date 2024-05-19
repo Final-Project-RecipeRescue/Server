@@ -3,14 +3,15 @@ import json
 import os
 from typing import List
 
-from Data.Recipe_stepsEntity import Recipe_stepsEntity
+from Data.Recipe_stepsEntity import Recipe_stepsEntity, Step, Length, Ingredient, Equipment, Temperature
 from Data.recipe_entity import RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular, RecipeEntity
 import requests
 from dotenv import load_dotenv
 
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.recipe_boundary import RecipeBoundary
-from config.db import collection_recipes
+from config.db import collection_recipes, collection_recipes_instructions
+from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary
 
 load_dotenv()
 
@@ -161,4 +162,69 @@ class RecipesCRUD:
     def delete_all_recipes(self):
         result = self.collection.delete_many({})
         return result.deleted_count
+class RecipesInstructionsCRUD:
+    def __init__(self):
+        self.collection = collection_recipes_instructions
+
+    def serialize_temperature(self, temperature):
+        if temperature:
+            return {"number": temperature.number, "unit": temperature.unit}
+        else:
+            return None
+
+    def serialize_equipment(self, equipment):
+        return {
+            "name": equipment.name,
+            "id": equipment.id,
+            "image": equipment.image,
+            "temperature": self.serialize_temperature(equipment.temperature)
+        }
+
+    def serialize_ingredient(self, ingredient):
+        return {
+            "id": ingredient.id,
+            "name": ingredient.name,
+            "image": ingredient.image
+        }
+
+    def serialize_step(self, step):
+        return {
+            "equipments": [self.serialize_equipment(equipment) for equipment in step.equipments],
+            "ingredients": [self.serialize_ingredient(ingredient) for ingredient in step.ingredients],
+            "length": self.serialize_length(step.length) if step.length else None,
+            "number": step.number,
+            "step": step.step
+        }
+
+    def serialize_length(self, length):
+        if length:
+            return {"number": length.number, "unit": length.unit}
+        else:
+            return None
+
+    def add_recipe_instructions(self, recipe_id: str, recipe_stepsEntity_lst: List[Recipe_stepsEntity]):
+        recipe_data = {
+            "_id": recipe_id,
+            "steps_entities": []
+        }
+        for entity in recipe_stepsEntity_lst:
+            steps_data = [self.serialize_step(step) for step in entity.steps]
+            recipe_data["steps_entities"].append({"name": entity.name, "steps": steps_data})
+
+        self.collection.insert_one(recipe_data)
+
+    def get_recipe_instructions(self, recipe_id: str) -> List[Recipe_stepsEntity]:
+        recipe_data = self.collection.find_one({"_id": recipe_id})
+        try:
+            if recipe_data:
+                steps_entities = []
+                lst = recipe_data.get("steps_entities", [])
+                for entity_data in lst:
+                    steps_entities.append(Recipe_stepsEntity(entity_data))
+                return steps_entities
+            else:
+                return None
+        except Exception as e:
+            print("Error occurred while processing recipe data:", e)  # Add this line for logging
+            return None
 

@@ -15,3 +15,4 @@ db = client.recipe_rescue_db
 collection_pollution = db["pollution"]
 collection_ingredients = db["ingredients"]
 collection_recipes = db["recipes"]
+collection_recipes_instructions = db["recipes_instructions"]

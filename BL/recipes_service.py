@@ -7,7 +7,7 @@ from Data.recipe_entity import RecipeEntity, RecipeEntityByIngredientSpoonacular
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.recipe_boundary import RecipeBoundary
 from protocols.ServiceProtocol import Service
-from DAL.recipes_db_connection import SpoonacularAPI, RecipesCRUD
+from DAL.recipes_db_connection import SpoonacularAPI, RecipesCRUD, RecipesInstructionsCRUD
 from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary, Step
 
 logger = logging.getLogger("my_logger")
@@ -27,6 +27,7 @@ class RecipesService(Service):
     def __init__(self):
         self.spoonacular_instance = SpoonacularAPI().get_instance()
         self.recipeDB = RecipesCRUD()
+        self.recipesInstructionsCRUD = RecipesInstructionsCRUD()
 
     async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missed_ingredients: bool) -> Optional[
         List[RecipeBoundary]]:
@@ -66,8 +67,20 @@ class RecipesService(Service):
     async def get_recipe_instructions(self, recipe_id: str):
         try:
             recipe_id = int(recipe_id)
-            recipes_instructions = await (self.spoonacular_instance.get_analyzed_recipe_instructions(recipe_id))
-            recipes_instructions_boundary = [self.toBoundaryRecipeInstructions(recipe) for recipe in recipes_instructions]
+            instructions = self.recipesInstructionsCRUD.get_recipe_instructions(str(recipe_id))
+            if instructions is None:
+                instructions = await (self.spoonacular_instance.get_analyzed_recipe_instructions(recipe_id))
+                if instructions is not None:
+                    logger.info("get recipe instructions from spoonacular!")
+                    try:
+                        self.recipesInstructionsCRUD.add_recipe_instructions(str(recipe_id), instructions)
+                    except Exception as e:
+                        logger.error("Dont add recipe_instructions: %s to mongo error : %s", recipe_id,e)
+            else:
+                logger.info("get recipe instructions from mongo!")
+
+            recipes_instructions_boundary = [self.toBoundaryRecipeInstructions(recipe) for recipe in
+                                             instructions]
             return recipes_instructions_boundary
         except Exception as e:
             logger.error("In get_recipe_instructions: %s", e)
@@ -92,6 +105,7 @@ class RecipesService(Service):
             logger.error("In add_recipe_to_mongoDB: %s\n recipe_id = %d", e, recipe.recipe_id)
 
     def toBoundaryRecipeInstructions(self, recipe: Recipe_stepsEntity) -> recipe_instructionsBoundary:
+        print(recipe)
         return recipe_instructionsBoundary(
             recipe.name if recipe.name is not None else "",
             [Step(
@@ -119,3 +133,4 @@ class RecipesService(Service):
                                           recipeEntity.extendedIngredients]
             recipeBoundary.summery = recipeEntity.summary
         return recipeBoundary
+
