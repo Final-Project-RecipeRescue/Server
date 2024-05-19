@@ -1,6 +1,6 @@
 from typing import List
 class Step:
-    def __init__(self, number: int, step: str, length: int, ingredients: [str], equipments: [str]):
+    def __init__(self, number: int, step: str, length: float, ingredients: [{str : str}], equipments: [{str: str}]):
         self.equipment = equipments
         self.ingredients = ingredients
         self.length = length

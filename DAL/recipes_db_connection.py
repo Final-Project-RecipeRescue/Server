@@ -87,6 +87,7 @@ class SpoonacularAPI:
         else:
             return None
 
+    '''Get an analyzed breakdown of a recipe's instructions. Each step is enriched with the ingredients and equipment required.'''
     async def get_analyzed_recipe_instructions(self, recipeId: int) -> List[Recipe_stepsEntity]:
         url = f"{self.base_url}/recipes/{recipeId}/analyzedInstructions"
         headers = {

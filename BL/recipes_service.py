@@ -9,8 +9,11 @@ from routers_boundaries.recipe_boundary import RecipeBoundary
 from protocols.ServiceProtocol import Service
 from DAL.recipes_db_connection import SpoonacularAPI, RecipesCRUD
 from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary, Step
+
 logger = logging.getLogger("my_logger")
 date_format = "%Y-%m-%d"
+
+
 def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
     return IngredientBoundary(
         ingredient.id,
@@ -18,6 +21,8 @@ def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
         ingredient.amount,
         ingredient.unit,
         None)
+
+
 class RecipesService(Service):
     def __init__(self):
         self.spoonacular_instance = SpoonacularAPI().get_instance()
@@ -62,7 +67,7 @@ class RecipesService(Service):
         try:
             recipe_id = int(recipe_id)
             recipes_instructions = await (self.spoonacular_instance.get_analyzed_recipe_instructions(recipe_id))
-            recipes_instructions_boundary = self.toBoundaryRecipeInstructions(recipes_instructions)
+            recipes_instructions_boundary = [self.toBoundaryRecipeInstructions(recipe) for recipe in recipes_instructions]
             return recipes_instructions_boundary
         except Exception as e:
             logger.error("In get_recipe_instructions: %s", e)
@@ -86,20 +91,17 @@ class RecipesService(Service):
         except Exception as e:
             logger.error("In add_recipe_to_mongoDB: %s\n recipe_id = %d", e, recipe.recipe_id)
 
-    def toBoundaryRecipeInstructions(self, recipes: List[Recipe_stepsEntity]) -> list[recipe_instructionsBoundary]:
-        recipes_instructions = []
-        for recipe in recipes:
-            recipes_instructions.append(
-                recipe_instructionsBoundary(
-                    recipe.name,
-                    [Step(int(step.number),
-                          step.step,
-                          int(step.length) if step.length is not None else 0,
-                          [ingredient.name for ingredient in step.ingredients],
-                          [equipment.name for equipment in step.equipments]
-                          ) for step in recipe.steps])
-            )
-        return recipes_instructions
+    def toBoundaryRecipeInstructions(self, recipe: Recipe_stepsEntity) -> recipe_instructionsBoundary:
+        return recipe_instructionsBoundary(
+            recipe.name if recipe.name is not None else "",
+            [Step(
+                step.number,
+                step.step,
+                step.length.number if step.length is not None else 0,
+                [{ingredient.name: ingredient.image} for ingredient in step.ingredients],
+                [{equipment.name: equipment.image} for equipment in step.equipments]
+            ) for step in recipe.steps]
+        )
 
     def toBoundaryRecipe(self, recipeEntity: RecipeEntity) -> RecipeBoundary:
         recipeBoundary = RecipeBoundary(int(recipeEntity.id)

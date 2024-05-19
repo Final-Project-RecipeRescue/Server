@@ -33,18 +33,67 @@ Endpoints
 
 Recipes
 
+getRecipesByIngredients
+
     GET /recipes/getRecipesByIngredients
         Retrieves list of RecipeBoundary based on provided ingredients.
         The recipes provided may contain ingredients that are not on the ingredients list.
         ingredients: Comma-separated list of ingredients.
 
+    Example:
+        http://127.0.0.1:8000/recipes/getRecipesByIngredients?ingredients=Banana%2C%20avocado%2C%20mango%2C%20apple%2C%20salt
+        
+        [
+          {
+            "recipe_id": 634048,
+            "recipe_name": "Banana Chocolate Pudding",
+            "ingredients": [
+              {
+                "ingredient_id": "9040",
+                "name": "bananas",
+                "amount": 472,
+                "unit": "gram",
+                "purchase_date": null
+              },
+              {
+                "ingredient_id": "19165",
+                "name": "cocoa powder",
+                "amount": 28.67,
+                "unit": "gram",
+                "purchase_date": null
+              },
+              {
+                "ingredient_id": "16098",
+                "name": "peanut butter",
+                "amount": 129,
+                "unit": "gram",
+                "purchase_date": null
+              },
+              {
+                "ingredient_id": "9037",
+                "name": "avocado",
+                "amount": 201,
+                "unit": "gram",
+                "purchase_date": null
+              }
+            ],
+            "image_url": "https://img.spoonacular.com/recipes/634048-312x231.jpg"
+          },...
+        ]
+
+getRecipesByIngredientsWithoutMissedIngredients
+
     GET /recipes/getRecipesByIngredientsWithoutMissedIngredients
         Retrieves list of RecipeBoundary based on provided ingredients, excluding those with missed ingredients.
         ingredients: Comma-separated list of ingredients.
 
+getRecipeByID
+
     GET /recipes/getRecipeByID/{recipe_id}
         Retrieves a RecipeBoundary by its ID.
         recipe_id: ID of the recipe.
+
+getRecipesByName
 
     GET /recipes/getRecipesByName/{recipe_name}
         Returns a list of recipes in this form:
@@ -56,9 +105,308 @@ Recipes
         }
         recipe_name: Name of the recipe.
 
+    Example
+        http://127.0.0.1:8000/recipes/getRecipesByName/Banana%20Chocolate%20Pudding
+        
+        [
+          {
+            "recipe_id": 634048,
+            "recipe_name": "Banana Chocolate Pudding",
+            "ingredients": [],
+            "image_url": "https://img.spoonacular.com/recipes/634048-312x231.jpg"
+          },
+          {
+            "recipe_id": 634047,
+            "recipe_name": "Banana Chocolate Pudding Cake",
+            "ingredients": [],
+            "image_url": "https://img.spoonacular.com/recipes/634047-312x231.jpg"
+          }
+        ]
+
+getRecipeInstructions
+
     GET /getRecipeInstructions/{recipe_id}
         Retrieves a list of recipe_instructionsBoundary by this Id
         recipe_id: ID of the recipe.
+        Return list of instructions in this from:
+        [
+            {
+                name : str
+                steps : 
+                    [
+                        {
+                            number : int
+                            description : str
+                            length : flout
+                            ingredients : 
+                                [
+                                    { Ingredient Name : Ingredient image}
+                                ]
+                            equipment :
+                                [
+                                    {Equipment Name : Equipment Image
+                                ]
+                        }
+                    ]
+            }
+        ]
+    Example
+        http://127.0.0.1:8000/recipes/getRecipeInstructions/324694
+        
+        [
+          {
+            "name": "",
+            "steps": [
+              {
+                "equipment": [
+                  {
+                    "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
+                  }
+                ],
+                "ingredients": [],
+                "length": null,
+                "number": 1,
+                "description": "Preheat the oven to 200 degrees F."
+              },
+              {
+                "equipment": [
+                  {
+                    "whisk": "https://spoonacular.com/cdn/equipment_100x100/whisk.png"
+                  },
+                  {
+                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
+                  }
+                ],
+                "ingredients": [
+                  {
+                    "light brown sugar": "https://spoonacular.com/cdn/ingredients_100x100/light-brown-sugar.jpg"
+                  },
+                  {
+                    "granulated sugar": "https://spoonacular.com/cdn/ingredients_100x100/sugar-in-bowl.png"
+                  },
+                  {
+                    "baking powder": "https://spoonacular.com/cdn/ingredients_100x100/white-powder.jpg"
+                  },
+                  {
+                    "baking soda": "https://spoonacular.com/cdn/ingredients_100x100/white-powder.jpg"
+                  },
+                  {
+                    "pecans": "https://spoonacular.com/cdn/ingredients_100x100/pecans.jpg"
+                  },
+                  {
+                    "all purpose flour": "https://spoonacular.com/cdn/ingredients_100x100/flour.png"
+                  },
+                  {
+                    "salt": "https://spoonacular.com/cdn/ingredients_100x100/salt.jpg"
+                  }
+                ],
+                "length": null,
+                "number": 2,
+                "description": "Whisk together the flour, pecans, granulated sugar, light brown sugar, baking powder, baking soda, and salt in a medium bowl."
+              },
+              {
+                "equipment": [
+                  {
+                    "whisk": "https://spoonacular.com/cdn/equipment_100x100/whisk.png"
+                  },
+                  {
+                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
+                  }
+                ],
+                "ingredients": [
+                  {
+                    "vanilla extract": "https://spoonacular.com/cdn/ingredients_100x100/vanilla-extract.jpg"
+                  },
+                  {
+                    "vanilla bean": "https://spoonacular.com/cdn/ingredients_100x100/vanilla.jpg"
+                  },
+                  {
+                    "buttermilk": "https://spoonacular.com/cdn/ingredients_100x100/buttermilk.jpg"
+                  },
+                  {
+                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
+                  },
+                  {
+                    "egg": "https://spoonacular.com/cdn/ingredients_100x100/egg.png"
+                  }
+                ],
+                "length": null,
+                "number": 3,
+                "description": "Whisk together the eggs, buttermilk, butter and vanilla extract and vanilla bean in a small bowl."
+              },
+              {
+                "equipment": [],
+                "ingredients": [
+                  {
+                    "egg": "https://spoonacular.com/cdn/ingredients_100x100/egg.png"
+                  }
+                ],
+                "length": null,
+                "number": 4,
+                "description": "Add the egg mixture to the dry mixture and gently mix to combine. Do not overmix."
+              },
+              {
+                "equipment": [],
+                "ingredients": [],
+                "length": {
+                  "number": 15,
+                  "unit": "minutes"
+                },
+                "number": 5,
+                "description": "Let the batter sit at room temperature for at least 15 minutes and up to 30 minutes before using."
+              },
+              {
+                "equipment": [
+                  {
+                    "frying pan": "https://spoonacular.com/cdn/equipment_100x100/pan.png"
+                  }
+                ],
+                "ingredients": [
+                  {
+                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
+                  }
+                ],
+                "length": {
+                  "number": 3,
+                  "unit": "minutes"
+                },
+                "number": 6,
+                "description": "Heat a cast iron or nonstick griddle pan over medium heat and brush with melted butter. Once the butter begins to sizzle, use 2 tablespoons of the batter for each pancake and cook until the bubbles appear on the surface and the bottom is golden brown, about 2 minutes, flip over and cook until the bottom is golden brown, 1 to 2 minutes longer."
+              },
+              {
+                "equipment": [
+                  {
+                    "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
+                  }
+                ],
+                "ingredients": [],
+                "length": null,
+                "number": 7,
+                "description": "Transfer the pancakes to a platter and keep warm in a 200 degree F oven."
+              },
+              {
+                "equipment": [],
+                "ingredients": [
+                  {
+                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
+                  },
+                  {
+                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
+                  }
+                ],
+                "length": null,
+                "number": 8,
+                "description": "Serve 6 pancakes per person, top each with some of the bourbon butter."
+              },
+              {
+                "equipment": [],
+                "ingredients": [
+                  {
+                    "powdered sugar": "https://spoonacular.com/cdn/ingredients_100x100/powdered-sugar.jpg"
+                  },
+                  {
+                    "maple syrup": "https://spoonacular.com/cdn/ingredients_100x100/maple-syrup.png"
+                  }
+                ],
+                "length": null,
+                "number": 9,
+                "description": "Drizzle with warm maple syrup and dust with confectioners' sugar."
+              },
+              {
+                "equipment": [],
+                "ingredients": [
+                  {
+                    "fresh mint": "https://spoonacular.com/cdn/ingredients_100x100/mint.jpg"
+                  },
+                  {
+                    "pecans": "https://spoonacular.com/cdn/ingredients_100x100/pecans.jpg"
+                  }
+                ],
+                "length": null,
+                "number": 10,
+                "description": "Garnish with fresh mint sprigs and more toasted pecans, if desired."
+              }
+            ]
+          },
+          {
+            "name": "Bourbon Molasses Butter",
+            "steps": [
+              {
+                "equipment": [
+                  {
+                    "sauce pan": "https://spoonacular.com/cdn/equipment_100x100/sauce-pan.jpg"
+                  }
+                ],
+                "ingredients": [
+                  {
+                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
+                  },
+                  {
+                    "sugar": "https://spoonacular.com/cdn/ingredients_100x100/sugar-in-bowl.png"
+                  }
+                ],
+                "length": null,
+                "number": 1,
+                "description": "Combine the bourbon and sugar in a small saucepan and cook over high heat until reduced to 3 tablespoons, remove and let cool."
+              },
+              {
+                "equipment": [
+                  {
+                    "food processor": "https://spoonacular.com/cdn/equipment_100x100/food-processor.png"
+                  }
+                ],
+                "ingredients": [
+                  {
+                    "molasses": "https://spoonacular.com/cdn/ingredients_100x100/molasses.jpg"
+                  },
+                  {
+                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
+                  },
+                  {
+                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
+                  },
+                  {
+                    "salt": "https://spoonacular.com/cdn/ingredients_100x100/salt.jpg"
+                  }
+                ],
+                "length": null,
+                "number": 2,
+                "description": "Put the butter, molasses, salt and cooled bourbon mixture in a food processor and process until smooth."
+              },
+              {
+                "equipment": [
+                  {
+                    "plastic wrap": "https://spoonacular.com/cdn/equipment_100x100/plastic-wrap.jpg"
+                  },
+                  {
+                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
+                  }
+                ],
+                "ingredients": [
+                  {
+                    "wrap": "https://spoonacular.com/cdn/ingredients_100x100/flour-tortilla.jpg"
+                  }
+                ],
+                "length": {
+                  "number": 60,
+                  "unit": "minutes"
+                },
+                "number": 3,
+                "description": "Scrape into a bowl, cover with plastic wrap and refrigerate for at least 1 hour to allow the flavors to meld."
+              },
+              {
+                "equipment": [],
+                "ingredients": [],
+                "length": {
+                  "number": 30,
+                  "unit": "minutes"
+                },
+                "number": 4,
+                "description": "Remove from the refrigerator about 30 minutes before using to soften."
+              }
+            ]
+          }
+        ]
 
 Ingredients
 
