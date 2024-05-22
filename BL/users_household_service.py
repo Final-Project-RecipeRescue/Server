@@ -275,14 +275,12 @@ class UsersHouseholdService:
 
     async def get_household_user_by_id(self, user_email: str, household_id: str) -> HouseholdBoundary:
         user = await self.get_user(user_email)
-        for id in user.households:
-            if id == household_id:
-                household_entity = self.firebase_instance.get_firebase_data(f'households/{id}')
-                if not household_entity:
-                    raise HouseholdException("Household does not exist")
-                household_boundary = to_household_boundary(household_entity)
-                return household_boundary
-        raise HouseholdException("Household does not exist")
+        household = await self.get_household_by_Id(household_id)
+        if not household:
+            raise HouseholdException("Household does not exist")
+        if household_id in user.households and user_email in household.participants:
+            return household
+        raise HouseholdException(f"This user : {user_email} does not have access to this household : {household_id}")
 
     async def get_household_user_by_name(self, user_email, household_name) -> List[HouseholdBoundary]:
         user_entity = await self.get_user(user_email)

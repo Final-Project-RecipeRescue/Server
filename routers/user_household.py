@@ -280,3 +280,13 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
     ingredients_str = ingredients_str.rstrip(', ')  # Remove the trailing comma and space
     recipes = await get_recipes_without_missed_ingredients(ingredients_str)
     return recipes
+
+@router.get("/check_if_household_exist_in_system")
+async def check_if_household_exist_in_system(household_id: str):
+    try:
+        await user_household_service.get_household_by_Id(household_id)
+        logger.info(f"Household {household_id} exists in system")
+        return True
+    except HouseholdException as e:
+        logger.error(f"Household {household_id} does not exist in system")
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(f"Household {household_id} does not exist in system"))

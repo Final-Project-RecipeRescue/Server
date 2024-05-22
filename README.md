@@ -758,7 +758,11 @@ use_recipe_by_recipe_id
         Return list of recipes that household can make or 404 if there no recipes
         user_mail: Email of the user to add.
         household_id: Id of the household.
-        
+
+    GET /check_if_household_exist_in_system
+         Return true if the hosehold exist in the system
+         household_id: Id of the household.
+
 Object Definitions
 
 RecipeBoundary
