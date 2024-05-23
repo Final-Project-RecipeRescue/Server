@@ -50,7 +50,7 @@ def create_new_household(user_email: str, household_name: str, ingredients: List
                          , json=ingredients.model_dump())
 
 
-def get_household_by_hosehold_id_and_userEmail(user_email: str, household_id: str):
+def get_household_by_household_id_and_userEmail(user_email: str, household_id: str):
     return requests.get(
         base_url + f"/users_household/get_household_user_by_id?user_email={user_email}&household_id={household_id}")
 
