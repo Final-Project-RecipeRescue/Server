@@ -116,7 +116,7 @@ class UserTests(TestCase):
 
 class HouseholdTests(TestCase):
     def test_check_if_household_exists(self, household_id: str, user_email: str):
-        response = get_household_by_hosehold_id_and_userEmail(user_email, household_id)
+        response = get_household_by_household_id_and_userEmail(user_email, household_id)
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(get_status_code_from_body(response), 404)
         self.assertEqual(response.json().get("household_id"), household_id)
@@ -141,7 +141,7 @@ class HouseholdTests(TestCase):
 
         household_id = response.json()["household_id"]
         self.test_check_if_household_exists(household_id, user.email)
-        response = get_household_by_hosehold_id_and_userEmail(user.email, household_id)
+        response = get_household_by_household_id_and_userEmail(user.email, household_id)
         self.assertEqual(response.json()["household_name"], household_name)
 
         delete_user(user.email)
