@@ -276,8 +276,8 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
     ingredients_str = ""
     for ingredient_id, ingredients in ingredients_dict.items():
         unique_names = list(set([ing.name for ing in ingredients]))
-        ingredients_str += ", ".join(unique_names) + ", "  # Accumulate ingredients
-    ingredients_str = ingredients_str.rstrip(', ')  # Remove the trailing comma and space
+        ingredients_str += ", ".join(unique_names) + ", "
+    ingredients_str = ingredients_str.rstrip(', ')
     recipes = await get_recipes_without_missed_ingredients(ingredients_str)
     return recipes
 
