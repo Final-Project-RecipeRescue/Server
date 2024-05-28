@@ -737,7 +737,7 @@ use_recipe_by_recipe_id
 
     POST /use_recipe_by_recipe_id
         Add to the history of consumption of meals at household.
-        user_mail: Email of the user to add.
+        user_email: Email of the user to add.
         household_id: Id of the household.
         meal : [
               "Breakfast",
