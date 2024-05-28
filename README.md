@@ -125,7 +125,7 @@ getRecipesByName
 
 getRecipeInstructions
 
-    GET /getRecipeInstructions/{recipe_id}
+    GET /recipes/getRecipeInstructions/{recipe_id}
         Retrieves a list of recipe_instructionsBoundary by this Id
         recipe_id: ID of the recipe.
         Return list of instructions in this from:
@@ -412,7 +412,7 @@ Ingredients
 
 getAllSystemIngredients
 
-    GET /getAllSystemIngredients
+    GET /ingredients/getAllSystemIngredients
      Retrieves a list of ingredients in this from:
       {
         "ingredient_id": String,
@@ -421,7 +421,7 @@ getAllSystemIngredients
     
 autocompleteIngredient
 
-    GET /autocompleteIngredient
+    GET /ingredients/autocompleteIngredient
     Retrieves a list of ingredients whose prefix is ​​a partial_name in this from:
       {
         "ingredient_id": String,
@@ -433,7 +433,7 @@ Users and Household Operations
 
 createNewHousehold
 
-    POST /users_household/createNewHousehold
+    POST /users_household/users_household/createNewHousehold
         Creates a new household.
         user_mail: Email of the user creating the household.
         household_name: Name of the household.
@@ -460,13 +460,13 @@ createNewHousehold
         
 delete_household
 
-    DELETE /delete_household
+    DELETE /users_household/delete_household
         Delete household by householdID
         household_id : Id of household
 
 add_user
 
-    POST /add_user
+    POST /users_household/add_user
         Create new user in system
         user : UserInputForAddUser
         user_mail: Email of the user.
@@ -488,7 +488,7 @@ add_user
 
 get_user
 
-    GET /get_user
+    GET /users_household/get_user
         Return UserBoundary by user mail
     
     Example
@@ -521,13 +521,13 @@ get_user
 
 delete_user
 
-    DELETE /delete_user
+    DELETE /users_household/delete_user
         Remove user from system and remove him from households
         user_mail: Email of the user creating the household.
 
 get_household_user_by_id
 
-    GET /get_household_user_by_id
+    GET /users_household/get_household_user_by_id
         Retuen a HouseholdBoundary by user mail and household id.
         user_mail: Email of the user.
         household_id : Id of household
@@ -649,28 +649,28 @@ get_household_user_by_id
 
 get_household_user_by_name
 
-    GET /get_household_user_by_name
+    GET /users_household/get_household_user_by_name
         Return a list of HouseholdBoundary with this household_name.
         user_mail: Email of the user.
         household_name : Name of household
 
 get_all_household_details_by_user_mail
 
-    GET /get_all_household_details_by_user_mail
+    GET /users_household/get_all_household_details_by_user_mail
         Detailed information about the user's households, including a list of each household's available ingredients. 
         Return a list of HouseholdBoundary or Null if there is a problem with the user's email 
         user_mail: Email of the user.
 
 addUserToHousehold
 
-    POST /users_household/addUserToHousehold
+    POST /users_household/users_household/addUserToHousehold
         Adds a user to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
 add_ingredient_to_household_by_ingredient_name
 
-    POST /add_ingredient_to_household_by_ingredient_name
+    POST /users_household/add_ingredient_to_household_by_ingredient_name
         Adds a ingredient to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
@@ -685,7 +685,7 @@ add_ingredient_to_household_by_ingredient_name
 
 add_list_ingredients_to_household
 
-    POST /add_list_ingredients_to_household
+    POST /users_household/add_list_ingredients_to_household
         Adds a ingredients to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
@@ -693,7 +693,7 @@ add_list_ingredients_to_household
 
 remove_ingredient_from_household_by_date
 
-    DELETE /remove_ingredient_from_household_by_date
+    DELETE /users_household/remove_ingredient_from_household_by_date
         Remove ingredient in household on a specific date.
         user_mail: Email of the user to add.
         household_id: Id of the household.
@@ -713,7 +713,7 @@ remove_ingredient_from_household_by_date
 
 remove_ingredient_from_household
 
-    DELETE /remove_ingredient_from_household
+    DELETE /users_household/remove_ingredient_from_household
         Remove ingredient in household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
@@ -728,14 +728,14 @@ remove_ingredient_from_household
 
 get_all_ingredients_in_household
 
-    GET /get_all_ingredients_in_household
+    GET /users_household/get_all_ingredients_in_household
         Retrieves a list of IngredientBoundary in household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
 use_recipe_by_recipe_id
 
-    POST /use_recipe_by_recipe_id
+    POST /users_household/use_recipe_by_recipe_id
         Add to the history of consumption of meals at household.
         user_email: Email of the user to add.
         household_id: Id of the household.
@@ -751,15 +751,15 @@ use_recipe_by_recipe_id
          http://127.0.0.1:8000/users_household/use_recipe_by_recipe_id?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3&meal=Lunch&dishes_num=1&recipe_id=634435
       return Null if sucseessful 
 
-    GET /get_meal_types
+    GET /users_household/get_meal_types
         Return list of meals types
 
-    GET /get_all_recipes_that_household_can_make
+    GET /users_household/get_all_recipes_that_household_can_make
         Return list of recipes that household can make or 404 if there no recipes
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
-    GET /check_if_household_exist_in_system
+    GET /users_household/check_if_household_exist_in_system
          Return true if the hosehold exist in the system
          household_id: Id of the household.
 
