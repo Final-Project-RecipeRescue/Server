@@ -57,9 +57,11 @@ class SpoonacularAPI:
         if response.status_code == 200:
             recipes = []
             for recipe in response.json():
+            for recipe in response.json():
                 recipes.append(RecipeEntityByIngredientSpoonacular(recipe))
             return recipes
         else:
+            print("Error:", response.status_code)
             print("Error:", response.status_code)
             return None
 
