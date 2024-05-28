@@ -249,6 +249,7 @@ class UsersHouseholdService:
     # TODO:need to add option to enter image
     async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str,
                           state: Optional[str]):
+        user_mail = user_mail.lower()
         self.check_email(user_mail)
         if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') != None:
             raise UserException("User already exists")
