@@ -69,10 +69,6 @@ def delete_household_by_id(household_id: str):
     return requests.delete(base_url + f'/users_household/delete_household?household_id={household_id}')
 
 
-def get_status_code_from_body(response: requests.Response):
-    return response.json().get("status_code")
-
-
 def check_if_household_exist(household_id: str):
     return requests.get(base_url + f'/users_household/check_if_household_exist_in_system?household_id={household_id}')
 
@@ -139,7 +135,7 @@ class UserTests(TestCase):
         response = delete_user(user_email)
         self.assertEqual(response.status_code, 200)
         response = get_user(user_email)
-        self.assertEqual(get_status_code_from_body(response), 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_add_user_to_system(self):
         user = build_user_input()
@@ -152,16 +148,16 @@ class UserTests(TestCase):
         user = build_user_input()
         user.email = ""
         response = add_user(user)
-        self.assertEqual(get_status_code_from_body(response), 400)
+        self.assertEqual(response.status_code, 400)
         user.email = "server_test"
         response = add_user(user)
-        self.assertEqual(get_status_code_from_body(response), 400)
+        self.assertEqual(response.status_code, 400)
         user.email = None
         response = add_user(user)
         self.assertEqual(response.status_code, 422)
         user.email = "@a.c"
         response = add_user(user)
-        self.assertEqual(get_status_code_from_body(response), 400)
+        self.assertEqual(response.status_code, 400)
         logger.info("Test : test_add_wrong_users pass successfully")
 
 
@@ -208,13 +204,12 @@ class HouseholdTests(TestCase):
         self.user_email = user.email
         household_name = "server_test"
         response = create_new_household(user.email, household_name, ingredients)
-        self.assertEqual(get_status_code_from_body(response), None)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json().get("message"), "Household added successfully")
         self.household_id = response.json()["household_id"]
 
         response = get_household_by_household_id_and_userEmail(user.email, self.household_id)
         self.assertEqual(response.status_code, 200)
-        self.assertNotEqual(get_status_code_from_body(response), 404)
         self.assertEqual(response.json().get("household_id"), self.household_id)
         self.assertEqual(response.json()["household_name"], household_name)
         participants = response.json().get("participants")

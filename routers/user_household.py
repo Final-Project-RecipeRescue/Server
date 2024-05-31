@@ -74,7 +74,7 @@ async def get_user(user_email: str):
         return user
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND if e is UserException else status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND if isinstance(e,UserException) else status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
 @router.delete("/delete_user")
