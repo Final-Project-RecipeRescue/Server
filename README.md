@@ -762,6 +762,14 @@ use_recipe_by_recipe_id
     GET /users_household/check_if_household_exist_in_system
          Return true if the hosehold exist in the system
          household_id: Id of the household.
+    
+    GET /users_household/check_if_household_can_make_recipe
+         This endpoint allows users to check if a specific household has enough ingredients to make a given recipe for a specified number of dishes.
+         household_id : The ID of the household. : string
+         recipe_id : The ID of the recipe. : string
+         dishes_num : The number of dishes to be made. Defaults to 1 if not provided. : optional[int], default=1)
+         
+         Returns a boolean indicating whether the household can make the specified recipe
 
 Object Definitions
 
