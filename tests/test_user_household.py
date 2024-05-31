@@ -82,7 +82,7 @@ def get_recipes(user_email: str, household_id: str):
         base_url + f'/users_household/get_all_recipes_that_household_can_make?user_email={user_email}?household_id={household_id}')
 
 
-def get_ingerdients():
+def get_ingredients():
     ingredients = build_ingredients_empty_input()
     ingredients_names = [
         "Olive oil",
@@ -222,7 +222,7 @@ class HouseholdTests(TestCase):
         logger.info("Test : test_crate_household pass successfully")
 
     def test_crate_household_with_Ingredients(self):
-        self.test_crate_household(get_ingerdients())
+        self.test_crate_household(get_ingredients())
         logger.info("Test : test_crate_household_with_Ingredients pass successfully")
 
     def test_get_recipes(self):
@@ -230,7 +230,7 @@ class HouseholdTests(TestCase):
         add_user(user)
         self.user_email = user.email
         household_name = "server_test"
-        ingredients_to_add = get_ingerdients()
+        ingredients_to_add = get_ingredients()
         response = create_new_household(user.email, household_name, ingredients_to_add)
         self.household_id = response.json()["household_id"]
         data = get_household_by_household_id_and_userEmail(self.user_email, self.household_id).json()
