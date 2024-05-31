@@ -249,7 +249,6 @@ class UsersHouseholdService:
     # TODO:need to add option to enter image
     async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str,
                           state: Optional[str]):
-        user_mail = user_mail.lower()
         self.check_email(user_mail)
         if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') != None:
             raise UserException("User already exists")
@@ -425,7 +424,7 @@ class UsersHouseholdService:
 
     async def check_ingredient_availability(self, household: HouseholdBoundary,
                                             recipe_ingredient: IngredientBoundary,
-                                            dishes_number: float):
+                                            dishes_number: float) -> bool:
         try:
             sum_amount = sum(
                 ingredient.amount for ingredient in household.ingredients[recipe_ingredient.ingredient_id])
@@ -493,6 +492,16 @@ class UsersHouseholdService:
 
         else:
             raise InvalidArgException(f"The household id or recipe id is invalid")
+
+    async def check_if_household_can_make_the_recipe(self,household_id : str, recipe_id :str,dishes_number : int) -> bool:
+        household = await self.get_household_by_Id(household_id)
+        recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
+        if isinstance(household,HouseholdBoundary) and isinstance(recipe,RecipeBoundary):
+            for ingredient in recipe.ingredients:
+                if not await self.check_ingredient_availability(household, ingredient, dishes_number):
+                    return False
+            return True
+        return False
 
     async def delete_user(self, user_email):
         user = await self.get_user(user_email)

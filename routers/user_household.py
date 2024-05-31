@@ -273,6 +273,8 @@ def get_meal_types():
 @router.get("/get_all_recipes_that_household_can_make")
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
     ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
+    if isinstance(ingredients_dict, HTTPException):
+        return ingredients_dict
     ingredients_str = ""
     for ingredient_id, ingredients in ingredients_dict.items():
         unique_names = list(set([ing.name for ing in ingredients]))
@@ -290,3 +292,7 @@ async def check_if_household_exist_in_system(household_id: str):
     except HouseholdException as e:
         logger.error(f"Household {household_id} does not exist in system")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(f"Household {household_id} does not exist in system"))
+
+@router.get("/check_if_household_can_make_recipe")
+async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num : Optional[int] = 1):
+    return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
