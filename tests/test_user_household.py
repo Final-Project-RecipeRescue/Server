@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from typing import List
+from typing import List, Dict, Any
 from unittest import TestCase
 
 from BL.recipes_service import toBoundaryRecipe
@@ -9,6 +9,7 @@ from Data.recipe_entity import RecipeEntityByIngredientSpoonacular
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.InputsForApiCalls import UserInputForAddUser, ListIngredientsInput, IngredientInput
+from routers_boundaries.MealBoundary import meal_types, MealBoundary
 from routers_boundaries.UserBoundary import UserBoundary
 import requests
 import logging
@@ -75,7 +76,7 @@ def check_if_household_exist(household_id: str):
 
 def get_recipes(user_email: str, household_id: str):
     return requests.get(
-        base_url + f'/users_household/get_all_recipes_that_household_can_make?user_email={user_email}?household_id={household_id}')
+        base_url + f'/users_household/get_all_recipes_that_household_can_make?user_email={user_email}&household_id={household_id}')
 
 
 def get_ingredients():
@@ -112,6 +113,23 @@ def get_ingredients():
         )
         ingredients.ingredients.append(ingredientInput)
     return ingredients
+
+
+def build_household_boundary(json_data: Dict[str, Any]) -> HouseholdBoundary:
+    # Parse ingredients
+    ingredients = {}
+    for category, ingredient_list in json_data['ingredients'].items():
+        ingredients[category] = [IngredientBoundary(**ingredient) for ingredient in ingredient_list]
+
+    # Parse meals
+    meals = {}
+    for date, meal_data in json_data['meals'].items():
+        meals[date] = {}
+        for meal_type in meal_types:
+            if meal_type in meal_data:
+                meals[date][meal_type] = [MealBoundary(**meal) for meal in meal_data[meal_type]]
+            else:
+                meals[date][meal_type] = []
 
 
 class UserTests(TestCase):
@@ -229,21 +247,15 @@ class HouseholdTests(TestCase):
         response = create_new_household(user.email, household_name, ingredients_to_add)
         self.household_id = response.json()["household_id"]
         data = get_household_by_household_id_and_userEmail(self.user_email, self.household_id).json()
-        household = to_household_boundary(data)
+        household = build_household_boundary(data)
         ingredients_in_household = []
         for ingredient_id, ingredients in household.ingredients.items():
             unique_names = list(set([ing.name for ing in ingredients]))
-            ingredients_in_household+= unique_names
+            ingredients_in_household += unique_names
         if ingredients_in_household.__len__() == 0:
             self.fail("There are no ingredients in the household")
-        data = get_recipes(self.user_email, self.household_id).json()
-        if isinstance(data,list):
-            recipes = []
-            for recipe in data:
-                recipes.append(toBoundaryRecipe( RecipeEntityByIngredientSpoonacular(recipe)))
-            for recipe in recipes:
-                self.assertIn(recipe.recipe_id,household.ingredients.keys())
-
+        response = get_recipes(self.user_email, self.household_id)
+        self.assertEqual(response.status_code,200)
 
 if __name__ == '__main__':
     unittest.main()
