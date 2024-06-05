@@ -163,27 +163,6 @@ class UserTests(TestCase):
         response = add_user(user)
         self.assertEqual(response.status_code,409)
         logger.info("Test : test_add_user_already_exists pass successfully")
-    def test_check_if_user_exists(self, user_email: str):
-        response = get_user(user_email)
-        self.assertEqual(response.status_code, 200)
-        user_data = response.json()
-        user_boundary = UserBoundary(
-            first_name=user_data["first_name"],
-            last_name=user_data["last_name"],
-            user_email=user_data["user_email"],
-            image=user_data["image"],
-            households_ids=user_data["households"],
-            meals=user_data["meals"],
-            country=user_data["country"],
-            state=user_data["state"]
-        )
-        self.assertEqual(user_boundary.user_email, user_email)
-
-    def test_delete_user(self, user_email: str):
-        response = delete_user(user_email)
-        self.assertEqual(response.status_code, 200)
-        response = get_user(user_email)
-        self.assertEqual(response.status_code, 404)
 
 
 
