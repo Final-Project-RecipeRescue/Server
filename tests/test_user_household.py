@@ -117,8 +117,15 @@ def get_ingredients():
 def update_user_information(user_input : UserInputForChanges):
     return requests.put(base_url + "/users_household/update_personal_user_info", json=user_input.model_dump())
 
+def remove_user_from_household(user_email : str, household_id : str):
+    return requests.delete(
+        base_url + f"/users_household/remove_user_from_household?user_email={user_email}&household_id={household_id}")
+
 def add_ingredient_to_household(household_id : str ,user_email : str, ingredient : IngredientInput ):
     return requests.post(base_url + f"/users_household/add_ingredient_to_household_by_ingredient_name?user_email={user_email}&household_id={household_id}",json=ingredient.model_dump())
+
+def add_user_to_household(user_email : str,household_id : str):
+    return requests.post(base_url + f"/users_household/add_user_to_household?user_email={user_email}&household_id={household_id}")
 class UserTests(TestCase):
     user_email = None
     def tearDown(self):
@@ -270,6 +277,39 @@ class HouseholdTests(TestCase):
         response = add_ingredient_to_household(self.household_id, self.user_email, ingredients_to_add)
         self.assertEqual(response.status_code,404)
         logger.info(f"Test : test_add_wrong_ingredient pass successfully")
+
+    def test_remove_user_from_household(self):
+        self.test_crate_household()
+        user = build_user_input()
+        user.email = "ServerTest2@ServerTest2.ServerTest2"
+        add_user(user)
+
+        response = add_user_to_household(user.email,self.household_id)
+        self.assertEqual(response.status_code,200)
+
+        response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
+        household_users = response.json()['participants']
+        self.assertIn(user.email, household_users)
+
+        response = remove_user_from_household(user.email, self.household_id)
+        self.assertEqual(response.status_code,200)
+
+        response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
+        household_users = response.json()['participants']
+        self.assertNotIn(user.email, household_users)
+
+        delete_user(user.email)
+        logger.info("Test : test_remove_user_from_household pass successfully")
+    def test_remove_user_who_is_not_in_the_household(self):
+        self.test_crate_household()
+        response = remove_user_from_household("test@test.test", self.household_id)
+        self.assertEqual(response.status_code,400)
+        response = get_user(self.user_email)
+        user_households = response.json()['households']
+        self.assertIn(self.household_id, user_households)
+        response = get_household_by_household_id_and_userEmail(self.user_email,self.household_id)
+        household_users = response.json()['participants']
+        self.assertIn(self.user_email, household_users)
 
 if __name__ == '__main__':
     unittest.main()
