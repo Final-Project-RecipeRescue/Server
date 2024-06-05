@@ -8,7 +8,8 @@ from BL.users_household_service import to_household_boundary
 from Data.recipe_entity import RecipeEntityByIngredientSpoonacular
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
-from routers_boundaries.InputsForApiCalls import UserInputForAddUser, ListIngredientsInput, IngredientInput
+from routers_boundaries.InputsForApiCalls import UserInputForAddUser, ListIngredientsInput, IngredientInput, \
+    UserInputForChanges
 from routers_boundaries.MealBoundary import meal_types, MealBoundary
 from routers_boundaries.UserBoundary import UserBoundary
 import requests
@@ -78,7 +79,6 @@ def get_recipes(user_email: str, household_id: str):
     return requests.get(
         base_url + f'/users_household/get_all_recipes_that_household_can_make?user_email={user_email}&household_id={household_id}')
 
-
 def get_ingredients():
     ingredients = build_ingredients_empty_input()
     ingredients_names = [
@@ -114,6 +114,8 @@ def get_ingredients():
         ingredients.ingredients.append(ingredientInput)
     return ingredients
 
+def update_user_information(user_input : UserInputForChanges):
+    return requests.put(base_url + "/users_household/update_personal_user_info", json=user_input.model_dump())
 
 class UserTests(TestCase):
     user_email = None
@@ -163,8 +165,33 @@ class UserTests(TestCase):
         response = add_user(user)
         self.assertEqual(response.status_code,409)
         logger.info("Test : test_add_user_already_exists pass successfully")
-
-
+    def test_change_user_info(self):
+        self.test_add_user_to_system()
+        user = build_user_input()
+        new_name = f"{user.first_name}test"
+        new_last_name = f"{user.last_name}test"
+        new_country = None
+        new_state = f"{user.state}test"
+        user = UserInputForChanges(
+            email=self.user_email,
+            first_name=new_name,
+            last_name=new_last_name,
+            country=new_country,
+            state=new_state
+        )
+        response = update_user_information(user)
+        self.assertEqual(response.status_code,200)
+        response = get_user(self.user_email)
+        self.assertEqual(response.json()['first_name'],new_name) \
+            if new_name is not None else self.assertEqual(response.json()['first_name'],build_user_input().first_name)
+        self.assertEqual(response.json()['last_name'], new_last_name) \
+            if new_last_name is not None else self.assertEqual(response.json()['last_name'],build_user_input().last_name)
+        self.assertEqual(response.json()['country'], new_country) \
+            if new_country is not None else self.assertEqual(response.json()['country'],build_user_input().country)
+        self.assertEqual(response.json()['state'], new_state) \
+            if new_state is not None else self.assertEqual(response.json()['state'],build_user_input().state)
+        self.assertEqual(response.json()['user_email'],self.user_email)
+        logger.info("Test : test_change_user_info pass")
 
 class HouseholdTests(TestCase):
     household_id = None
