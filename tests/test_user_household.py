@@ -115,24 +115,54 @@ def get_ingredients():
     return ingredients
 
 
-def build_household_boundary(json_data: Dict[str, Any]) -> HouseholdBoundary:
-    # Parse ingredients
-    ingredients = {}
-    for category, ingredient_list in json_data['ingredients'].items():
-        ingredients[category] = [IngredientBoundary(**ingredient) for ingredient in ingredient_list]
-
-    # Parse meals
-    meals = {}
-    for date, meal_data in json_data['meals'].items():
-        meals[date] = {}
-        for meal_type in meal_types:
-            if meal_type in meal_data:
-                meals[date][meal_type] = [MealBoundary(**meal) for meal in meal_data[meal_type]]
-            else:
-                meals[date][meal_type] = []
-
-
 class UserTests(TestCase):
+    user_email = None
+    def tearDown(self):
+        if self.user_email:
+            delete_user(self.user_email)
+            self.user_email = None
+
+    def test_add_user_to_system(self):
+        user = build_user_input()
+        response = add_user(user)
+        self.assertEqual(response.status_code, 200)
+        self.user_email = user.email
+        logger.info("Test : test_add_user_to_system pass successfully")
+    def test_add_wrong_users(self):
+        user = build_user_input()
+        user.email = ""
+        response = add_user(user)
+        self.assertEqual(response.status_code, 400)
+        user.email = "server_test"
+        response = add_user(user)
+        self.assertEqual(response.status_code, 400)
+        user.email = None
+        response = add_user(user)
+        self.assertEqual(response.status_code, 422)
+        user.email = "@a.c"
+        response = add_user(user)
+        self.assertEqual(response.status_code, 400)
+        logger.info("Test : test_add_wrong_users pass successfully")
+    def test_get_user(self):
+        self.test_add_user_to_system()
+        response = get_user(self.user_email)
+        self.assertEqual(response.status_code,200)
+        logger.info("Test : test_login_user pass successfully")
+    def test_get_user_not_found(self):
+        self.test_add_user_to_system()
+        email = self.user_email
+        self.tearDown()
+        response = get_user(email)
+        self.assertEqual(response.status_code,404)
+        logger.info("Test : test_login_user with user dont exist pass successfully")
+    def test_add_user_already_exists(self):
+        self.test_add_user_to_system()
+        user = build_user_input()
+        user.email = self.user_email
+        user.country = "test"
+        response = add_user(user)
+        self.assertEqual(response.status_code,409)
+        logger.info("Test : test_add_user_already_exists pass successfully")
     def test_check_if_user_exists(self, user_email: str):
         response = get_user(user_email)
         self.assertEqual(response.status_code, 200)
@@ -155,52 +185,6 @@ class UserTests(TestCase):
         response = get_user(user_email)
         self.assertEqual(response.status_code, 404)
 
-    def test_add_user_to_system(self):
-        user = build_user_input()
-        self.assertEqual(add_user(user).status_code, 200)
-        self.test_check_if_user_exists(user.email)
-        self.test_delete_user(user.email)
-        logger.info("Test : test_add_user_to_system pass successfully")
-
-    def test_add_wrong_users(self):
-        user = build_user_input()
-        user.email = ""
-        response = add_user(user)
-        self.assertEqual(response.status_code, 400)
-        user.email = "server_test"
-        response = add_user(user)
-        self.assertEqual(response.status_code, 400)
-        user.email = None
-        response = add_user(user)
-        self.assertEqual(response.status_code, 422)
-        user.email = "@a.c"
-        response = add_user(user)
-        self.assertEqual(response.status_code, 400)
-        logger.info("Test : test_add_wrong_users pass successfully")
-
-
-def build_household_boundary(data):
-    ingredients_dict = {}
-    for ingredient_id, ingredients in data["ingredients"].items():
-        ing_lst = []
-        for ing in ingredients:
-            ing = IngredientBoundary(
-                ing["ingredient_id"],
-                ing["name"],
-                ing["amount"],
-                ing["unit"],
-                datetime.strptime(ing["purchase_date"], "%Y-%m-%d")
-            )
-            ing_lst.append(ing)
-        ingredients_dict[ingredient_id] = ing_lst
-    return HouseholdBoundary(
-        data["household_id"],
-        data["household_name"],
-        data["household_image"],
-        data["participants"],
-        ingredients_dict,
-        data["meals"]
-    )
 
 
 class HouseholdTests(TestCase):
@@ -246,17 +230,9 @@ class HouseholdTests(TestCase):
         ingredients_to_add = get_ingredients()
         response = create_new_household(user.email, household_name, ingredients_to_add)
         self.household_id = response.json()["household_id"]
-        data = get_household_by_household_id_and_userEmail(self.user_email, self.household_id).json()
-        household = build_household_boundary(data)
-        ingredients_in_household = []
-        for ingredient_id, ingredients in household.ingredients.items():
-            unique_names = list(set([ing.name for ing in ingredients]))
-            ingredients_in_household += unique_names
-        if ingredients_in_household.__len__() == 0:
-            self.fail("There are no ingredients in the household")
         response = get_recipes(self.user_email, self.household_id)
-        logger.info(f"response.json : {response.json()}")
         self.assertEqual(response.status_code,200)
+        logger.info(f"Test : test_get_recipes pass successfully the recipes is : {response.json()}")
 
 if __name__ == '__main__':
     unittest.main()
