@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
-, IngredientToRemoveByDateInput, ListIngredientsInput)
+, IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges)
 from routers_boundaries.UserBoundary import UserBoundary
 from routers.recipes import get_recipes_without_missed_ingredients, get_recipes
 
@@ -77,7 +77,16 @@ async def get_user(user_email: str):
         logger.error(f"Error retrieving user: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND if isinstance(e,UserException) else status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
-
+@router.put("/update_personal_user_info")
+async def update_personal_user_info(user: UserInputForChanges):
+    try:
+        await user_household_service.change_user_info(user.email, user.first_name, user.last_name, user.country,
+                                                      user.state)
+        logger.info(f"User '{user.email}' updated successfully")
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Error updating user: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST if isinstance(e,InvalidArgException) else status.HTTP_404_NOT_FOUND
+                            ,detail=str(e.message))
 @router.delete("/delete_user")
 async def delete_user(user_email: str):
     try:
@@ -87,7 +96,6 @@ async def delete_user(user_email: str):
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
-
 
 # Getting a household user by ID
 @router.get("/get_household_user_by_id")
