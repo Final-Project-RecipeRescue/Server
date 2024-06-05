@@ -9,7 +9,7 @@ def is_valid_email(email):
 
 
 class UserBoundary:
-    def __init__(self, first_name: str, last_name: str, user_email: str, image, households_ids: List[str],
+    def __init__(self, first_name: str, last_name: str, user_email: str, image : str, households_ids: List[str],
                  meals: {str: {meal_types: {str: MealBoundary}}}, country: str, state: Optional[str]):
         self.first_name = first_name
         self.last_name = last_name

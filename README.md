@@ -519,6 +519,18 @@ get_user
         "state": "example"
       }
 
+update_personal_user_info 
+
+      PUT /users_household/update_personal_user_info
+      Update personal user information
+      {
+        "first_name": optional[string],
+        "last_name": optional[string],
+        "email": string - must be a valid email and existing user,
+        "country": optional[string],
+        "state": optional[string]
+      }
+      
 delete_user
 
     DELETE /users_household/delete_user
@@ -762,6 +774,14 @@ use_recipe_by_recipe_id
     GET /users_household/check_if_household_exist_in_system
          Return true if the hosehold exist in the system
          household_id: Id of the household.
+    
+    GET /users_household/check_if_household_can_make_recipe
+         This endpoint allows users to check if a specific household has enough ingredients to make a given recipe for a specified number of dishes.
+         household_id : The ID of the household. : string
+         recipe_id : The ID of the recipe. : string
+         dishes_num : The number of dishes to be made. Defaults to 1 if not provided. : optional[int], default=1)
+         
+         Returns a boolean indicating whether the household can make the specified recipe
 
 Object Definitions
 

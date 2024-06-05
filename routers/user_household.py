@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
@@ -6,7 +7,7 @@ from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
-, IngredientToRemoveByDateInput, ListIngredientsInput)
+, IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges)
 from routers_boundaries.UserBoundary import UserBoundary
 from routers.recipes import get_recipes_without_missed_ingredients, get_recipes
 
@@ -31,10 +32,10 @@ async def createNewHousehold(user_mail: str, household_name: str, ingredients: O
         return {"message": "Household added successfully", 'household_id': household_id}
     except UserException as e:
         logger.error(f"Error creating household: {e.message}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
     except InvalidArgException as e:
         logger.error(f"Error getting user: {e}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
 @router.delete("/delete_household")
@@ -45,7 +46,7 @@ async def delete_household_by_id(household_id: str):
         logger.info(f"Household deleted successfully")
     except HouseholdException as e:
         logger.error(f"Error deleting household: {e.message}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
 # Adding a new user
@@ -59,10 +60,10 @@ async def add_user(user: UserInputForAddUser):
         return {"message": "Successfully Added User"}
     except UserException as e:
         logger.error(f"Error creating user: {e.message}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e.message))
     except InvalidArgException as e:
         logger.error(f"Error adding user: {e}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
 # Getting a user by email
@@ -74,9 +75,18 @@ async def get_user(user_email: str):
         return user
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND if isinstance(e,UserException) else status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
-
+@router.put("/update_personal_user_info")
+async def update_personal_user_info(user: UserInputForChanges):
+    try:
+        await user_household_service.change_user_info(user.email, user.first_name, user.last_name, user.country,
+                                                      user.state)
+        logger.info(f"User '{user.email}' updated successfully")
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Error updating user: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST if isinstance(e,InvalidArgException) else status.HTTP_404_NOT_FOUND
+                            ,detail=str(e.message))
 @router.delete("/delete_user")
 async def delete_user(user_email: str):
     try:
@@ -85,8 +95,7 @@ async def delete_user(user_email: str):
         logger.info(f"Deleted user '{user_email}'")
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
-
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 # Getting a household user by ID
 @router.get("/get_household_user_by_id")
@@ -99,7 +108,7 @@ async def get_household_user_by_id(user_email: str, household_id: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving household user by ID: '{household_id}'")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
 # Getting a household user by name
@@ -112,7 +121,7 @@ async def get_household_user_by_name(user_email: str, household_name: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving household users by name: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
 @router.get("/get_all_household_details_by_user_mail")
@@ -129,7 +138,7 @@ async def get_all_household_details_by_user_mail(user_email: str):
                 if isinstance(household_details, HouseholdBoundary):
                     households.append(household_details)
             except Exception as e:
-                pass
+                logger.error(f"Error retrieving household details for user {user_email} and household id : {_}")
     return households
 
 
@@ -141,7 +150,7 @@ async def add_user_to_household(user_email: str, household_id: str):
         logger.info(f"User '{user_email}' added to household '{household_id}' successfully")
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error adding user to household: {e}")
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
 # Adding an ingredient to a household by name
@@ -159,10 +168,10 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error adding ingredient to household by name: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
         logger.error(f"Ingredient {ingredient.name} dose not exist: {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # Adding a list of ingredients to a household
@@ -195,7 +204,7 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
         ingredient_date = date(ingredient.year, ingredient.mount, ingredient.day)
     except ValueError:
         logger.error("Invalid date provided")
-        return HTTPException(status_code=400, detail="Invalid date provided")
+        raise HTTPException(status_code=400, detail="Invalid date provided")
 
     try:
         await user_household_service.remove_household_ingredient_by_date(user_email,
@@ -209,7 +218,7 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient {ingredient.ingredient_data.name}"
                      f" from household: {household_id} error : {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
 # Removing an ingredient from a household
@@ -224,7 +233,7 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient"
                      f" {ingredient.name} from household: {household_id} error : {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
 # Getting all ingredients in a household
@@ -237,7 +246,7 @@ async def get_all_ingredients_in_household(user_email: str, household_id: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving all ingredients from household: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
 @router.post("/use_recipe_by_recipe_id")
@@ -273,6 +282,8 @@ def get_meal_types():
 @router.get("/get_all_recipes_that_household_can_make")
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
     ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
+    if isinstance(ingredients_dict, HTTPException):
+        return ingredients_dict
     ingredients_str = ""
     for ingredient_id, ingredients in ingredients_dict.items():
         unique_names = list(set([ing.name for ing in ingredients]))
@@ -290,3 +301,42 @@ async def check_if_household_exist_in_system(household_id: str):
     except HouseholdException as e:
         logger.error(f"Household {household_id} does not exist in system")
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(f"Household {household_id} does not exist in system"))
+
+@router.get("/check_if_household_can_make_recipe")
+async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num : Optional[int] = 1):
+    return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
+
+from fastapi import File, UploadFile
+# Uploading an image for a household
+@router.post("/upload_user_image")
+async def upload_user_image(user_email: str, file: UploadFile = File(...)):
+    try:
+        split_tup = os.path.splitext(file.filename)
+        file_extension = split_tup[1]
+
+        image_url = await user_household_service.upload_file_to_storage(file,
+                                                                        f"images/users",user_email,file_extension)
+
+        # Log success
+        logger.info(f"Image uploaded for user '{user_email}' successfully")
+
+        # Return success response
+        return {"message": "Image uploaded successfully", "image_url": image_url}
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Unexpected error: {e.message}")
+        code = status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST
+        raise HTTPException(status_code=code, detail=e.message)
+#from PIL import Image
+import base64
+
+@router.get("/get_user_images")
+async def get_user_images(file_path : str):
+    await user_household_service.download_file_from_storage(f"images/users/{file_path}",file_path)
+
+    rv = None
+    with open(file_path, "rb") as imageFile:
+        s = base64.b64encode(imageFile.read())
+        rv = str(bytearray(s))
+
+    os.remove(file_path)
+    return rv
