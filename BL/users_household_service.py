@@ -342,7 +342,7 @@ class UsersHouseholdService:
                                                              ingredient_name: str,
                                                              ingredient_amount: float):
         if ingredient_amount <= 0:
-            raise ValueError(f"IngredientAmount need to be grater then 0")
+            raise InvalidArgException(f"Ingredient amount need to be grater then 0")
         household = await self.get_household_user_by_id(user_email, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
         ingredient_data = self.ingredientsCRUD.search_ingredient(ingredient_name)

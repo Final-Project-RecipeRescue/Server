@@ -117,6 +117,8 @@ def get_ingredients():
 def update_user_information(user_input : UserInputForChanges):
     return requests.put(base_url + "/users_household/update_personal_user_info", json=user_input.model_dump())
 
+def add_ingredient_to_household(household_id : str ,user_email : str, ingredient : IngredientInput ):
+    return requests.post(base_url + f"/users_household/add_ingredient_to_household_by_ingredient_name?user_email={user_email}&household_id={household_id}",json=ingredient.model_dump())
 class UserTests(TestCase):
     user_email = None
     def tearDown(self):
@@ -239,6 +241,35 @@ class HouseholdTests(TestCase):
         response = get_recipes(self.user_email, self.household_id)
         self.assertEqual(response.status_code,200)
         logger.info(f"Test : test_get_recipes pass successfully the recipes is : {response.json()}")
+
+    def test_add_ingredient(self):
+        self.test_crate_household()
+        ingredients_to_add = IngredientInput(
+            ingredient_id=None,
+            name="Banana",
+            amount=100,
+            unit='gram'
+        )
+        response = add_ingredient_to_household(self.household_id,self.user_email,ingredients_to_add)
+        self.assertEqual(response.status_code,200)
+        response = get_household_by_household_id_and_userEmail(user_email=self.user_email,household_id=self.household_id)
+        self.assertEqual(response.json()['ingredients']['9040'][0]['name'],ingredients_to_add.name)
+        logger.info(f"Test : test_add_ingredient pass successfully")
+    def test_add_wrong_ingredient(self):
+        self.test_crate_household()
+        ingredients_to_add = IngredientInput(
+            ingredient_id=None,
+            name="Banana",
+            amount=-100,
+            unit='gram'
+        )
+        response = add_ingredient_to_household(self.household_id, self.user_email, ingredients_to_add)
+        self.assertEqual(response.status_code,400)
+        ingredients_to_add.amount = 40
+        ingredients_to_add.name = "a"
+        response = add_ingredient_to_household(self.household_id, self.user_email, ingredients_to_add)
+        self.assertEqual(response.status_code,404)
+        logger.info(f"Test : test_add_wrong_ingredient pass successfully")
 
 if __name__ == '__main__':
     unittest.main()
