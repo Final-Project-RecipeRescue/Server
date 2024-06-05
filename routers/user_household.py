@@ -168,7 +168,7 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error adding ingredient to household by name: {e}")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        raise HTTPException(status_code=status_code, detail=str(e))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
         logger.error(f"Ingredient {ingredient.name} dose not exist: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
