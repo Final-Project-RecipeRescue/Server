@@ -255,6 +255,7 @@ class HouseholdTests(TestCase):
         if ingredients_in_household.__len__() == 0:
             self.fail("There are no ingredients in the household")
         response = get_recipes(self.user_email, self.household_id)
+        logger.info(f"response.json : {response.json()}")
         self.assertEqual(response.status_code,200)
 
 if __name__ == '__main__':
