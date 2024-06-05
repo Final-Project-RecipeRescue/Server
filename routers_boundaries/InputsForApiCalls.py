@@ -11,6 +11,12 @@ class UserInputForAddUser(BaseModel):
     state: Optional[str]
 
 
+class UserInputForChanges(UserInputForAddUser):
+    first_name: Optional[str]
+    last_name: Optional[str]
+    country: Optional[str]
+
+
 class IngredientInput(BaseModel):
     ingredient_id: Optional[str]
     name: str  # The name of the ingredient

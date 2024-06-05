@@ -519,6 +519,18 @@ get_user
         "state": "example"
       }
 
+update_personal_user_info 
+
+      PUT /users_household/update_personal_user_info
+      Update personal user information
+      {
+        "first_name": optional[string],
+        "last_name": optional[string],
+        "email": string - must be a valid email and existing user,
+        "country": optional[string],
+        "state": optional[string]
+      }
+      
 delete_user
 
     DELETE /users_household/delete_user

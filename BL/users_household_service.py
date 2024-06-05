@@ -278,6 +278,22 @@ class UsersHouseholdService:
         user_boundary = to_user_boundary(user)
         return user_boundary
 
+    async def change_user_info(self, user_email: str, first_name: Optional[str], last_name: Optional[str],
+                               country: Optional[str], state: Optional[str]):
+        self.check_email(user_email)
+        user = await self.get_user(user_email)
+        if not user:
+            raise UserException("User does not exist")
+        if first_name is not None:
+            user.first_name = first_name
+        if last_name is not None:
+            user.last_name = last_name
+        if country is not None:
+            user.country = country
+        if state is not None:
+            user.state = state
+        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', to_user_entity(user).__dict__)
+
     async def get_household_user_by_id(self, user_email: str, household_id: str) -> HouseholdBoundary:
         user = await self.get_user(user_email)
         household = await self.get_household_by_Id(household_id)
@@ -535,7 +551,7 @@ class UsersHouseholdService:
     async def upload_file_to_storage(self, file: UploadFile,
                                      storage_path: str, user_email: str, file_extension: str) -> str:
         user = await self.get_user(user_email)
-        if not isinstance(user,UserBoundary):
+        if not isinstance(user, UserBoundary):
             raise UserException("User dose not exist in system")
 
         user.image = f"{str(uuid.uuid4())}{file_extension}"
@@ -549,8 +565,10 @@ class UsersHouseholdService:
                                                     to_user_entity(user).__dict__)
         os.remove(temp_file_path)
         return f"{storage_path}/{temp_file_path}"
-    async def download_file_from_storage(self, storage_path: str,local_file_path : str) -> str:
-        self.firebase_instance.download_file(local_file_path,storage_path)
+
+    async def download_file_from_storage(self, storage_path: str, local_file_path: str) -> str:
+        self.firebase_instance.download_file(local_file_path, storage_path)
+
 
 class HouseholdException(Exception):
     def __init__(self, message: str):
