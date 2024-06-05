@@ -680,6 +680,13 @@ addUserToHousehold
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
+remove_user_from_household
+
+      Delete /users_household/remove_user_from_household
+         Remove user from household
+         user_mail: Email of the user to add.
+         household_id: Id of the household.
+
 add_ingredient_to_household_by_ingredient_name
 
     POST /users_household/add_ingredient_to_household_by_ingredient_name

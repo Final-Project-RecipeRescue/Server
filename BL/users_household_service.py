@@ -337,6 +337,20 @@ class UsersHouseholdService:
                                                         to_household_entity(household).__dict__)
             self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
                                                         to_user_entity(user_boundary).__dict__)
+    async def remove_user_from_household(self, user_email, household_id):
+        user_boundary = await self.get_user(user_email)
+        household = await self.get_household_by_Id(household_id)
+        if isinstance(household, HouseholdBoundary):
+            if user_email in household.participants and household_id in user_boundary.households:
+                household.participants.remove(user_email)
+                user_boundary.households.remove(household_id)
+                self.firebase_instance.update_firebase_data(f'households/{household_id}',
+                                                            to_household_entity(household).__dict__)
+                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
+                                                            to_user_entity(user_boundary).__dict__)
+            else:
+                raise Exception('User not exists in the household')
+
 
     async def add_ingredient_to_household_by_ingredient_name(self, user_email: str, household_id: str,
                                                              ingredient_name: str,
@@ -568,6 +582,8 @@ class UsersHouseholdService:
 
     async def download_file_from_storage(self, storage_path: str, local_file_path: str) -> str:
         self.firebase_instance.download_file(local_file_path, storage_path)
+
+
 
 
 class HouseholdException(Exception):

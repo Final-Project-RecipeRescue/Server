@@ -152,6 +152,14 @@ async def add_user_to_household(user_email: str, household_id: str):
         logger.error(f"Error adding user to household: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
+@router.delete("/remove_user_from_household")
+async def remove_user_from_household(user_email: str, household_id: str):
+    try:
+        await user_household_service.remove_user_from_household(user_email, household_id)
+        logger.info(f"User '{user_email}' removed from household '{household_id}' successfully")
+    except (UserException, InvalidArgException, HouseholdException) as e:
+        logger.error(f"Error remove user to household: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 # Adding an ingredient to a household by name
 @router.post("/add_ingredient_to_household_by_ingredient_name")
