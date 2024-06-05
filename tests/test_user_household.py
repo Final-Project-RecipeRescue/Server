@@ -311,5 +311,20 @@ class HouseholdTests(TestCase):
         household_users = response.json()['participants']
         self.assertIn(self.user_email, household_users)
 
+    def test_add_user_to_household(self):
+        self.test_crate_household()
+        user = build_user_input()
+        user.email = "test@test.test"
+        add_user(user)
+        response = add_user_to_household(user.email, self.household_id)
+        self.assertEqual(response.status_code,200)
+        response = get_user(self.user_email)
+        self.assertIn(self.household_id,response.json()['households'])
+        delete_user(user.email)
+        logger.info("Test : test_add_user_to_household pass successfully")
+    def test_add_wrong_user(self):
+        self.test_crate_household()
+        response = add_user_to_household("test@test.test", self.household_id)
+        self.assertEqual(response.status_code,400)
 if __name__ == '__main__':
     unittest.main()
