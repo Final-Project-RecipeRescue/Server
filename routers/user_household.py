@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
@@ -296,3 +297,38 @@ async def check_if_household_exist_in_system(household_id: str):
 @router.get("/check_if_household_can_make_recipe")
 async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num : Optional[int] = 1):
     return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
+
+from fastapi import File, UploadFile
+# Uploading an image for a household
+@router.post("/upload_user_image")
+async def upload_user_image(user_email: str, file: UploadFile = File(...)):
+    try:
+        split_tup = os.path.splitext(file.filename)
+        file_extension = split_tup[1]
+
+        image_url = await user_household_service.upload_file_to_storage(file,
+                                                                        f"images/users",user_email,file_extension)
+
+        # Log success
+        logger.info(f"Image uploaded for user '{user_email}' successfully")
+
+        # Return success response
+        return {"message": "Image uploaded successfully", "image_url": image_url}
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Unexpected error: {e.message}")
+        code = status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST
+        raise HTTPException(status_code=code, detail=e.message)
+#from PIL import Image
+import base64
+
+@router.get("/get_user_images")
+async def get_user_images(file_path : str):
+    await user_household_service.download_file_from_storage(f"images/users/{file_path}",file_path)
+
+    rv = None
+    with open(file_path, "rb") as imageFile:
+        s = base64.b64encode(imageFile.read())
+        rv = str(bytearray(s))
+
+    os.remove(file_path)
+    return rv

@@ -1,9 +1,6 @@
 import datetime
 
 
-
-
-
 class IngredientEntity:
     def __init__(self, data):
         self.id = str(data.get("id")) if data.get("id") else None
@@ -11,6 +8,7 @@ class IngredientEntity:
         self.amount = data.get("amount") if data.get("amount") else None
         self.unit = data.get("unit") if data.get("unit") else "gram"
         self.purchase_date = data.get("purchase_date") if data.get("purchase_date") else None
+
 
 class IngredientEntitySpoonacular(IngredientEntity):
     def __init__(self, ingredient_data):
