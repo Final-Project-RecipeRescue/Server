@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, status
 import logging
-from DAL.IngredientsCRUD import IngredientsCRUD
-from routers_boundaries.IngredientBoundary import IngredientBoundary
+
+from BL.ingredient_service import IngredientService, ingredientsCRUD
 
 router = APIRouter(prefix='/ingredients', tags=['ingredients'])  ## tag is description of router
 logger = logging.getLogger("my_logger")
-ingredientsCRUD = IngredientsCRUD()
+
+ingredient_service = IngredientService()
 
 '''
 This action transfers to the client all food ingredients that exist in the system
@@ -15,11 +16,7 @@ This action transfers to the client all food ingredients that exist in the syste
 @router.get("/getAllSystemIngredients")
 async def getAllSystemIngredients():
     try:
-        ingredients = []
-        for ingredient in ingredientsCRUD.get_all_ingredients():
-            ingredient_id = ingredient['id']
-            name = ingredient['name']
-            ingredients.append({"ingredient_id": ingredient_id, "name": name})
+        ingredients = ingredient_service.get_all_ingredients()
         logger.info("Retrieved all system ingredients")
         return ingredients
     except Exception as e:
@@ -35,13 +32,20 @@ This action returns a list of ingredients that match the provided partial name
 @router.get("/autocompleteIngredient")
 async def autocompleteIngredient(partial_name: str):
     try:
-        ingredients = []
-        for ingredient in ingredientsCRUD.autocomplete_ingredient(partial_name):
-            ingredient_id = ingredient['id']
-            name = ingredient['name']
-            ingredients.append({"ingredient_id": ingredient_id, "name": name})
+        ingredients = ingredient_service.autocomplete_by_ingredient_name(partial_name)
         logger.info("Autocompleted ingredients")
         return ingredients
     except Exception as e:
         logger.error(f"Error in autocompleting ingredients: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
+
+
+@router.get("/getIngredientById")
+async def getIngredientById(ingredient_id: int):
+    try:
+        ingredient = ingredient_service.get_ingredient_by_id(ingredient_id)
+        logger.info("Retried ingredient")
+        return ingredient
+    except Exception as e:
+        logger.error(f"Error in get ingredient by id : {ingredient_id}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
