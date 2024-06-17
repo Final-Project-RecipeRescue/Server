@@ -32,7 +32,7 @@ class IngredientsCRUD:
         result = self.collection.delete_one({'name': ingredient_name})
         return result.deleted_count  # returns 1 if an ingredient was deleted, otherwise 0
 
-    def get_ingredient_by_id(self, ingredient_id) -> dict:
+    def get_ingredient_by_id(self, ingredient_id):
         return self.collection.find_one({
             'ingredientId': ingredient_id
         }, {'_id': 0})

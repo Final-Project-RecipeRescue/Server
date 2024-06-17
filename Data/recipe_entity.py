@@ -26,18 +26,18 @@ class RecipeEntityByIngredientSpoonacular(RecipeEntity):
 class RecipeEntityByIDSpoonacular(RecipeEntity):
     def __init__(self, data):
         super().__init__(data)
-        self.servings = data['servings']
-        self.readyInMinutes = data['readyInMinutes']
-        self.license = data['license']
-        self.sourceName = data['sourceName']
-        self.sourceUrl = data['sourceUrl']
-        self.spoonacularSourceUrl = data['spoonacularSourceUrl']
-        self.healthScore = data['healthScore']
-        self.spoonacularScore = data['spoonacularScore']
-        self.pricePerServing = data['pricePerServing']
-        self.creditsText = data['creditsText']
-        self.dishTypes = data['dishTypes']
+        # self.servings = data['servings'] if data['servings'] is not None else None
+        # self.readyInMinutes = data['readyInMinutes'] if data['readyInMinutes'] is not None else None
+        # self.license = data['license'] if data['license'] is not None else None
+        # self.sourceName = data['sourceName'] if data['sourceName'] is not None else None
+        # self.sourceUrl = data['sourceUrl'] if data['sourceUrl'] is not None else None
+        # self.spoonacularSourceUrl = data['spoonacularSourceUrl'] if data['spoonacularSourceUrl'] is not None else None
+        # self.healthScore = data['healthScore'] if data['healthScore'] is not None else None
+        # self.spoonacularScore = data['spoonacularScore'] if data['spoonacularScore'] is not None else None
+        # self.pricePerServing = data['pricePerServing'] if data['pricePerServing'] is not None else None
+        # self.creditsText = data['creditsText'] if data['creditsText'] is not None else None
+        # self.dishTypes = data['dishTypes'] if data['dishTypes'] is not None else None
         self.extendedIngredients = [Ingredient(ingredient_data) for ingredient_data in
                                     data.get('extendedIngredients', [])]
-        self.summary = data['summary']
-        self.winePairing = data['winePairing']
+        self.summary = data['summary'] if data['summary'] is not None else None
+        # self.winePairing = data['winePairing'] if data['winePairing'] is not None else None
