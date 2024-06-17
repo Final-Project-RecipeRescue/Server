@@ -3,10 +3,8 @@ import logging
 import os
 from datetime import datetime
 from typing import List, Optional
-
-import aiofiles
 from fastapi import UploadFile
-
+from BL.ingredient_service import IngredientService
 from BL.recipes_service import RecipesService
 from Data.HouseholdEntity import HouseholdEntity
 from Data.MealEntity import MealEntity
@@ -14,13 +12,12 @@ from Data.UserEntity import UserEntity
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 import uuid
 from DAL.firebase_db_connection import FirebaseDbConnection
-from routers_boundaries.IngredientBoundary import IngredientBoundary
+from routers_boundaries.IngredientBoundary import IngredientBoundary, IngredientBoundaryWithExpirationData
 from routers_boundaries.MealBoundary import MealBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.UserBoundary import UserBoundary
 import routers_boundaries.UserBoundary as user_entity_py
 from Data.IngredientEntity import IngredientEntity
-from DAL.IngredientsCRUD import IngredientsCRUD
 from routers_boundaries.recipe_boundary import RecipeBoundary
 
 logger = logging.getLogger("my_logger")
@@ -33,6 +30,8 @@ def encoded_email(email: str) -> str:
 def decoded_email(email: str) -> str:
     return email.replace(',', '.')
 
+
+ingredientService = IngredientService()
 
 date_format = "%Y-%m-%d"
 
@@ -55,6 +54,36 @@ def to_ingredient_boundary(ingredient: object) -> IngredientBoundary:
         ingredientEntity.amount,
         ingredientEntity.unit,
         datetime.strptime(ingredientEntity.purchase_date, date_format)
+    )
+
+
+def calc_expiration(ingredient: IngredientBoundary) -> Optional[datetime.date]:
+    '''Try to get by id'''
+    ing_data = ingredientService.get_ingredient_by_id(int(ingredient.ingredient_id))
+    if ing_data is None:
+        '''Try to get by name'''
+        ing_data = ingredientService.search_ingredient_by_name(ingredient.name)
+        if ing_data is None:
+            '''Try to find same ingredient by name'''
+            ingredients_data = ingredientService.autocomplete_by_ingredient_name(ingredient.name)
+            if ingredients_data is None:
+                return None
+            else:
+                ing_data = ingredients_data[0]
+                for ing in ingredients_data:
+                    if ing.name.lower() == ingredient.name.lower():
+                        ing_data = ing
+    if ingredient.purchase_date is not None:
+        date = datetime.strptime(ingredient.purchase_date, date_format)
+        delta = datetime.timedelta(days=ing_data.expirationData)
+        new_date = date + delta
+        return new_date
+
+
+def to_ingredient_boundary_with_expiration_data(ingredient: IngredientBoundary) -> IngredientBoundaryWithExpirationData:
+    return IngredientBoundaryWithExpirationData(
+        ingredient,
+        calc_expiration(ingredient)
     )
 
 
@@ -216,7 +245,6 @@ class UsersHouseholdService:
     def __init__(self):
         self.firebase_instance = FirebaseDbConnection.get_instance()
         self.recipes_service = RecipesService()
-        self.ingredientsCRUD = IngredientsCRUD()
 
     def check_email(self, email: str):
         if not user_entity_py.is_valid_email(email):
@@ -337,6 +365,7 @@ class UsersHouseholdService:
                                                         to_household_entity(household).__dict__)
             self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
                                                         to_user_entity(user_boundary).__dict__)
+
     async def remove_user_from_household(self, user_email, household_id):
         user_boundary = await self.get_user(user_email)
         household = await self.get_household_by_Id(household_id)
@@ -351,7 +380,6 @@ class UsersHouseholdService:
             else:
                 raise Exception('User not exists in the household')
 
-
     async def add_ingredient_to_household_by_ingredient_name(self, user_email: str, household_id: str,
                                                              ingredient_name: str,
                                                              ingredient_amount: float):
@@ -359,10 +387,11 @@ class UsersHouseholdService:
             raise InvalidArgException(f"Ingredient amount need to be grater then 0")
         household = await self.get_household_user_by_id(user_email, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
-        ingredient_data = self.ingredientsCRUD.search_ingredient(ingredient_name)
+        ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
         if ingredient_data is None:
             raise ValueError(f"Ingredient {ingredient_name} Not Found")
-        new_ingredient = IngredientBoundary(ingredient_data['id'], ingredient_data['name'], ingredient_amount, "",
+        new_ingredient = IngredientBoundary(ingredient_data.ingredient_id, ingredient_data.name, ingredient_amount,
+                                            "gram",
                                             datetime.now())
         try:
             existing_ingredients = household.ingredients[new_ingredient.ingredient_id]
@@ -387,10 +416,11 @@ class UsersHouseholdService:
             raise InvalidArgException(f"Ingredient amount need to be greater than 0")
         household = await self.get_household_user_by_id(user_mail, household_id)
         ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
-        ingredient_data = self.ingredientsCRUD.search_ingredient(ingredient_name)
+        ingredient_data = ingredientService.search_ingredient_by_name(
+            ingredient_name)  # ingredientsCRUD.search_ingredient(ingredient_name)
         if not ingredient_data:
             raise InvalidArgException(f"The ingredient {ingredient_name} dose not exist in the system")
-        ing_id = ingredient_data['id']
+        ing_id = ingredient_data.ingredient_id
         try:
             for ing in household.ingredients[ing_id]:
                 if isinstance(ing, IngredientBoundary):
@@ -420,8 +450,9 @@ class UsersHouseholdService:
 
         household = await self.get_household_user_by_id(user_mail, household_id)
         ingredient_name = ingredient_name.capitalize()  # Convert to title case
-        ingredient_data = self.ingredientsCRUD.search_ingredient(ingredient_name)
-        ing_id = ingredient_data['id']
+        ingredient_data = ingredientService.search_ingredient_by_name(
+            ingredient_name)  # self.ingredientsCRUD.search_ingredient(ingredient_name)
+        ing_id = ingredient_data.ingredient_id
         if ing_id not in household.ingredients:
             raise InvalidArgException(f"'{ingredient_name}' not found in household ingredients")
 
@@ -467,11 +498,12 @@ class UsersHouseholdService:
                 return False
             return True
         except KeyError as e:
-            ing_data = self.ingredientsCRUD.search_ingredient(recipe_ingredient.name.capitalize())
+            ing_data = ingredientService.search_ingredient_by_name(
+                recipe_ingredient.name.capitalize())  # self.ingredientsCRUD.search_ingredient(recipe_ingredient.name.capitalize())
             if ing_data is None:
                 logger.error(f"Ingredient {recipe_ingredient.name} not exist in system")
                 return True
-            id = ing_data["id"]
+            id = ing_data.ingredient_id
             if id != recipe_ingredient.ingredient_id:
                 recipe_ingredient.ingredient_id = id
                 try:
@@ -580,10 +612,9 @@ class UsersHouseholdService:
         os.remove(temp_file_path)
         return f"{storage_path}/{temp_file_path}"
 
+    # TODO:Fix return image
     async def download_file_from_storage(self, storage_path: str, local_file_path: str) -> str:
         self.firebase_instance.download_file(local_file_path, storage_path)
-
-
 
 
 class HouseholdException(Exception):

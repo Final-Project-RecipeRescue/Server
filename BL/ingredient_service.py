@@ -30,3 +30,10 @@ class IngredientService:
     def get_ingredient_by_id(self, ingredient_id: int) -> Optional[IngredientDataBoundary]:
         ingredient = ingredientsCRUD.get_ingredient_by_id(ingredient_id)
         return to_ingredient_data_boundary(ingredient)
+
+    def search_ingredient_by_name(self, name: str) -> Optional[IngredientDataBoundary]:
+        return to_ingredient_data_boundary(
+            ingredientsCRUD.search_ingredient(
+                name
+            )
+        )
