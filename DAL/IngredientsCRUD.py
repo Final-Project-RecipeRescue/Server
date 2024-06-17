@@ -1,15 +1,15 @@
 from bson import ObjectId
 
-from config.db import collection_ingredients
+from config.db import collection_pollution
 
 
 class IngredientsCRUD:
     def __init__(self):
-        self.collection = collection_ingredients
+        self.collection = collection_pollution
 
     def search_ingredient(self, ingredient_name) -> dict:
         return self.collection.find_one({
-            'name': ingredient_name
+            'ingredient': ingredient_name
         }, {'_id': 0})
 
     def delete_all_ingredients(self):
@@ -19,8 +19,8 @@ class IngredientsCRUD:
     def autocomplete_ingredient(self, partial_name) -> list:
         regex_pattern = f'^{partial_name}'  # Matches any name that starts with 'partial_name'
         cursor = self.collection.find(
-            {'name': {'$regex': regex_pattern, '$options': 'i'}},
-            {'_id': 0, 'name': 1, 'id': 1}  # Projection including both id and name
+            {'ingredient': {'$regex': regex_pattern, '$options': 'i'}},
+            {'_id': 0, 'ingredient': 1, 'ingredientId': 1, 'expirationData': 1, 'gCO2e_per_100g': 1}
         )
         return list(cursor)
 
@@ -32,4 +32,7 @@ class IngredientsCRUD:
         result = self.collection.delete_one({'name': ingredient_name})
         return result.deleted_count  # returns 1 if an ingredient was deleted, otherwise 0
 
-
+    def get_ingredient_by_id(self, ingredient_id):
+        return self.collection.find_one({
+            'ingredientId': ingredient_id
+        }, {'_id': 0})

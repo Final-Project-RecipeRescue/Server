@@ -65,25 +65,6 @@ async def get_recipe_by_id(recipe_id: str):
         logger.error(f"Error retrieving recipe by ID: {recipe_id}, {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
 
-
-'''@router.get("/getRecipesByIDs")
-async def get_recipes_by_ids(recipe_ids: str):
-    recipe_ids_list = recipe_ids.split(',')
-    logger.debug(f"Received request to get recipes by IDs: {recipe_ids_list}")
-    try:
-        recipes = await recipes_service.get_recipe_by_ids(recipe_ids_list)
-        logger.info("Retrieved recipes by IDs successfully")
-        return recipes
-    except Exception as e:
-        logger.error(f"Error retrieving recipes by IDs: {recipe_ids_list}, {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())'''
-
-'''
-This function will let the user search for a recipe freely
-and return the list of recipes
-'''
-
-
 @router.get("/getRecipesByName/{recipe_name}")
 async def get_recipes_by_name(recipe_name: str):
     logger.debug(f"Received request to get recipes by name: {recipe_name}")
