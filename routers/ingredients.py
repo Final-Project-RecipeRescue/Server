@@ -49,3 +49,13 @@ async def getIngredientById(ingredient_id: int):
     except Exception as e:
         logger.error(f"Error in get ingredient by id : {ingredient_id}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+@router.get("/getIngredientByName")
+async def getIngredientByName(ingredient_name: str):
+    try:
+        ingredient = ingredient_service.search_ingredient_by_name(ingredient_name)
+        logger.info("Retried ingredient")
+        return ingredient
+    except Exception as e:
+        logger.error(f"Error in get ingredient by name : {ingredient_name}")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=str(e))

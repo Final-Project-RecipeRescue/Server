@@ -22,18 +22,19 @@ class IngredientService:
         return ingredients
 
     def autocomplete_by_ingredient_name(self, partial_name: str) -> Optional[List[IngredientDataBoundary]]:
-        ingredients = []
-        for ingredient in ingredientsCRUD.autocomplete_ingredient(partial_name):
-            ingredients.append(to_ingredient_data_boundary(ingredient))
-        return ingredients
+        ingredients_data = ingredientsCRUD.autocomplete_ingredient(partial_name)
+        rv = []
+        if ingredients_data is not None:
+            for ingredient in ingredients_data:
+                rv.append(to_ingredient_data_boundary(ingredient))
+        return rv
 
-    def get_ingredient_by_id(self, ingredient_id: int) -> Optional[IngredientDataBoundary]:
+    def get_ingredient_by_id(self, ingredient_id) -> Optional[IngredientDataBoundary]:
         ingredient = ingredientsCRUD.get_ingredient_by_id(ingredient_id)
-        return to_ingredient_data_boundary(ingredient)
+        if ingredient is not None:
+            return to_ingredient_data_boundary(ingredient)
 
     def search_ingredient_by_name(self, name: str) -> Optional[IngredientDataBoundary]:
-        return to_ingredient_data_boundary(
-            ingredientsCRUD.search_ingredient(
-                name
-            )
-        )
+        ingredient = ingredientsCRUD.search_ingredient(name.lower())
+        if ingredient is not None:
+            return to_ingredient_data_boundary(ingredient)

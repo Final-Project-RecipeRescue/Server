@@ -1,7 +1,7 @@
 import datetime
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import UploadFile
 from BL.ingredient_service import IngredientService
@@ -58,7 +58,7 @@ def to_ingredient_boundary(ingredient: object) -> IngredientBoundary:
 
 
 def calc_expiration(ingredient: IngredientBoundary) -> Optional[datetime.date]:
-    '''Try to get by id'''
+    """Try to get by id"""
     ing_data = ingredientService.get_ingredient_by_id(int(ingredient.ingredient_id))
     if ing_data is None:
         '''Try to get by name'''
@@ -75,7 +75,7 @@ def calc_expiration(ingredient: IngredientBoundary) -> Optional[datetime.date]:
                         ing_data = ing
     if ingredient.purchase_date is not None:
         date = datetime.strptime(ingredient.purchase_date, date_format)
-        delta = datetime.timedelta(days=ing_data.expirationData)
+        delta = timedelta(days=ing_data.expirationData)
         new_date = date + delta
         return new_date
 
@@ -154,7 +154,7 @@ def to_household_boundary(household_data: object) -> HouseholdBoundary:
     for ingredient_id, dates in household_entity.ingredients.items():
         household_ingredients[ingredient_id] = []
         for date, ingredient_entity in dates.items():
-            ingredient_boundary = to_ingredient_boundary(ingredient_entity)
+            ingredient_boundary = to_ingredient_boundary_with_expiration_data(to_ingredient_boundary(ingredient_entity))
             household_ingredients[ingredient_id].append(ingredient_boundary)
 
     household_meals = {}
@@ -394,7 +394,8 @@ class UsersHouseholdService:
                                             "gram",
                                             datetime.now())
         try:
-            existing_ingredients = household.ingredients[new_ingredient.ingredient_id]
+            existing_ingredients = household.ingredients[str(new_ingredient.ingredient_id)]
+            print(existing_ingredients.__len__())
             found = False
             for ing in existing_ingredients:
                 if ing.purchase_date == new_ingredient.purchase_date:
@@ -405,6 +406,9 @@ class UsersHouseholdService:
                 existing_ingredients.append(new_ingredient)
             household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
         except KeyError as e:
+            logger.info(f"Household {household.household_name}"
+                        f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
+                        f"with name {ingredient_name}")
             household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
 
         self.firebase_instance.update_firebase_data(f'households/{household_id}',
