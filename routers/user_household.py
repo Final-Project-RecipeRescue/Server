@@ -165,7 +165,7 @@ async def remove_user_from_household(user_email: str, household_id: str):
 @router.post("/add_ingredient_to_household_by_ingredient_name")
 async def add_ingredient_to_household_by_ingredient_name(user_email: str, household_id: str,
                                                          ingredient: IngredientInput):
-    logger.info(f"ingredient: {ingredient.name} : {ingredient.amount}")
+    logger.info(f"try to add ingredient: {ingredient.name} : {ingredient.amount} by name")
     try:
         await user_household_service.add_ingredient_to_household_by_ingredient_name(user_email, household_id,
                                                                                     ingredient.name,

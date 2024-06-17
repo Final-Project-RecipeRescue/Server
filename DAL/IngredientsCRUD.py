@@ -1,6 +1,7 @@
 from bson import ObjectId
 
 from config.db import collection_pollution
+from config.db import collection_ingredients
 
 
 class IngredientsCRUD:

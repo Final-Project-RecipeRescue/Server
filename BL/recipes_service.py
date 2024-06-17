@@ -42,7 +42,7 @@ def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollu
     for ingredient in recipe.ingredients:
         co2_emissions = 0
         try:
-            ing_data = ingredientService.get_ingredient_by_id(int(ingredient.ingredient_id))
+            ing_data = ingredientService.get_ingredient_by_id(ingredient.ingredient_id)
             co2_emissions = (ingredient.amount / 100) * ing_data.gCO2e_per_100g
         except Exception:
             '''
