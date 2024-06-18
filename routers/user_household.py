@@ -103,6 +103,7 @@ async def get_household_user_by_id(user_email: str, household_id: str):
     try:
         logger.info(f"Looking for user with '{user_email}' and '{household_id}'...")
         household = await user_household_service.get_household_user_by_id(user_email, household_id)
+        household = await user_household_service.to_household_boundary_with_users_data(household)
         logger.info(f"Household '{household_id}' user retrieved successfully for user '{user_email}'")
         return household
     except (UserException, InvalidArgException, HouseholdException) as e:
@@ -124,7 +125,7 @@ async def get_household_user_by_name(user_email: str, household_name: str):
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
-@router.get("/get_all_household_details_by_user_mail")
+@router.get("/get_all_households_details_by_user_mail")
 async def get_all_household_details_by_user_mail(user_email: str):
     user = await get_user(user_email)
     if isinstance(user, HTTPException):
