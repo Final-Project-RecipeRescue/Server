@@ -110,7 +110,6 @@ async def get_household_user_by_id(user_email: str, household_id: str):
     try:
         logger.info(f"Looking for user with '{user_email}' and '{household_id}'...")
         household = await user_household_service.get_household_user_by_id(user_email, household_id)
-        household = await user_household_service.to_household_boundary_with_users_data(household)
         logger.info(f"Household '{household_id}' user retrieved successfully for user '{user_email}'")
         return household
     except (UserException, InvalidArgException, HouseholdException) as e:
@@ -118,6 +117,17 @@ async def get_household_user_by_id(user_email: str, household_id: str):
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
+@router.get("/get_household_and_users_data_by_id")
+async def get_household_and_users_data_by_id(user_email: str, household_id: str):
+    try:
+        household = await get_household_user_by_id(user_email,household_id)
+        if isinstance(household,HouseholdBoundary):
+            logger.info("convert HouseholdBoundary to HouseholdBoundaryWithUsersData")
+            return await user_household_service.to_household_boundary_with_users_data(household)
+    except (UserException, InvalidArgException, HouseholdException) as e:
+        logger.error(f"Error retrieving household user by ID: '{household_id}'")
+        status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 # Getting a household user by name
 @router.get("/get_household_user_by_name")
