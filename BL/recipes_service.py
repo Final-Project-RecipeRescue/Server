@@ -30,8 +30,9 @@ def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
 
 async def convert_ingredient_unit_to_gram(ingredient: IngredientBoundary) -> IngredientBoundary:
     if ingredient.unit != 'g' and ingredient.unit != 'gram':
-        ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(
-            ingredient.name, ingredient.amount, ingredient.unit)
+        # ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(
+        #     ingredient.name, ingredient.amount, ingredient.unit)
+        ingredient.amount = 100000 # TODO:Remove
         ingredient.unit = "gram"
     return ingredient
 
