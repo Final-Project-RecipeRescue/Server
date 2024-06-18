@@ -126,6 +126,7 @@ def add_ingredient_to_household(household_id : str ,user_email : str, ingredient
 
 def add_user_to_household(user_email : str,household_id : str):
     return requests.post(base_url + f"/users_household/add_user_to_household?user_email={user_email}&household_id={household_id}")
+
 class UserTests(TestCase):
     user_email = None
     def tearDown(self):
