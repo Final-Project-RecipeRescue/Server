@@ -372,7 +372,12 @@ class HouseholdTests(TestCase):
         for recipe in response.json():
             recipes.append(parse_recipe(recipe))
         for recipe in recipes:
-            print(recipe.recipe_id)
+            response = use_recipe(
+                self.user_email,
+                self.household_id,
+            "Breakfast",
+            1,
+            str(recipe.recipe_id))
         logger.info(f"Test : test_use_recipe pass successfully {response.json()}")
 
 
