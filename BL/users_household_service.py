@@ -9,7 +9,7 @@ from BL.recipes_service import RecipesService
 from Data.HouseholdEntity import HouseholdEntity
 from Data.MealEntity import MealEntity
 from Data.UserEntity import UserEntity
-from routers_boundaries.HouseholdBoundary import HouseholdBoundary
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary, HouseholdBoundaryWithUsersData
 import uuid
 from DAL.firebase_db_connection import FirebaseDbConnection
 from routers_boundaries.IngredientBoundary import IngredientBoundary, IngredientBoundaryWithExpirationData
@@ -619,6 +619,13 @@ class UsersHouseholdService:
     # TODO:Fix return image
     async def download_file_from_storage(self, storage_path: str, local_file_path: str) -> str:
         self.firebase_instance.download_file(local_file_path, storage_path)
+
+    async def to_household_boundary_with_users_data(self,
+                                                    household: HouseholdBoundary) -> HouseholdBoundaryWithUsersData:
+        users = []
+        for user_email in household.participants:
+            users.append(await self.get_user(user_email))
+        return HouseholdBoundaryWithUsersData(household, users)
 
 
 class HouseholdException(Exception):
