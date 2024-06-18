@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 from typing import List
 
@@ -15,6 +16,7 @@ from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBo
 
 load_dotenv()
 
+logger = logging.getLogger("my_logger")
 
 # with open('DAL/spoonacular_test_by_ingredients.json', 'r') as file:
 # recipes_json_by_ingredients = json.load(file)
@@ -61,8 +63,7 @@ class SpoonacularAPI:
                 recipes.append(RecipeEntityByIngredientSpoonacular(recipe))
             return recipes
         else:
-            print("Error:", response.status_code)
-            print("Error:", response.status_code)
+            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
             return None
 
     async def find_recipe_by_id(self, recipeId: int) -> RecipeEntityByIDSpoonacular:
@@ -74,6 +75,7 @@ class SpoonacularAPI:
         if response.status_code == 200:
             return RecipeEntityByIDSpoonacular(response.json())
         else:
+            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
             return None
 
     async def find_recipe_by_name(self, recipeName: str) -> List[RecipeEntity]:
@@ -88,6 +90,7 @@ class SpoonacularAPI:
                 recipes.append(RecipeEntity(recipe))
             return recipes
         else:
+            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
             return None
 
     '''Get an analyzed breakdown of a recipe's instructions. Each step is enriched with the ingredients and equipment required.'''
@@ -102,6 +105,8 @@ class SpoonacularAPI:
             for recipe_stepsEntity in response.json():
                 recipes.append(Recipe_stepsEntity(recipe_stepsEntity))
             return recipes
+        else:
+            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
 
     async def convertIngredientAmountToGrams(self, ingredient_name: str, sourceNumber: float, sourceUnit: str):
         url = (f"{self.base_url}/recipes/"
@@ -115,6 +120,9 @@ class SpoonacularAPI:
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return response.json().get("targetAmount")
+        else:
+            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
+
 
 
 class RecipesCRUD:

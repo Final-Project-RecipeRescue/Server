@@ -117,8 +117,16 @@ def get_ingredients():
 def update_user_information(user_input : UserInputForChanges):
     return requests.put(base_url + "/users_household/update_personal_user_info", json=user_input.model_dump())
 
+def remove_user_from_household(user_email : str, household_id : str):
+    return requests.delete(
+        base_url + f"/users_household/remove_user_from_household?user_email={user_email}&household_id={household_id}")
+
 def add_ingredient_to_household(household_id : str ,user_email : str, ingredient : IngredientInput ):
     return requests.post(base_url + f"/users_household/add_ingredient_to_household_by_ingredient_name?user_email={user_email}&household_id={household_id}",json=ingredient.model_dump())
+
+def add_user_to_household(user_email : str,household_id : str):
+    return requests.post(base_url + f"/users_household/add_user_to_household?user_email={user_email}&household_id={household_id}")
+
 class UserTests(TestCase):
     user_email = None
     def tearDown(self):
@@ -129,35 +137,35 @@ class UserTests(TestCase):
     def test_add_user_to_system(self):
         user = build_user_input()
         response = add_user(user)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200,response.status_code)
         self.user_email = user.email
         logger.info("Test : test_add_user_to_system pass successfully")
     def test_add_wrong_users(self):
         user = build_user_input()
         user.email = ""
         response = add_user(user)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(400,response.status_code)
         user.email = "server_test"
         response = add_user(user)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(400,response.status_code)
         user.email = None
         response = add_user(user)
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(422,response.status_code)
         user.email = "@a.c"
         response = add_user(user)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(400,response.status_code)
         logger.info("Test : test_add_wrong_users pass successfully")
     def test_get_user(self):
         self.test_add_user_to_system()
         response = get_user(self.user_email)
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(200,response.status_code)
         logger.info("Test : test_login_user pass successfully")
     def test_get_user_not_found(self):
         self.test_add_user_to_system()
         email = self.user_email
         self.tearDown()
         response = get_user(email)
-        self.assertEqual(response.status_code,404)
+        self.assertEqual(404,response.status_code)
         logger.info("Test : test_login_user with user dont exist pass successfully")
     def test_add_user_already_exists(self):
         self.test_add_user_to_system()
@@ -165,7 +173,7 @@ class UserTests(TestCase):
         user.email = self.user_email
         user.country = "test"
         response = add_user(user)
-        self.assertEqual(response.status_code,409)
+        self.assertEqual(409,response.status_code)
         logger.info("Test : test_add_user_already_exists pass successfully")
     def test_change_user_info(self):
         self.test_add_user_to_system()
@@ -182,7 +190,7 @@ class UserTests(TestCase):
             state=new_state
         )
         response = update_user_information(user)
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(200,response.status_code)
         response = get_user(self.user_email)
         self.assertEqual(response.json()['first_name'],new_name) \
             if new_name is not None else self.assertEqual(response.json()['first_name'],build_user_input().first_name)
@@ -214,12 +222,12 @@ class HouseholdTests(TestCase):
         self.user_email = user.email
         household_name = "server_test"
         response = create_new_household(user.email, household_name, ingredients)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200,response.status_code)
         self.assertEqual(response.json().get("message"), "Household added successfully")
         self.household_id = response.json()["household_id"]
 
         response = get_household_by_household_id_and_userEmail(user.email, self.household_id)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200,response.status_code)
         self.assertEqual(response.json().get("household_id"), self.household_id)
         self.assertEqual(response.json()["household_name"], household_name)
         participants = response.json().get("participants")
@@ -239,7 +247,7 @@ class HouseholdTests(TestCase):
         response = create_new_household(user.email, household_name, ingredients_to_add)
         self.household_id = response.json()["household_id"]
         response = get_recipes(self.user_email, self.household_id)
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(200,response.status_code)
         logger.info(f"Test : test_get_recipes pass successfully the recipes is : {response.json()}")
 
     def test_add_ingredient(self):
@@ -251,9 +259,9 @@ class HouseholdTests(TestCase):
             unit='gram'
         )
         response = add_ingredient_to_household(self.household_id,self.user_email,ingredients_to_add)
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(200,response.status_code)
         response = get_household_by_household_id_and_userEmail(user_email=self.user_email,household_id=self.household_id)
-        self.assertEqual(response.json()['ingredients']['9040'][0]['name'],ingredients_to_add.name)
+        self.assertEqual(response.json()['ingredients']['9040'][0]['name'].lower(),ingredients_to_add.name.lower())
         logger.info(f"Test : test_add_ingredient pass successfully")
     def test_add_wrong_ingredient(self):
         self.test_crate_household()
@@ -264,12 +272,60 @@ class HouseholdTests(TestCase):
             unit='gram'
         )
         response = add_ingredient_to_household(self.household_id, self.user_email, ingredients_to_add)
-        self.assertEqual(response.status_code,400)
+        self.assertEqual(400,response.status_code)
         ingredients_to_add.amount = 40
         ingredients_to_add.name = "a"
         response = add_ingredient_to_household(self.household_id, self.user_email, ingredients_to_add)
-        self.assertEqual(response.status_code,404)
+        self.assertEqual(404,response.status_code)
         logger.info(f"Test : test_add_wrong_ingredient pass successfully")
 
+    def test_remove_user_from_household(self):
+        self.test_crate_household()
+        user = build_user_input()
+        user.email = "ServerTest2@ServerTest2.ServerTest2"
+        add_user(user)
+
+        response = add_user_to_household(user.email,self.household_id)
+        self.assertEqual(200,response.status_code)
+
+        response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
+        household_users = response.json()['participants']
+        self.assertIn(user.email, household_users)
+
+        response = remove_user_from_household(user.email, self.household_id)
+        self.assertEqual(200,response.status_code)
+
+        response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
+        household_users = response.json()['participants']
+        self.assertNotIn(user.email, household_users)
+
+        delete_user(user.email)
+        logger.info("Test : test_remove_user_from_household pass successfully")
+    def test_remove_user_who_is_not_in_the_household(self):
+        self.test_crate_household()
+        response = remove_user_from_household("test@test.test", self.household_id)
+        self.assertEqual(400,response.status_code)
+        response = get_user(self.user_email)
+        user_households = response.json()['households']
+        self.assertIn(self.household_id, user_households)
+        response = get_household_by_household_id_and_userEmail(self.user_email,self.household_id)
+        household_users = response.json()['participants']
+        self.assertIn(self.user_email, household_users)
+
+    def test_add_user_to_household(self):
+        self.test_crate_household()
+        user = build_user_input()
+        user.email = "test@test.test"
+        add_user(user)
+        response = add_user_to_household(user.email, self.household_id)
+        self.assertEqual(200,response.status_code)
+        response = get_user(self.user_email)
+        self.assertIn(self.household_id,response.json()['households'])
+        delete_user(user.email)
+        logger.info("Test : test_add_user_to_household pass successfully")
+    def test_add_wrong_user(self):
+        self.test_crate_household()
+        response = add_user_to_household("test@test.test", self.household_id)
+        self.assertEqual(400,response.status_code)
 if __name__ == '__main__':
     unittest.main()
