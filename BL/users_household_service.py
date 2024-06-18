@@ -454,11 +454,17 @@ class UsersHouseholdService:
 
         household = await self.get_household_user_by_id(user_mail, household_id)
         ingredient_name = ingredient_name.capitalize()  # Convert to title case
-        ingredient_data = ingredientService.search_ingredient_by_name(
-            ingredient_name)  # self.ingredientsCRUD.search_ingredient(ingredient_name)
-        ing_id = ingredient_data.ingredient_id
-        if ing_id not in household.ingredients:
-            raise InvalidArgException(f"'{ingredient_name}' not found in household ingredients")
+        ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)  # self.ingredientsCRUD.search_ingredient(ingredient_name)
+        ing_id = str(ingredient_data.ingredient_id)
+        if ing_id not in household.ingredients.keys():
+            ing_id = None
+            ingredients_data = ingredientService.autocomplete_by_ingredient_name(ingredient_name)
+            for ing in ingredients_data:
+                if ing.ingredient_id in household.ingredients.keys():
+                    ingredients_data = ing
+                    ing_id = str(ingredient_data.ingredient_id)
+            if ing_id is None:
+                raise InvalidArgException(f"'{ingredient_name}' not found in household ingredients")
 
         ingredient_lst = household.ingredients[ing_id]
         ingredient_lst.sort(key=lambda x: x.purchase_date)
@@ -518,15 +524,19 @@ class UsersHouseholdService:
                     return True
                 except KeyError as e:
                     logger.error(
-                        f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name} is not available in the household")
+                        f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name} is not available in "
+                        f"the household")
                     return False
             return False
 
     async def use_recipe(self, user_email: str, household_id: str, recipe_id: str,
                          mealType: meal_types, dishes_number: float):
+        """Get household and recipe from DB"""
         household = await self.get_household_user_by_id(user_email, household_id)
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
+        """Check if everything exist"""
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
+            logger.info(f"recipe {recipe_id} ingredients : {[ing.name for ing in recipe.ingredients]}")
             for ingredient in recipe.ingredients:
                 if not await self.check_ingredient_availability(household, ingredient, dishes_number):
                     message = (f"Household '{household.household_name}' id : '{household.household_id}'"
@@ -540,11 +550,6 @@ class UsersHouseholdService:
 
                     logger.error(message)
                     raise InvalidArgException(message)
-            for ingredient in recipe.ingredients:
-                try:
-                    ingredient = household.ingredients[ingredient.ingredient_id]
-                except KeyError as e:
-                    recipe.ingredients.remove(ingredient)
             '''There is enough of all the ingredients to use in the recipe'''
             '''Removing the ingredients in a household'''
             for recipe_ingredient in recipe.ingredients:

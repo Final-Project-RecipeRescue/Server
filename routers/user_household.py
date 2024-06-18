@@ -75,7 +75,10 @@ async def get_user(user_email: str):
         return user
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND if isinstance(e,UserException) else status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST,
+            detail=str(e.message))
+
 
 @router.put("/update_personal_user_info")
 async def update_personal_user_info(user: UserInputForChanges):
@@ -85,8 +88,11 @@ async def update_personal_user_info(user: UserInputForChanges):
         logger.info(f"User '{user.email}' updated successfully")
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error updating user: {e}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST if isinstance(e,InvalidArgException) else status.HTTP_404_NOT_FOUND
-                            ,detail=str(e.message))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
+            , detail=str(e.message))
+
+
 @router.delete("/delete_user")
 async def delete_user(user_email: str):
     try:
@@ -96,6 +102,7 @@ async def delete_user(user_email: str):
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+
 
 # Getting a household user by ID
 @router.get("/get_household_user_by_id")
@@ -153,6 +160,7 @@ async def add_user_to_household(user_email: str, household_id: str):
         logger.error(f"Error adding user to household: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
+
 @router.delete("/remove_user_from_household")
 async def remove_user_from_household(user_email: str, household_id: str):
     try:
@@ -161,6 +169,7 @@ async def remove_user_from_household(user_email: str, household_id: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error remove user to household: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+
 
 # Adding an ingredient to a household by name
 @router.post("/add_ingredient_to_household_by_ingredient_name")
@@ -260,7 +269,7 @@ async def get_all_ingredients_in_household(user_email: str, household_id: str):
 
 @router.post("/use_recipe_by_recipe_id")
 async def use_recipe_by_recipe_id(user_email: str, household_id: str,
-                                  meal: str, dishes_num: float,recipe_id: str):
+                                  meal: str, dishes_num: float, recipe_id: str):
     try:
         mealT = None
         for meal_type in meal_types:
@@ -270,17 +279,17 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
             logger.error(f"No meal type")
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                  detail=f"Invalid meal meals type is : {meal_types}")
-        logger.info(f"User {user_email} using recipe {recipe_id} for household {household_id}")
-        await user_household_service.use_recipe(user_email, household_id,recipe_id,
-                                                mealT,dishes_num)
+        logger.info(f"User {user_email} try using recipe {recipe_id} for household {household_id}")
+        await user_household_service.use_recipe(user_email, household_id, recipe_id,
+                                                mealT, dishes_num)
         logger.info(f"Successfully using recipe")
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
         logger.error(f"Error retrieving : {e}")
-        return HTTPException(status_code=status_code, detail=str(e.message))
+        raise HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
         logger.error(f"Error retrieving : {e}")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.get("/get_meal_types")
@@ -290,16 +299,20 @@ def get_meal_types():
 
 @router.get("/get_all_recipes_that_household_can_make")
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
-    ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
-    if isinstance(ingredients_dict, HTTPException):
-        return ingredients_dict
-    ingredients_str = ""
-    for ingredient_id, ingredients in ingredients_dict.items():
-        unique_names = list(set([ing.name for ing in ingredients]))
-        ingredients_str += ", ".join(unique_names) + ", "
-    ingredients_str = ingredients_str.rstrip(', ')
-    recipes = await get_recipes_without_missed_ingredients(ingredients_str)
-    return recipes
+    try:
+        ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
+        if isinstance(ingredients_dict, HTTPException):
+            return ingredients_dict
+        ingredients_str = ""
+        for ingredient_id, ingredients in ingredients_dict.items():
+            unique_names = list(set([ing.name for ing in ingredients]))
+            ingredients_str += ", ".join(unique_names) + ", "
+        ingredients_str = ingredients_str.rstrip(', ')
+        recipes = await get_recipes_without_missed_ingredients(ingredients_str)
+        return recipes
+    except (Exception, TypeError, ValueError) as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+
 
 @router.get("/check_if_household_exist_in_system")
 async def check_if_household_exist_in_system(household_id: str):
@@ -309,13 +322,18 @@ async def check_if_household_exist_in_system(household_id: str):
         return True
     except HouseholdException as e:
         logger.error(f"Household {household_id} does not exist in system")
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(f"Household {household_id} does not exist in system"))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=str(f"Household {household_id} does not exist in system"))
+
 
 @router.get("/check_if_household_can_make_recipe")
-async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num : Optional[int] = 1):
+async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[int] = 1):
     return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
 
+
 from fastapi import File, UploadFile
+
+
 # Uploading an image for a household
 @router.post("/upload_user_image")
 async def upload_user_image(user_email: str, file: UploadFile = File(...)):
@@ -324,7 +342,7 @@ async def upload_user_image(user_email: str, file: UploadFile = File(...)):
         file_extension = split_tup[1]
 
         image_url = await user_household_service.upload_file_to_storage(file,
-                                                                        f"images/users",user_email,file_extension)
+                                                                        f"images/users", user_email, file_extension)
 
         # Log success
         logger.info(f"Image uploaded for user '{user_email}' successfully")
@@ -335,12 +353,15 @@ async def upload_user_image(user_email: str, file: UploadFile = File(...)):
         logger.error(f"Unexpected error: {e.message}")
         code = status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=code, detail=e.message)
+
+
 #from PIL import Image
 import base64
 
+
 @router.get("/get_user_images")
-async def get_user_images(file_path : str):
-    await user_household_service.download_file_from_storage(f"images/users/{file_path}",file_path)
+async def get_user_images(file_path: str):
+    await user_household_service.download_file_from_storage(f"images/users/{file_path}", file_path)
 
     rv = None
     with open(file_path, "rb") as imageFile:
