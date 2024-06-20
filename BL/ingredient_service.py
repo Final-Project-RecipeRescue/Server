@@ -30,7 +30,7 @@ class IngredientService:
         return rv
 
     def get_ingredient_by_id(self, ingredient_id) -> Optional[IngredientDataBoundary]:
-        ingredient = ingredientsCRUD.get_ingredient_by_id(ingredient_id)
+        ingredient = ingredientsCRUD.get_ingredient_by_id(int(ingredient_id))
         if ingredient is not None:
             return to_ingredient_data_boundary(ingredient)
 

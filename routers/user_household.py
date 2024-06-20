@@ -205,17 +205,9 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 # Adding a list of ingredients to a household
 @router.post("/add_list_ingredients_to_household")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
-    # Create a list of coroutine objects for each ingredient addition
-    tasks = [
-        add_ingredient_to_household_by_ingredient_name(user_email, household_id, ingredient)
-        for ingredient in list_ingredients.ingredients
-    ]
-
-    # Run all tasks concurrently and wait for all of them to finish
-    results = await asyncio.gather(*tasks)
+    await user_household_service.add_ingredients_to_household(user_email,household_id,list_ingredients)
     logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
-    # Optionally, you can handle the results array or errors as needed
-    return {"status": "success", "results": results}
+
 
 
 '''

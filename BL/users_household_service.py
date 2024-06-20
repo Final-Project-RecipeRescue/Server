@@ -13,6 +13,7 @@ from routers_boundaries.HouseholdBoundary import HouseholdBoundary, HouseholdBou
 import uuid
 from DAL.firebase_db_connection import FirebaseDbConnection
 from routers_boundaries.IngredientBoundary import IngredientBoundary, IngredientBoundaryWithExpirationData
+from routers_boundaries.InputsForApiCalls import ListIngredientsInput
 from routers_boundaries.MealBoundary import MealBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.UserBoundary import UserBoundary
@@ -386,7 +387,6 @@ class UsersHouseholdService:
         if ingredient_amount <= 0:
             raise InvalidArgException(f"Ingredient amount need to be grater then 0")
         household = await self.get_household_user_by_id(user_email, household_id)
-        ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
         ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
         if ingredient_data is None:
             raise ValueError(f"Ingredient {ingredient_name} Not Found")
@@ -395,7 +395,6 @@ class UsersHouseholdService:
                                             datetime.now())
         try:
             existing_ingredients = household.ingredients[str(new_ingredient.ingredient_id)]
-            print(existing_ingredients.__len__())
             found = False
             for ing in existing_ingredients:
                 if ing.purchase_date == new_ingredient.purchase_date:
@@ -413,7 +412,36 @@ class UsersHouseholdService:
 
         self.firebase_instance.update_firebase_data(f'households/{household_id}',
                                                     to_household_entity(household).__dict__)
+    async def add_ingredients_to_household(self, user_email: str, household_id: str,ingredients_lst_names_and_amounts : ListIngredientsInput ):
+        household = await self.get_household_user_by_id(user_email, household_id)
+        for ingredient in ingredients_lst_names_and_amounts.ingredients:
+            if ingredient.amount <= 0:
+                logger.error(f"Ingredient {ingredient.name} amount need to be grater then 0")
+            ingredient_data = ingredientService.search_ingredient_by_name(ingredient.name)
+            if ingredient_data is None:
+                logger.error(f"Ingredient {ingredient.name} Not Found")
+            new_ingredient = IngredientBoundary(ingredient_data.ingredient_id, ingredient_data.name, ingredient.amount,
+                                                "gram",
+                                                datetime.now())
+            try:
+                existing_ingredients = household.ingredients[str(new_ingredient.ingredient_id)]
+                found = False
+                for ing in existing_ingredients:
+                    if ing.purchase_date == new_ingredient.purchase_date:
+                        ing.amount += ingredient.amount
+                        found = True
+                        break
+                if not found:
+                    existing_ingredients.append(new_ingredient)
+                household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
+            except KeyError as e:
+                logger.info(f"Household {household.household_name}"
+                            f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
+                            f"with name {ingredient_data.name}")
+                household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
 
+        self.firebase_instance.update_firebase_data(f'households/{household_id}',
+                                                    to_household_entity(household).__dict__)
     async def remove_household_ingredient_by_date(self, user_mail: str, household_id, ingredient_name: str,
                                                   ingredient_amount: float, ingredient_date: datetime.date):
         if ingredient_amount <= 0:
@@ -448,14 +476,18 @@ class UsersHouseholdService:
             raise InvalidArgException(f"No such ingredient {ingredient_name} in household {household.household_name}")
 
     async def remove_household_ingredient(self, user_mail: str, household_id, ingredient_name: str,
-                                          ingredient_amount: float):
+                                          ingredient_amount: float, ingredient_id: Optional[str]):
         if ingredient_amount < 0:
             raise InvalidArgException("Invalid ingredient amount, it cannot be a negative number")
 
         household = await self.get_household_user_by_id(user_mail, household_id)
-        ingredient_name = ingredient_name.capitalize()  # Convert to title case
-        ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)  # self.ingredientsCRUD.search_ingredient(ingredient_name)
-        ing_id = str(ingredient_data.ingredient_id)
+        if ingredient_id is None:
+            ingredient_name = ingredient_name.capitalize()  # Convert to title case
+            ingredient_data = ingredientService.search_ingredient_by_name(
+                ingredient_name)  # self.ingredientsCRUD.search_ingredient(ingredient_name)
+            ing_id = str(ingredient_data.ingredient_id)
+        else:
+            ing_id = str(ingredient_id)
         if ing_id not in household.ingredients.keys():
             ing_id = None
             ingredients_data = ingredientService.autocomplete_by_ingredient_name(ingredient_name)
@@ -498,35 +530,65 @@ class UsersHouseholdService:
                 household.ingredients[ingredient_id].sort(key=lambda x: x.purchase_date)
             return household.ingredients
 
+    def get_sum_of_ing_in_household_byID(self, ingredient: IngredientBoundary, household: HouseholdBoundary):
+        return sum(
+            ing.amount for ing in household.ingredients[str(ingredient.ingredient_id)])
+
     async def check_ingredient_availability(self, household: HouseholdBoundary,
                                             recipe_ingredient: IngredientBoundary,
                                             dishes_number: float) -> bool:
+        global logger_message
         try:
-            sum_amount = sum(
-                ingredient.amount for ingredient in household.ingredients[recipe_ingredient.ingredient_id])
+            '''Try to check if ingredient is availability by ID'''
+            sum_amount = self.get_sum_of_ing_in_household_byID(recipe_ingredient, household)
+            logger_message = str(f"Household {household.household_id} dont hava enough {recipe_ingredient.name} :"
+                                 f" {recipe_ingredient.ingredient_id}."
+                                 f" The household have {sum_amount} and needed {recipe_ingredient.amount * dishes_number}")
             if sum_amount < recipe_ingredient.amount * dishes_number:
+                logger.info(logger_message)
                 return False
             return True
         except KeyError as e:
-            ing_data = ingredientService.search_ingredient_by_name(
-                recipe_ingredient.name.capitalize())  # self.ingredientsCRUD.search_ingredient(recipe_ingredient.name.capitalize())
+            '''Try to check if ingredient is availability by Name'''
+            ing_data = ingredientService.search_ingredient_by_name(recipe_ingredient.name)
             if ing_data is None:
                 logger.error(f"Ingredient {recipe_ingredient.name} not exist in system")
                 return True
             id = ing_data.ingredient_id
             if id != recipe_ingredient.ingredient_id:
-                recipe_ingredient.ingredient_id = id
+                recipe_ingredient.ingredient_id = id  ##Change ingredient ID for removing ingredient
                 try:
-                    sum_amount = sum(
-                        ingredient.amount for ingredient in household.ingredients[recipe_ingredient.ingredient_id])
+                    sum_amount = self.get_sum_of_ing_in_household_byID(recipe_ingredient, household)
                     if sum_amount < recipe_ingredient.amount * dishes_number:
+                        logger.info(logger_message)
                         return False
                     return True
                 except KeyError as e:
-                    logger.error(
-                        f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name} is not available in "
-                        f"the household")
-                    return False
+                    '''Try to check if ingredient is availability by SubString'''
+                    try:
+                        unique_names = []
+                        for ing_id, ing_s in household.ingredients.items():
+                            unique_names += list(set([ing.name for ing in ing_s]))
+                        for u_ing_name in unique_names:
+                            if recipe_ingredient.name in u_ing_name or u_ing_name in recipe_ingredient.name:
+                                logger.info(
+                                    f"Captured by substring ing1 : {recipe_ingredient.name} ing2 : {u_ing_name}")
+                                recipe_ingredient.name = u_ing_name
+                                '''Change ingredient ID for removing ingredient'''
+                                recipe_ingredient.ingredient_id = (
+                                    ingredientService.search_ingredient_by_name(u_ing_name).ingredient_id)
+                                break
+                        sum_amount = self.get_sum_of_ing_in_household_byID(recipe_ingredient, household)
+                        if sum_amount < recipe_ingredient.amount * dishes_number:
+                            logger.info(logger_message)
+                            return False
+                        return True
+                    except Exception:
+                        logger.error(
+                            f"Ingredient {recipe_ingredient.ingredient_id} :"
+                            f" {recipe_ingredient.name} is not available in "
+                            f"the household")
+                        return False
             return False
 
     async def use_recipe(self, user_email: str, household_id: str, recipe_id: str,
@@ -536,6 +598,7 @@ class UsersHouseholdService:
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         """Check if everything exist"""
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
+            ing_to_remove : [IngredientBoundary]= []
             logger.info(f"recipe {recipe_id} ingredients : {[ing.name for ing in recipe.ingredients]}")
             for ingredient in recipe.ingredients:
                 if not await self.check_ingredient_availability(household, ingredient, dishes_number):
@@ -550,11 +613,13 @@ class UsersHouseholdService:
 
                     logger.error(message)
                     raise InvalidArgException(message)
+
             '''There is enough of all the ingredients to use in the recipe'''
             '''Removing the ingredients in a household'''
             for recipe_ingredient in recipe.ingredients:
                 await self.remove_household_ingredient(user_email, household_id, recipe_ingredient.name,
-                                                       recipe_ingredient.amount * dishes_number)
+                                                       recipe_ingredient.amount * dishes_number,
+                                                       recipe_ingredient.ingredient_id)
             household = await self.get_household_user_by_id(user_email, household_id)
             new_meal = MealBoundary([user_email], dishes_number)
             add_meal_to_household(household, new_meal, datetime.now().strftime("%Y-%m-%d"), mealType, recipe_id)
@@ -565,7 +630,6 @@ class UsersHouseholdService:
 
             self.firebase_instance.update_firebase_data(f'households/{household_id}',
                                                         to_household_entity(household).__dict__)
-
         else:
             raise InvalidArgException(f"The household id or recipe id is invalid")
 
