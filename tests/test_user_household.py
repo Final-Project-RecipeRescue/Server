@@ -1,7 +1,9 @@
 import unittest
-from typing import Dict
+from datetime import datetime
+from typing import Dict, Optional
 from unittest import TestCase
 
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.InputsForApiCalls import UserInputForAddUser, ListIngredientsInput, IngredientInput, \
     UserInputForChanges
@@ -9,6 +11,8 @@ import requests
 import logging
 import random
 
+from routers_boundaries.MealBoundary import MealBoundary
+from routers_boundaries.UserBoundary import UserBoundary
 from routers_boundaries.recipe_boundary import RecipeBoundary, RecipeBoundaryWithGasPollution
 
 logger = logging.getLogger("my_test_logger")
@@ -95,7 +99,28 @@ def get_ingredients():
         "Black beans",
         "Flour",
         "Sugar",
-        "Butter"
+        "Butter",
+        "Basil",
+        "Cilantro",
+        "Lemon",
+        "Lime",
+        "Cumin",
+        "Paprika",
+        "Coriander",
+        "Ginger",
+        "Soy sauce",
+        "Honey",
+        "Coconut milk",
+        "Chili powder",
+        "Oregano",
+        "Thyme",
+        "Rosemary",
+        "Vanilla extract",
+        "Almonds",
+        "Walnuts",
+        "Cashews",
+        "scallions",
+        "shallot"
     ]
     for ingredient in ingredients_names:
         random_number = random.randint(10000, 100000)
@@ -128,10 +153,20 @@ def add_user_to_household(user_email: str, household_id: str):
     return requests.post(
         base_url + f"/users_household/add_user_to_household?user_email={user_email}&household_id={household_id}")
 
+
+def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[int] = 1):
+    return requests.get(base_url + f"/users_household/"
+                                   f"check_if_household_can_make_recipe?"
+                                   f"&household_id={household_id}"
+                                   f"&recipe_id={recipe_id}"
+                                   f"&dishes_num={dishes_num}")
+
+
 def use_recipe(user_email: str, household_id: str,
-                                  meal: str, dishes_num: float, recipe_id: str):
+               meal: str, dishes_num: float, recipe_id: str):
     return requests.post(
         base_url + f"/users_household/use_recipe_by_recipe_id?user_email={user_email}&household_id={household_id}&meal={meal}&dishes_num={dishes_num}&recipe_id={recipe_id}")
+
 
 def parse_ingredient(ingredient_data: Dict) -> IngredientBoundary:
     return IngredientBoundary(
@@ -142,6 +177,7 @@ def parse_ingredient(ingredient_data: Dict) -> IngredientBoundary:
         purchase_date=ingredient_data['purchase_date']
     )
 
+
 def parse_recipe(data: Dict) -> RecipeBoundaryWithGasPollution:
     ingredients = [parse_ingredient(ing) for ing in data['ingredients']]
     recipe = RecipeBoundary(
@@ -151,6 +187,67 @@ def parse_recipe(data: Dict) -> RecipeBoundaryWithGasPollution:
         image_url=data['image_url']
     )
     return RecipeBoundaryWithGasPollution(recipe, data['sumGasPollution'])
+
+
+def parse_single_meal(data: Dict) -> MealBoundary:
+    return MealBoundary(
+        data.get('users', []),
+        number_of_dishes=data['number_of_dishes']
+    )
+
+
+def parse_user_meals(meal_data: Dict) -> Dict[str, Dict[str, MealBoundary]]:
+    parsed_meals = {}
+    for day, meals in meal_data.items():
+        parsed_meals[day] = {}
+        for meal_type, recipes in meals.items():
+            parsed_meals[day][meal_type] = {}
+            for recipe_id, recipe in recipes.items():
+                parsed_meals[day][meal_type][recipe_id] = parse_single_meal(recipe)
+    return parsed_meals
+
+
+def parse_household_meals(meal_data: Dict) -> Dict[str, Dict[str, MealBoundary]]:
+    parsed_meals = {}
+    for day, meals_types in meal_data.items():
+        parsed_meals[day] = {}
+        for meal_type, recipes_ids in meals_types.items():
+            parsed_meals[day][meal_type] = {}
+            for recipe_id, meals in recipes_ids.items():
+                parsed_meals[day][meal_type][recipe_id] = []
+                for meal in meals:
+                    parsed_meals[day][meal_type][recipe_id].append(parse_single_meal(meal))
+    return parsed_meals
+
+
+def parse_user_boundary(data: Dict) -> UserBoundary:
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    user_email = data.get('user_email')
+    image = data.get('image') if data.get('image') is not None else ""
+    households_ids = data.get('households_ids', [])
+    meals = parse_user_meals(data.get('meals', {})) if data.get('meals', {}) is not None else {}
+    country = data.get('country')
+    state = data.get('state') if data.get('state') is not None else None
+
+    return UserBoundary(first_name, last_name, user_email, image, households_ids, meals, country, state)
+
+
+def parse_household(data: Dict) -> HouseholdBoundary:
+    household_id = data.get('household_id')
+    household_name = data.get('household_name')
+    household_image = data.get('household_image') if data.get('household_image') is not None else None
+    participants = data.get('participants', [])
+    meals = parse_household_meals(data.get('meals', {})) if data.get('meals', {}) is not None else {}
+    ingredients_data = data.get('ingredients', {})
+    ingredients = {}
+    for ingredient_id, ingredient_list in ingredients_data.items():
+        ingredients[ingredient_id] = []
+        for ingredient_data in ingredient_list:
+            ingredients[ingredient_id].append(parse_ingredient(ingredient_data))
+    return HouseholdBoundary(household_id, household_name, household_image, participants, ingredients, meals)
+
+
 class UserTests(TestCase):
     user_email = None
 
@@ -365,19 +462,31 @@ class HouseholdTests(TestCase):
         self.assertEqual(400, response.status_code)
 
     def test_use_recipe(self):
-        response = self.test_crate_household_with_Ingredients()
+        self.test_crate_household_with_Ingredients()
         response = get_recipes(self.user_email, self.household_id)
         self.assertEqual(200, response.status_code)
-        recipes : [RecipeBoundaryWithGasPollution] = []
+        recipes: [RecipeBoundaryWithGasPollution] = []
         for recipe in response.json():
             recipes.append(parse_recipe(recipe))
         for recipe in recipes:
             response = use_recipe(
                 self.user_email,
                 self.household_id,
-            "Breakfast",
-            1,
-            str(recipe.recipe_id))
+                "Breakfast",
+                1,
+                str(recipe.recipe_id))
+            if response.status_code == 200:
+                response = get_user(self.user_email)
+                self.assertEqual(200, response.status_code)
+                user = parse_user_boundary(response.json())
+                self.assertIsNotNone(
+                    user.meals[datetime.now().strftime("%Y-%m-%d")]['Breakfast'][str(recipe.recipe_id)])
+                response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
+                self.assertEqual(200, response.status_code)
+                household = parse_household(response.json())
+                self.assertIsNotNone(
+                    household.meals[datetime.now().strftime("%Y-%m-%d")]['Breakfast'][str(recipe.recipe_id)])
+
         logger.info(f"Test : test_use_recipe pass successfully {response.json()}")
 
 
