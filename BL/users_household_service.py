@@ -598,7 +598,6 @@ class UsersHouseholdService:
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         """Check if everything exist"""
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
-            ing_to_remove : [IngredientBoundary]= []
             logger.info(f"recipe {recipe_id} ingredients : {[ing.name for ing in recipe.ingredients]}")
             for ingredient in recipe.ingredients:
                 if not await self.check_ingredient_availability(household, ingredient, dishes_number):
