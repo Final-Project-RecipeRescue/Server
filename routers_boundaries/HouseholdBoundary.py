@@ -15,6 +15,11 @@ class HouseholdBoundary:
         self.participants = participants
         self.ingredients = ingredients
         self.meals = meals
+    def get_all_unique_names_ingredient(self) -> [str]:
+        unique_names : [str] = []
+        for ing_id, ing_s in self.ingredients.items():
+            unique_names += list(set([ing.name for ing in ing_s]))
+        return unique_names
 
 
 class HouseholdBoundaryWithUsersData(HouseholdBoundary):
