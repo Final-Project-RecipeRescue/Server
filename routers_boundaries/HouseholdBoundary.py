@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from routers_boundaries import MealBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
@@ -15,8 +15,9 @@ class HouseholdBoundary:
         self.participants = participants
         self.ingredients = ingredients
         self.meals = meals
+
     def get_all_unique_names_ingredient(self) -> [str]:
-        unique_names : [str] = []
+        unique_names: [str] = []
         for ing_id, ing_s in self.ingredients.items():
             unique_names += list(set([ing.name for ing in ing_s]))
         return unique_names
@@ -33,3 +34,23 @@ class HouseholdBoundaryWithUsersData(HouseholdBoundary):
             household.meals
         )
         self.participants = participants
+
+
+class HouseholdBoundaryWithGasPollution(HouseholdBoundary):
+    def __init__(self, household: HouseholdBoundary, sum_gas_pollution: Dict[str, float]):
+        super().__init__(
+            household.household_id,
+            household.household_name,
+            household.household_image,
+            household.participants,
+            household.ingredients,
+            household.meals
+        )
+        self.sum_gas_pollution = sum_gas_pollution
+
+    def addMealGas(self, gas_pollution: Dict[str, float]):
+        for gas, val in gas_pollution.items():
+            try:
+                self.sum_gas_pollution[gas] += gas_pollution[gas]
+            except ValueError:
+                self.sum_gas_pollution[gas] = gas_pollution[gas]

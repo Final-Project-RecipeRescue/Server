@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 
@@ -18,6 +18,6 @@ class RecipeBoundaryWithGasPollution(RecipeBoundary):
         super().__init__(recipe_id, recipe_name, ingredients, image_url)
         self.sumGasPollution = sumGasPollution
 
-    def __init__(self, recipe: RecipeBoundary, sumGasPollution: {str: int}):
+    def __init__(self, recipe: RecipeBoundary, sumGasPollution: Dict[str, int]):
         super().__init__(recipe.recipe_id, recipe.recipe_name, recipe.ingredients, recipe.image_url)
         self.sumGasPollution = sumGasPollution

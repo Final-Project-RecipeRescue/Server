@@ -6,20 +6,21 @@ from typing import List, Optional
 from fastapi import UploadFile
 from BL.ingredient_service import IngredientService
 from BL.recipes_service import RecipesService
-from Data.HouseholdEntity import HouseholdEntity
+from Data.HouseholdEntity import HouseholdEntity, HouseholdEntityWithGas
 from Data.MealEntity import MealEntity
 from Data.UserEntity import UserEntity
-from routers_boundaries.HouseholdBoundary import HouseholdBoundary, HouseholdBoundaryWithUsersData
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary, HouseholdBoundaryWithUsersData, \
+    HouseholdBoundaryWithGasPollution
 import uuid
 from DAL.firebase_db_connection import FirebaseDbConnection
 from routers_boundaries.IngredientBoundary import IngredientBoundary, IngredientBoundaryWithExpirationData
 from routers_boundaries.InputsForApiCalls import ListIngredientsInput
-from routers_boundaries.MealBoundary import MealBoundary
+from routers_boundaries.MealBoundary import MealBoundary, MealBoundaryWithGasPollution
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.UserBoundary import UserBoundary
 import routers_boundaries.UserBoundary as user_entity_py
 from Data.IngredientEntity import IngredientEntity
-from routers_boundaries.recipe_boundary import RecipeBoundary
+from routers_boundaries.recipe_boundary import RecipeBoundary, RecipeBoundaryWithGasPollution
 
 logger = logging.getLogger("my_logger")
 
@@ -146,7 +147,7 @@ def to_user_entity(user: UserBoundary) -> UserEntity:
 
 
 def to_household_boundary(household_data: object) -> HouseholdBoundary:
-    household_entity = HouseholdEntity(household_data)
+    household_entity = HouseholdEntityWithGas(household_data)
     household_id = household_entity.id
     household_name = household_entity.name
     household_image = household_entity.image
@@ -155,7 +156,11 @@ def to_household_boundary(household_data: object) -> HouseholdBoundary:
     for ingredient_id, dates in household_entity.ingredients.items():
         household_ingredients[ingredient_id] = []
         for date, ingredient_entity in dates.items():
-            ingredient_boundary = to_ingredient_boundary_with_expiration_data(to_ingredient_boundary(ingredient_entity))
+            ingredient_boundary = to_ingredient_boundary_with_expiration_data(
+                to_ingredient_boundary(
+                    ingredient_entity
+                )
+            )
             household_ingredients[ingredient_id].append(ingredient_boundary)
 
     household_meals = {}
@@ -168,13 +173,16 @@ def to_household_boundary(household_data: object) -> HouseholdBoundary:
                 for meal_entity in meals:
                     meal_boundary = to_boundary_meal(meal_entity)
                     household_meals[date][type][recipe_id].append(meal_boundary)
-
-    return HouseholdBoundary(household_id,
-                             household_name,
-                             household_image,
-                             household_participants,
-                             household_ingredients,
-                             household_meals)
+    household_gas_pollution = household_entity.sum_gas_pollution
+    return HouseholdBoundaryWithGasPollution(
+        HouseholdBoundary(household_id,
+                          household_name,
+                          household_image,
+                          household_participants,
+                          household_ingredients,
+                          household_meals),
+        household_gas_pollution
+    )
 
 
 def to_household_entity(household: HouseholdBoundary) -> HouseholdEntity:
@@ -201,10 +209,14 @@ def to_household_entity(household: HouseholdBoundary) -> HouseholdEntity:
                 recipe_meal_lst = type_meal_dict[recipe_id]
                 for meal in meals:
                     recipe_meal_lst.append(to_meal_entity(meal).__dict__)
+    if isinstance(household, HouseholdBoundaryWithGasPollution):
+        household_entity = HouseholdEntityWithGas(household_entity.__dict__)
+        household_entity.sum_gas_pollution = household.sum_gas_pollution
+        household_entity.sum_gas_pollution['a'] = 54.5
     return household_entity
 
 
-def add_meal_to_user(user: UserBoundary, new_meal: MealBoundary, date: str, mealType: meal_types,
+def add_meal_to_user(user: UserBoundary, new_meal: MealBoundaryWithGasPollution, date: str, mealType: meal_types,
                      recipe_id: str):
     if not user.meals:
         user.meals = {}
@@ -223,7 +235,8 @@ def add_meal_to_user(user: UserBoundary, new_meal: MealBoundary, date: str, meal
         user.meals[date] = {mealType: {recipe_id: new_meal}}
 
 
-def add_meal_to_household(household: HouseholdBoundary, new_meal: MealBoundary, date: str, mealType: meal_types,
+def add_meal_to_household(household: HouseholdBoundary, new_meal: MealBoundaryWithGasPollution, date: str,
+                          mealType: meal_types,
                           recipe_id: str):
     if not household.meals:
         household.meals = {}
@@ -328,12 +341,14 @@ class UsersHouseholdService:
         while (self.firebase_instance.get_firebase_data(f'households/{household_id}') != None):
             household_id = str(uuid.uuid4())
         user = to_user_boundary(user_data)
-        household = HouseholdBoundary(household_id,
-                                      household_name,
-                                      None,
-                                      [user.user_email],
-                                      {},
-                                      {})
+        household = HouseholdBoundaryWithGasPollution(HouseholdBoundary(household_id,
+                                                                        household_name,
+                                                                        None,
+                                                                        [user.user_email],
+                                                                        {},
+                                                                        {}),
+                                                      {}
+                                                      )
         self.firebase_instance.write_firebase_data(f'households/{household_id}',
                                                    to_household_entity(household).__dict__)
         user.households.append(household_id)
@@ -612,12 +627,17 @@ class UsersHouseholdService:
                 return False
 
     async def _add_meal_to_household_and_user(self, user_email: str, household: HouseholdBoundary,
-                                              recipe: RecipeBoundary, dishes_number: float, mealType: meal_types):
+                                              recipe: RecipeBoundaryWithGasPollution, dishes_number: float,
+                                              mealType: meal_types):
         new_meal = MealBoundary([user_email], dishes_number)
+        gas_pollution = recipe.sumGasPollution
+        for gas in gas_pollution.keys():
+            gas_pollution[gas] *= dishes_number
+        new_meal = MealBoundaryWithGasPollution(new_meal, gas_pollution)
         add_meal_to_household(household, new_meal, datetime.now().strftime("%Y-%m-%d"), mealType, str(recipe.recipe_id))
         user = await self.get_user(user_email)
         add_meal_to_user(user, new_meal, datetime.now().strftime("%Y-%m-%d"), mealType, str(recipe.recipe_id))
-
+        # household.addmealGas(gas_pollution)
         self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', to_user_entity(user).__dict__)
         self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
                                                     to_household_entity(household).__dict__)
@@ -656,7 +676,7 @@ class UsersHouseholdService:
                 try:
                     household.ingredients[recipe_ingredient.ingredient_id] = remove_ingredient_from_household(
                         household,
-                        _get_ingredient_id(recipe_ingredient.name,recipe_ingredient.ingredient_id,household),
+                        _get_ingredient_id(recipe_ingredient.name, recipe_ingredient.ingredient_id, household),
                         recipe_ingredient.amount * dishes_number,
                         recipe_ingredient.name
                     )
