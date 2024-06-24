@@ -297,6 +297,9 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
     except ValueError as e:
         logger.error(f"Error retrieving : {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error retrieving : {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.get("/get_meal_types")

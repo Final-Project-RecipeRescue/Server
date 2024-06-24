@@ -212,7 +212,6 @@ def to_household_entity(household: HouseholdBoundary) -> HouseholdEntity:
     if isinstance(household, HouseholdBoundaryWithGasPollution):
         household_entity = HouseholdEntityWithGas(household_entity.__dict__)
         household_entity.sum_gas_pollution = household.sum_gas_pollution
-        household_entity.sum_gas_pollution['a'] = 54.5
     return household_entity
 
 
@@ -637,7 +636,18 @@ class UsersHouseholdService:
         add_meal_to_household(household, new_meal, datetime.now().strftime("%Y-%m-%d"), mealType, str(recipe.recipe_id))
         user = await self.get_user(user_email)
         add_meal_to_user(user, new_meal, datetime.now().strftime("%Y-%m-%d"), mealType, str(recipe.recipe_id))
-        # household.addmealGas(gas_pollution)
+        if isinstance(household, HouseholdBoundaryWithGasPollution):
+            logger.debug("Is a household with gas pollution")
+            for gas in gas_pollution.keys():
+                try:
+                    household.sum_gas_pollution[gas] += gas_pollution[gas]
+                    logger.debug(f"Add to {gas} {gas_pollution[gas]}")
+                except (Exception, ValueError) as e:
+                    logger.debug(f"Add new gas to household {gas_pollution[gas]}")
+                    household.sum_gas_pollution[gas] = gas_pollution[gas]
+        else:
+            logger.debug("Convert to household with gas pollution")
+            household = HouseholdBoundaryWithGasPollution(household, gas_pollution)
         self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', to_user_entity(user).__dict__)
         self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
                                                     to_household_entity(household).__dict__)
