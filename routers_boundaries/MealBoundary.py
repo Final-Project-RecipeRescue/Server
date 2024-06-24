@@ -13,6 +13,6 @@ class MealBoundary:
 
 
 class MealBoundaryWithGasPollution(MealBoundary):
-    def __init__(self, mealBoundary: MealBoundary, gasPollution: Dict[str, float]):
+    def __init__(self, mealBoundary: MealBoundary, sum_gas_pollution: Dict[str, float]):
         super().__init__(mealBoundary.users, mealBoundary.number_of_dishes)
-        self.gasPollution = gasPollution
+        self.sum_gas_pollution = sum_gas_pollution

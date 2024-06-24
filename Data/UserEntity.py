@@ -17,4 +17,4 @@ class UserEntity:
 class UserEntityWithGasPollution(UserEntity):
     def __init__(self, data):
         super().__init__(data)
-        self.sum_gas_pollution = data.get('sum_gas_pollution', {str, float}) if data.get('sum_gas_pollution') else {}
+        self.sum_gas_pollution = data.get('sum_gas_pollution', {str, float}) if data.get('sum_gas_pollution') else None

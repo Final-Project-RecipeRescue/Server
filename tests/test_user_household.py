@@ -473,7 +473,7 @@ class HouseholdTests(TestCase):
                 self.user_email,
                 self.household_id,
                 "Breakfast",
-                1,
+                1.25,
                 str(recipe.recipe_id))
             if response.status_code == 200:
                 response = get_user(self.user_email)

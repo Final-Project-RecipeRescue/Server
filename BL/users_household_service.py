@@ -2,13 +2,13 @@ import datetime
 import logging
 import os
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import UploadFile
 from BL.ingredient_service import IngredientService
 from BL.recipes_service import RecipesService
 from Data.HouseholdEntity import HouseholdEntity, HouseholdEntityWithGas
-from Data.MealEntity import MealEntity
-from Data.UserEntity import UserEntity
+from Data.MealEntity import MealEntity, MealEntityWithGasPollution
+from Data.UserEntity import UserEntity, UserEntityWithGasPollution
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary, HouseholdBoundaryWithUsersData, \
     HouseholdBoundaryWithGasPollution
 import uuid
@@ -17,7 +17,7 @@ from routers_boundaries.IngredientBoundary import IngredientBoundary, Ingredient
 from routers_boundaries.InputsForApiCalls import ListIngredientsInput
 from routers_boundaries.MealBoundary import MealBoundary, MealBoundaryWithGasPollution
 from routers_boundaries.MealBoundary import meal_types
-from routers_boundaries.UserBoundary import UserBoundary
+from routers_boundaries.UserBoundary import UserBoundary, UserBoundaryWithGasPollution
 import routers_boundaries.UserBoundary as user_entity_py
 from Data.IngredientEntity import IngredientEntity
 from routers_boundaries.recipe_boundary import RecipeBoundary, RecipeBoundaryWithGasPollution
@@ -89,23 +89,35 @@ def to_ingredient_boundary_with_expiration_data(ingredient: IngredientBoundary) 
     )
 
 
-def to_boundary_meal(meal: object):
-    mealEntity = MealEntity(meal)
-    return MealBoundary(
+def to_meal_boundary(meal: object) -> MealBoundary:
+    mealEntity = MealEntityWithGasPollution(meal)
+    users = mealEntity.users
+    number_of_dishes = mealEntity.number_of_dishes
+    sum_gas_pollution = mealEntity.sum_gas_pollution
+    meal_boundary = MealBoundary(
         mealEntity.users,
         mealEntity.number_of_dishes
     )
+    if sum_gas_pollution:
+        return MealBoundaryWithGasPollution(
+            meal_boundary,
+            sum_gas_pollution
+        )
+    return meal_boundary
 
 
 def to_meal_entity(meal: MealBoundary) -> MealEntity:
     meal_entity = MealEntity({})
     meal_entity.users = [user for user in meal.users]
     meal_entity.number_of_dishes = meal.number_of_dishes
+    if isinstance(meal,MealBoundaryWithGasPollution):
+        meal_entity = MealEntityWithGasPollution(meal_entity.__dict__)
+        meal_entity.sum_gas_pollution = meal.sum_gas_pollution
     return meal_entity
 
 
 def to_user_boundary(user_data: object) -> UserBoundary:
-    user_entity = UserEntity(user_data)
+    user_entity = UserEntityWithGasPollution(user_data)
     first_name = user_entity.first_name
     last_name = user_entity.last_name
     email = user_entity.user_email
@@ -122,9 +134,24 @@ def to_user_boundary(user_data: object) -> UserBoundary:
         for type, recipe_ids in mealsTypes.items():
             meals[date][type] = {}
             for recipe_id, meal in recipe_ids.items():
-                meals[date][type][recipe_id] = to_boundary_meal(meal)
-
-    return UserBoundary(first_name, last_name, email, image, households, meals, country, state)
+                meals[date][type][recipe_id] = to_meal_boundary(meal)
+    user_gas_pollution = user_entity.sum_gas_pollution
+    user = UserBoundary(
+        first_name,
+        last_name,
+        email,
+        image,
+        households,
+        meals,
+        country,
+        state
+    )
+    if user_gas_pollution:
+        return UserBoundaryWithGasPollution(
+            user,
+            user_gas_pollution)
+    else:
+        return user
 
 
 def to_user_entity(user: UserBoundary) -> UserEntity:
@@ -139,10 +166,13 @@ def to_user_entity(user: UserBoundary) -> UserEntity:
     user_entity.meals = {}
     for date, mealsTypes in user.meals.items():
         user_entity.meals[date] = {}
-        for type, recipe_ids in mealsTypes.items():
-            user_entity.meals[date][type] = {}
+        for meal_type, recipe_ids in mealsTypes.items():
+            user_entity.meals[date][meal_type] = {}
             for recipe_id, meal in recipe_ids.items():
-                user_entity.meals[date][type][recipe_id] = to_meal_entity(meal).__dict__
+                user_entity.meals[date][meal_type][recipe_id] = to_meal_entity(meal).__dict__
+    if isinstance(user, UserBoundaryWithGasPollution):
+        user_entity = UserEntityWithGasPollution(user_entity.__dict__)
+        user_entity.sum_gas_pollution = user.sum_gas_pollution
     return user_entity
 
 
@@ -171,18 +201,22 @@ def to_household_boundary(household_data: object) -> HouseholdBoundary:
             for recipe_id, meals in recipe_ids.items():
                 household_meals[date][type][recipe_id] = []
                 for meal_entity in meals:
-                    meal_boundary = to_boundary_meal(meal_entity)
+                    meal_boundary = to_meal_boundary(meal_entity)
                     household_meals[date][type][recipe_id].append(meal_boundary)
     household_gas_pollution = household_entity.sum_gas_pollution
-    return HouseholdBoundaryWithGasPollution(
-        HouseholdBoundary(household_id,
-                          household_name,
-                          household_image,
-                          household_participants,
-                          household_ingredients,
-                          household_meals),
-        household_gas_pollution
-    )
+    household = HouseholdBoundary(household_id,
+                                  household_name,
+                                  household_image,
+                                  household_participants,
+                                  household_ingredients,
+                                  household_meals)
+    if household_gas_pollution:
+        return HouseholdBoundaryWithGasPollution(
+            household,
+            household_gas_pollution
+        )
+    else:
+        return household
 
 
 def to_household_entity(household: HouseholdBoundary) -> HouseholdEntity:
@@ -511,7 +545,7 @@ class UsersHouseholdService:
                     existing_ingredients.append(new_ingredient)
                 household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
             except KeyError as e:
-                logger.info(f"Household {household.household_name}"
+                logger.debug(f"Household {household.household_name}"
                             f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
                             f"with name {ingredient_data.name}")
                 household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
@@ -641,13 +675,25 @@ class UsersHouseholdService:
             for gas in gas_pollution.keys():
                 try:
                     household.sum_gas_pollution[gas] += gas_pollution[gas]
-                    logger.debug(f"Add to {gas} {gas_pollution[gas]}")
+                    logger.debug(f"Add to {gas} {gas_pollution[gas]} to household")
                 except (Exception, ValueError) as e:
                     logger.debug(f"Add new gas to household {gas_pollution[gas]}")
                     household.sum_gas_pollution[gas] = gas_pollution[gas]
         else:
             logger.debug("Convert to household with gas pollution")
             household = HouseholdBoundaryWithGasPollution(household, gas_pollution)
+        if isinstance(user, UserBoundaryWithGasPollution):
+            logger.debug("Is a user with gas pollution")
+            for gas in gas_pollution.keys():
+                try:
+                    user.sum_gas_pollution[gas] += gas_pollution[gas]
+                    logger.debug(f"Add to {gas} {gas_pollution[gas]} to user")
+                except (Exception, ValueError) as e:
+                    logger.debug(f"Add new gas to user {gas_pollution[gas]}")
+                    user.sum_gas_pollution[gas] = gas_pollution[gas]
+        else:
+            logger.debug("Convert to user with gas pollution")
+            user = UserBoundaryWithGasPollution(user, gas_pollution)
         self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', to_user_entity(user).__dict__)
         self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
                                                     to_household_entity(household).__dict__)
