@@ -13,3 +13,8 @@ class UserEntity:
         self.state = data.get('state') if data.get('state') else None
         self.meals = data.get('meals') if data.get('meals') else {}
 
+
+class UserEntityWithGasPollution(UserEntity):
+    def __init__(self, data):
+        super().__init__(data)
+        self.sum_gas_pollution = data.get('sum_gas_pollution', {str, float}) if data.get('sum_gas_pollution') else {}

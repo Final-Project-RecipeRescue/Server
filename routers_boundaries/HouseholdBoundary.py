@@ -47,10 +47,3 @@ class HouseholdBoundaryWithGasPollution(HouseholdBoundary):
             household.meals
         )
         self.sum_gas_pollution = sum_gas_pollution
-
-    def addMealGas(self, gas_pollution: Dict[str, float]):
-        for gas, val in gas_pollution.items():
-            try:
-                self.sum_gas_pollution[gas] += gas_pollution[gas]
-            except ValueError:
-                self.sum_gas_pollution[gas] = gas_pollution[gas]
