@@ -473,7 +473,7 @@ class HouseholdTests(TestCase):
                 self.user_email,
                 self.household_id,
                 "Breakfast",
-                1,
+                1.25,
                 str(recipe.recipe_id))
             if response.status_code == 200:
                 response = get_user(self.user_email)
@@ -487,7 +487,7 @@ class HouseholdTests(TestCase):
                 self.assertIsNotNone(
                     household.meals[datetime.now().strftime("%Y-%m-%d")]['Breakfast'][str(recipe.recipe_id)])
 
-        logger.info(f"Test : test_use_recipe pass successfully {response.json()}")
+        logger.info(f"Test : test_use_recipe pass successfully")
 
 
 if __name__ == '__main__':

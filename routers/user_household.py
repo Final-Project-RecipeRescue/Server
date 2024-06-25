@@ -117,17 +117,19 @@ async def get_household_user_by_id(user_email: str, household_id: str):
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
+
 @router.get("/get_household_and_users_data_by_id")
 async def get_household_and_users_data_by_id(user_email: str, household_id: str):
     try:
-        household = await get_household_user_by_id(user_email,household_id)
-        if isinstance(household,HouseholdBoundary):
+        household = await get_household_user_by_id(user_email, household_id)
+        if isinstance(household, HouseholdBoundary):
             logger.info("convert HouseholdBoundary to HouseholdBoundaryWithUsersData")
             return await user_household_service.to_household_boundary_with_users_data(household)
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving household user by ID: '{household_id}'")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
         raise HTTPException(status_code=status_code, detail=str(e.message))
+
 
 # Getting a household user by name
 @router.get("/get_household_user_by_name")
@@ -205,9 +207,8 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 # Adding a list of ingredients to a household
 @router.post("/add_list_ingredients_to_household")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
-    await user_household_service.add_ingredients_to_household(user_email,household_id,list_ingredients)
+    await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
     logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
-
 
 
 '''
@@ -245,14 +246,18 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
 @router.delete("/remove_ingredient_from_household")
 async def remove_ingredient_from_household(user_email: str, household_id: str, ingredient: IngredientInput):
     try:
-        await user_household_service.remove_household_ingredient(user_email, household_id, ingredient.name,
-                                                                 ingredient.amount)
+
+        household = await user_household_service.get_household_user_by_id(user_email, household_id)
+        if household:
+            await user_household_service.remove_one_ingredient_from_household(household, ingredient.name,
+                                                                              ingredient.amount,
+                                                                              ingredient.ingredient_id)
         logger.info(
             f"Ingredient '{ingredient.name}' "
-            f"removed from household '{household_id}' successfully by user '{user_email}'")
+            f"removed {ingredient.amount} from household '{household_id}' successfully by user '{user_email}'")
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient"
-                     f" {ingredient.name} from household: {household_id} error : {e}")
+                     f" {ingredient.ingredient_id} : {ingredient.name} from household: {household_id} error : {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
@@ -280,18 +285,21 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
         if mealT is None:
             logger.error(f"No meal type")
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                 detail=f"Invalid meal meals type is : {meal_types}")
-        logger.info(f"User {user_email} try using recipe {recipe_id} for household {household_id}")
+                                 detail=f"Invalid meal meals type is : '{meal_types}'")
+        logger.info(f"User {user_email} try using recipe {recipe_id} for household '{household_id}'")
         await user_household_service.use_recipe(user_email, household_id, recipe_id,
                                                 mealT, dishes_num)
-        logger.info(f"Successfully using recipe")
+        logger.info(f"Successfully '{household_id}' using recipe '{recipe_id}' by '{user_email}'")
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        logger.error(f"Error retrieving : {e}")
+        logger.error(f"Error retrieving : {e.message}")
         raise HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
         logger.error(f"Error retrieving : {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error retrieving : {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.get("/get_meal_types")
