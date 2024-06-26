@@ -18,7 +18,6 @@ console_handler = logging.StreamHandler()
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(log_formatter)
 console_handler.setFormatter(log_formatter)
-git
 # Add handlers to the logger
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
