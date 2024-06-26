@@ -7,9 +7,9 @@ from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
-, IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges)
+, IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges, Date)
 from routers_boundaries.UserBoundary import UserBoundary
-from routers.recipes import get_recipes_without_missed_ingredients, get_recipes
+from routers.recipes import get_recipes_without_missed_ingredients
 
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 from datetime import date
@@ -340,6 +340,42 @@ async def check_if_household_exist_in_system(household_id: str):
 async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[int] = 1):
     return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
 
+
+@router.post("/get_gas_pollution_of_household_in_range_dates")
+async def get_gas_pollution_of_household_in_range_dates(user_email: str, household_id: str, startDate: Date, endDate: Date):
+    try:
+        # Create a date object from the provided year, month, and day
+        start = date(startDate.year, startDate.mount, startDate.day)
+        end = date(endDate.year, endDate.mount, endDate.day)
+        # Check if the start date is before the end date
+        if start >= end:
+            logger.error(f"Start date {start} must be before end date {end}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Start date must be before end date")
+        logger.info(f"Retrieve a gas pollution of household {household_id} in range time {start} - {end}")
+        return await user_household_service.calculate_gas_pollution_of_household_in_range_dates(user_email, household_id, start, end)
+    except ValueError:
+        logger.error("Invalid date provided")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date provided")
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.__dict__)
+
+@router.post("/get_gas_pollution_of_user_in_range_dates")
+async def get_gas_pollution_of_user_in_range_dates(user_email: str, startDate: Date, endDate: Date):
+    try:
+        # Create a date object from the provided year, month, and day
+        start = date(startDate.year, startDate.mount, startDate.day)
+        end = date(endDate.year, endDate.mount, endDate.day)
+        # Check if the start date is before the end date
+        if start >= end:
+            logger.error(f"Start date {start} must be before end date {end}")
+            raise HTTPException(status_code=400, detail="Start date must be before end date")
+        logger.info(f"Retrieve a gas pollution of user {user_email} in range time {start} - {end}")
+        return await user_household_service.calculate_gas_pollution_of_user_in_range_dates(user_email, start, end)
+    except ValueError:
+        logger.error("Invalid date provided")
+        raise HTTPException(status_code=400, detail="Invalid date provided")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=e.__dict__)
 
 from fastapi import File, UploadFile
 

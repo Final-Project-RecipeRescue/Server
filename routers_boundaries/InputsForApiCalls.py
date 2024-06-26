@@ -28,8 +28,12 @@ class ListIngredientsInput(BaseModel):
     ingredients: list[IngredientInput]
 
 
-class IngredientToRemoveByDateInput(BaseModel):
-    ingredient_data: IngredientInput
+class Date(BaseModel):
     year: int
     mount: int
     day: int
+
+
+class IngredientToRemoveByDateInput(BaseModel):
+    ingredient_data: IngredientInput
+    date: Date
