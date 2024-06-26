@@ -11,7 +11,7 @@ import requests
 import logging
 import random
 
-from routers_boundaries.MealBoundary import MealBoundary
+from routers_boundaries.MealBoundary import MealBoundary, meal_types
 from routers_boundaries.UserBoundary import UserBoundary
 from routers_boundaries.recipe_boundary import RecipeBoundary, RecipeBoundaryWithGasPollution
 
@@ -469,23 +469,24 @@ class HouseholdTests(TestCase):
         for recipe in response.json():
             recipes.append(parse_recipe(recipe))
         for recipe in recipes:
+            meal_type = meal_types[random.randint(0, len(meal_types)-1)]
             response = use_recipe(
                 self.user_email,
                 self.household_id,
-                "Breakfast",
-                1.25,
+                meal_type,
+                random.randint(1, 5),
                 str(recipe.recipe_id))
             if response.status_code == 200:
                 response = get_user(self.user_email)
                 self.assertEqual(200, response.status_code)
                 user = parse_user_boundary(response.json())
                 self.assertIsNotNone(
-                    user.meals[datetime.now().strftime("%Y-%m-%d")]['Breakfast'][str(recipe.recipe_id)])
+                    user.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)])
                 response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
                 self.assertEqual(200, response.status_code)
                 household = parse_household(response.json())
                 self.assertIsNotNone(
-                    household.meals[datetime.now().strftime("%Y-%m-%d")]['Breakfast'][str(recipe.recipe_id)])
+                    household.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)])
 
         logger.info(f"Test : test_use_recipe pass successfully")
 

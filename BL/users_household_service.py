@@ -110,7 +110,7 @@ def to_meal_entity(meal: MealBoundary) -> MealEntity:
     meal_entity = MealEntity({})
     meal_entity.users = [user for user in meal.users]
     meal_entity.number_of_dishes = meal.number_of_dishes
-    if isinstance(meal,MealBoundaryWithGasPollution):
+    if isinstance(meal, MealBoundaryWithGasPollution):
         meal_entity = MealEntityWithGasPollution(meal_entity.__dict__)
         meal_entity.sum_gas_pollution = meal.sum_gas_pollution
     return meal_entity
@@ -196,13 +196,13 @@ def to_household_boundary(household_data: object) -> HouseholdBoundary:
     household_meals = {}
     for date, mealsTypes in household_entity.meals.items():
         household_meals[date] = {}
-        for type, recipe_ids in mealsTypes.items():
-            household_meals[date][type] = {}
+        for meal_type, recipe_ids in mealsTypes.items():
+            household_meals[date][meal_type] = {}
             for recipe_id, meals in recipe_ids.items():
-                household_meals[date][type][recipe_id] = []
+                household_meals[date][meal_type][recipe_id] = []
                 for meal_entity in meals:
                     meal_boundary = to_meal_boundary(meal_entity)
-                    household_meals[date][type][recipe_id].append(meal_boundary)
+                    household_meals[date][meal_type][recipe_id].append(meal_boundary)
     household_gas_pollution = household_entity.sum_gas_pollution
     household = HouseholdBoundary(household_id,
                                   household_name,
@@ -249,7 +249,7 @@ def to_household_entity(household: HouseholdBoundary) -> HouseholdEntity:
     return household_entity
 
 
-def add_meal_to_user(user: UserBoundary, new_meal: MealBoundaryWithGasPollution, date: str, mealType: meal_types,
+def add_meal_to_user(user: UserBoundary, new_meal: MealBoundary, date: str, mealType: meal_types,
                      recipe_id: str):
     if not user.meals:
         user.meals = {}
@@ -260,6 +260,13 @@ def add_meal_to_user(user: UserBoundary, new_meal: MealBoundaryWithGasPollution,
             try:
                 meal = type_meals[recipe_id]
                 meal.number_of_dishes += new_meal.number_of_dishes
+                if isinstance(meal, MealBoundaryWithGasPollution) and isinstance(new_meal,
+                                                                                 MealBoundaryWithGasPollution):
+                    for gas in new_meal.sum_gas_pollution.keys():
+                        try:
+                            meal.sum_gas_pollution[gas] += new_meal.sum_gas_pollution[gas]
+                        except KeyError:
+                            meal.sum_gas_pollution[gas] = new_meal.sum_gas_pollution[gas]
             except KeyError:
                 type_meals[recipe_id] = new_meal
         except KeyError:
@@ -268,7 +275,7 @@ def add_meal_to_user(user: UserBoundary, new_meal: MealBoundaryWithGasPollution,
         user.meals[date] = {mealType: {recipe_id: new_meal}}
 
 
-def add_meal_to_household(household: HouseholdBoundary, new_meal: MealBoundaryWithGasPollution, date: str,
+def add_meal_to_household(household: HouseholdBoundary, new_meal: MealBoundary, date: str,
                           mealType: meal_types,
                           recipe_id: str):
     if not household.meals:
@@ -546,8 +553,8 @@ class UsersHouseholdService:
                 household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
             except KeyError as e:
                 logger.debug(f"Household {household.household_name}"
-                            f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
-                            f"with name {ingredient_data.name}")
+                             f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
+                             f"with name {ingredient_data.name}")
                 household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
 
         self.firebase_instance.update_firebase_data(f'households/{household_id}',
@@ -558,32 +565,29 @@ class UsersHouseholdService:
         if ingredient_amount <= 0:
             raise InvalidArgException(f"Ingredient amount need to be greater than 0")
         household = await self.get_household_user_by_id(user_mail, household_id)
-        ingredient_name = ingredient_name[0].upper() + ingredient_name[1:].lower()
-        ingredient_data = ingredientService.search_ingredient_by_name(
-            ingredient_name)  # ingredientsCRUD.search_ingredient(ingredient_name)
+        ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
         if not ingredient_data:
             raise InvalidArgException(f"The ingredient {ingredient_name} dose not exist in the system")
-        ing_id = ingredient_data.ingredient_id
+        ing_id = _get_ingredient_id(ingredient_name, ingredient_data.ingredient_id, household)
         try:
             for ing in household.ingredients[ing_id]:
-                if isinstance(ing, IngredientBoundary):
-                    if ing.purchase_date == ingredient_date.strftime(date_format):
-                        if ingredient_amount > ing.amount:
-                            raise InvalidArgException(
-                                f"The amount you wanted to remove from the household {household.household_name}"
-                                f" is greater than the amount that is in ingredient {ingredient_name} on this date. "
-                                f"The maximum amount is {ing.amount}")
-                        if ing.amount >= ingredient_amount:
-                            ing.amount -= ingredient_amount
-                        if ing.amount <= 0:
-                            household.ingredients[ing_id].remove(ing)
-                        self.firebase_instance.update_firebase_data(f'households/{household_id}'
-                                                                    , to_household_entity(household).__dict__)
-                        return
+                if ing.purchase_date == ingredient_date.strftime(date_format):
+                    if ingredient_amount > ing.amount:
+                        raise InvalidArgException(
+                            f"The amount you wanted to remove from the household {household.household_name}"
+                            f" is greater than the amount that is in ingredient {ingredient_name} on this date. "
+                            f"The maximum amount is {ing.amount}")
+                    if ing.amount >= ingredient_amount:
+                        ing.amount -= ingredient_amount
+                    if ing.amount <= 0:
+                        household.ingredients[ing_id].remove(ing)
+                    self.firebase_instance.update_firebase_data(f'households/{household_id}'
+                                                                , to_household_entity(household).__dict__)
+                    return
             raise InvalidArgException(
                 f"No such ingredient '{ingredient_name}' in household '{household.household_name}' with date "
                 f"{ingredient_date.strftime(date_format)}")
-        except KeyError as e:
+        except (KeyError, ValueError, InvalidArgException) as e:
             raise InvalidArgException(f"No such ingredient {ingredient_name} in household {household.household_name}")
 
     async def remove_one_ingredient_from_household(self, household: HouseholdBoundary, ingredient_name: str,
@@ -596,10 +600,8 @@ class UsersHouseholdService:
         try:
             household.ingredients[ing_id] = remove_ingredient_from_household(household, ing_id, ingredient_amount,
                                                                              ingredient_name)
-        except InvalidArgException as e:
+        except (KeyError, ValueError, InvalidArgException) as e:
             raise InvalidArgException(e.message)
-        except ValueError as e:
-            raise e
         self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
                                                     to_household_entity(household).__dict__)
 
@@ -804,6 +806,46 @@ class UsersHouseholdService:
         for user_email in household.participants:
             users.append(await self.get_user(user_email))
         return HouseholdBoundaryWithUsersData(household, users)
+
+    async def calculate_gas_pollution_of_household_in_range_dates(self, user_email: str,
+                                                                  household_id: str,
+                                                                  startDate: datetime.date,
+                                                                  endDate: datetime.date):
+        gas_pollution: Dict[str, float] = {}
+        household = await self.get_household_user_by_id(user_email, household_id)
+        if isinstance(household, HouseholdBoundaryWithGasPollution):
+            for date_str, meals_types in household.meals.items():
+                date_obj = datetime.strptime(date_str, date_format).date()
+                if startDate <= date_obj < endDate:
+                    for meal_type, recipes in meals_types.items():
+                        for recipe, meals in recipes.items():
+                            for meal in meals:
+                                if isinstance(meal, MealBoundaryWithGasPollution):
+                                    for gas_type in meal.sum_gas_pollution.keys():
+                                        try:
+                                            gas_pollution[gas_type] += meal.sum_gas_pollution[gas_type]
+                                        except (KeyError, ValueError) as e:
+                                            gas_pollution[gas_type] = meal.sum_gas_pollution[gas_type]
+        return gas_pollution
+
+    async def calculate_gas_pollution_of_user_in_range_dates(self, user_email: str,
+                                                             startDate: datetime.date,
+                                                             endDate: datetime.date):
+        gas_pollution: Dict[str, float] = {}
+        user = await self.get_user(user_email)
+        if isinstance(user, UserBoundaryWithGasPollution):
+            for date_str, meals_types in user.meals.items():
+                date_obj = datetime.strptime(date_str, date_format).date()
+                if startDate <= date_obj < endDate:
+                    for meal_type, recipes in meals_types.items():
+                        for recipe, meal in recipes.items():
+                            if isinstance(meal, MealBoundaryWithGasPollution):
+                                for gas_type in meal.sum_gas_pollution.keys():
+                                    try:
+                                        gas_pollution[gas_type] += meal.sum_gas_pollution[gas_type]
+                                    except (KeyError, ValueError):
+                                        gas_pollution[gas_type] = meal.sum_gas_pollution[gas_type]
+        return gas_pollution
 
 
 class HouseholdException(Exception):
