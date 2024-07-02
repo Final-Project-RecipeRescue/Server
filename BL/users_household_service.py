@@ -399,14 +399,14 @@ class UsersHouseholdService:
     async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str,
                           state: Optional[str]):
         self.check_email(user_mail)
-        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') != None:
+        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') is not None:
             raise UserException("User already exists")
         if user_first_name == "" or user_last_name == "" or country == "":
             raise InvalidArgException("Fill all fields before")
         user = UserBoundary(user_first_name,
                             user_last_name,
                             user_mail,
-                            None,
+                            "",
                             [],
                             {},
                             country,
