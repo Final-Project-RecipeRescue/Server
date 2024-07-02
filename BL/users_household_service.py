@@ -573,10 +573,11 @@ class UsersHouseholdService:
             for ing in household.ingredients[ing_id]:
                 if ing.purchase_date == ingredient_date.strftime(date_format):
                     if ingredient_amount > ing.amount:
-                        raise InvalidArgException(
-                            f"The amount you wanted to remove from the household {household.household_name}"
-                            f" is greater than the amount that is in ingredient {ingredient_name} on this date. "
-                            f"The maximum amount is {ing.amount}")
+                        m = (f"The amount you wanted to remove from the household {household.household_name}"
+                             f" is greater than the amount that is in ingredient {ingredient_name} on this date. "
+                             f"The maximum amount is {ing.amount}")
+                        logger.error(m)
+                        raise InvalidArgException(m)
                     if ing.amount >= ingredient_amount:
                         ing.amount -= ingredient_amount
                     if ing.amount <= 0:

@@ -224,7 +224,7 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
     ingredient_date = None
     try:
         # Create a date object from the provided year, month, and day
-        ingredient_date = date(ingredient.year, ingredient.mount, ingredient.day)
+        ingredient_date = date(ingredient.date.year, ingredient.date.mount, ingredient.date.day)
     except ValueError:
         logger.error("Invalid date provided")
         raise HTTPException(status_code=400, detail="Invalid date provided")
