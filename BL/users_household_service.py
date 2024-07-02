@@ -663,51 +663,6 @@ class UsersHouseholdService:
                     f" is not available in the household. Error: {str(e)}")
                 return False
 
-    # async def check_ingredient_availability(self, household: HouseholdBoundary,
-    #                                         recipe_ingredient: IngredientBoundary,
-    #                                         dishes_number: float) -> bool:
-    #     required_amount = recipe_ingredient.amount * dishes_number
-    #     if required_amount < 0:
-    #         raise InvalidArgException("Invalid ingredient amount, it cannot be a negative number")
-    #
-    #     global logger_message
-    #     try:
-    #         recipe_ingredient.ingredient_id = _get_ingredient_id(
-    #             recipe_ingredient.name, recipe_ingredient.ingredient_id, household)
-    #         '''Try to check if ingredient is availability by ID'''
-    #         sum_amount = self.get_sum_of_ing_in_household_byID(recipe_ingredient, household)
-    #         logger_message = str(f"Household {household.household_id} dont hava enough {recipe_ingredient.name} :"
-    #                              f" {recipe_ingredient.ingredient_id}."
-    #                              f" The household have {sum_amount} and needed {recipe_ingredient.amount * dishes_number}")
-    #         if sum_amount < required_amount:
-    #             logger.info(logger_message)
-    #             return False
-    #         return True
-    #     except (KeyError, InvalidArgException) as e:
-    #         '''Try to check if ingredient is availability by SubString'''
-    #         try:
-    #             unique_names = household.get_all_unique_names_ingredient()
-    #             for u_ing_name in unique_names:
-    #                 if recipe_ingredient.name in u_ing_name or u_ing_name in recipe_ingredient.name:
-    #                     logger.debug(
-    #                         f"Captured by substring ing1 : {recipe_ingredient.name}, ing2 : {u_ing_name}")
-    #                     recipe_ingredient.name = u_ing_name
-    #                     '''Change ingredient ID for removing ingredient'''
-    #                     recipe_ingredient.ingredient_id = (
-    #                         ingredientService.search_ingredient_by_name(u_ing_name).ingredient_id)
-    #                     break
-    #             sum_amount = self.get_sum_of_ing_in_household_byID(recipe_ingredient, household)
-    #             if sum_amount < required_amount:
-    #                 logger.info(logger_message)
-    #                 return False
-    #             return True
-    #         except Exception:
-    #             logger.error(
-    #                 f"Ingredient {recipe_ingredient.ingredient_id} :"
-    #                 f" {recipe_ingredient.name} is not available in "
-    #                 f"the household")
-    #             return False
-
     async def _add_meal_to_household_and_user(self, user_email: str, household: HouseholdBoundary,
                                               recipe: RecipeBoundaryWithGasPollution, dishes_number: float,
                                               mealType: meal_types):
