@@ -4,12 +4,14 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
-from routers_boundaries.HouseholdBoundary import HouseholdBoundary
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary, HouseholdBoundaryWithUsersData, \
+    HouseholdBoundaryWithGasPollution
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges, Date)
 from routers_boundaries.UserBoundary import UserBoundary
 from routers.recipes import get_recipes_without_missed_ingredients
+from routers_boundaries.recipe_boundary import RecipeBoundaryWithGasPollution
 
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 from datetime import date
@@ -308,8 +310,11 @@ def get_meal_types():
 
 
 @router.get("/get_all_recipes_that_household_can_make")
-async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
+async def get_all_recipes_that_household_can_make(user_email: str, household_id: str,
+                                                  co2_weight: Optional[float] = 0.5,
+                                                  expiration_weight: Optional[float] = 0.5):
     try:
+        household = await get_household_user_by_id(user_email, household_id)
         ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
         if isinstance(ingredients_dict, HTTPException):
             return ingredients_dict
@@ -319,6 +324,24 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
             ingredients_str += ", ".join(unique_names) + ", "
         ingredients_str = ingredients_str.rstrip(', ')
         recipes = await get_recipes_without_missed_ingredients(ingredients_str)
+        recipes_rv: [RecipeBoundaryWithGasPollution] = []
+        for recipe in recipes:
+            for ingredient in recipe.ingredients:
+                if not await user_household_service.check_ingredient_availability(household, ingredient, 0):
+                    logger.info(f"Recipe {recipe.recipe_id} removed")
+                    continue
+            recipes_rv.append(recipe)
+        recipes = recipes_rv
+        # Calculate closest expiration date for each recipe
+        if isinstance(household, HouseholdBoundaryWithGasPollution):
+            for recipe in recipes:
+                closest_days_to_expire = (user_household_service.get_the_ingredient_with_the_closest_expiration_date(
+                    recipe,
+                    household.ingredients))
+                recipe.set_closest_expiration_days(closest_days_to_expire)
+
+        # Sort recipes by composite score with given weights
+        recipes.sort(key=lambda r: r.composite_score(co2_weight, expiration_weight), reverse=True)
         return recipes
     except (Exception, TypeError, ValueError) as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
@@ -342,7 +365,8 @@ async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, 
 
 
 @router.post("/get_gas_pollution_of_household_in_range_dates")
-async def get_gas_pollution_of_household_in_range_dates(user_email: str, household_id: str, startDate: Date, endDate: Date):
+async def get_gas_pollution_of_household_in_range_dates(user_email: str, household_id: str, startDate: Date,
+                                                        endDate: Date):
     try:
         # Create a date object from the provided year, month, and day
         start = date(startDate.year, startDate.mount, startDate.day)
@@ -352,12 +376,15 @@ async def get_gas_pollution_of_household_in_range_dates(user_email: str, househo
             logger.error(f"Start date {start} must be before end date {end}")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Start date must be before end date")
         logger.info(f"Retrieve a gas pollution of household {household_id} in range time {start} - {end}")
-        return await user_household_service.calculate_gas_pollution_of_household_in_range_dates(user_email, household_id, start, end)
+        return await user_household_service.calculate_gas_pollution_of_household_in_range_dates(user_email,
+                                                                                                household_id, start,
+                                                                                                end)
     except ValueError:
         logger.error("Invalid date provided")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date provided")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.__dict__)
+
 
 @router.post("/get_gas_pollution_of_user_in_range_dates")
 async def get_gas_pollution_of_user_in_range_dates(user_email: str, startDate: Date, endDate: Date):
@@ -376,6 +403,7 @@ async def get_gas_pollution_of_user_in_range_dates(user_email: str, startDate: D
         raise HTTPException(status_code=400, detail="Invalid date provided")
     except Exception as e:
         raise HTTPException(status_code=404, detail=e.__dict__)
+
 
 from fastapi import File, UploadFile
 

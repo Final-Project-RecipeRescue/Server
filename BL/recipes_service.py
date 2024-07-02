@@ -68,7 +68,7 @@ def calc_co2_emission_for_ingredient(ingredient):
 
 
 def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollution:
-    logger.info(f"recipe {recipe.recipe_name} calc gas co2")
+    #logger.info(f"recipe {recipe.recipe_name} calc gas co2")
     sumGas = 0
 
     # Use ThreadPoolExecutor to parallelize ingredient processing
@@ -90,7 +90,7 @@ def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollu
 
 
 async def toBoundaryRecipe(recipeEntity: RecipeEntity) -> RecipeBoundary:
-    logger.info(f"In toBoundaryRecipe get Recipe Entity : {recipeEntity.__dict__}")
+    # logger.info(f"In toBoundaryRecipe get Recipe Entity : {recipeEntity.__dict__}")
     recipeBoundary = RecipeBoundary(int(recipeEntity.id)
                                     , recipeEntity.title
                                     , []
@@ -107,7 +107,7 @@ async def toBoundaryRecipe(recipeEntity: RecipeEntity) -> RecipeBoundary:
         recipeBoundary.summery = recipeEntity.summary
     recipeBoundary.ingredients = [await convert_ingredient_unit_to_gram(ingredient) for ingredient in
                                   recipeBoundary.ingredients]
-    logger.info(f"Success to do toBoundaryRecipe")
+    # logger.info(f"Success to do toBoundaryRecipe")
     return recipeBoundary
 
 
