@@ -24,7 +24,7 @@ RecipeRescue API is a RESTful web service built with Python and FastAPI. It prov
     MONGO_PASS=<your_mongo_pass>
     FIREBASE_KEY_ID=<your_firebase_key_id>
     databaseURL="<your_firebase_database_url>"
-    storageURL="<your_firebase_storage_url>"```
+    storageURL="<your_firebase_storage_url>"
 
 ## Usage
 
