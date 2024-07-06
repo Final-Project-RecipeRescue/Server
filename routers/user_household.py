@@ -287,6 +287,9 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
             logger.error(f"No meal type")
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                  detail=f"Invalid meal meals type is : '{meal_types}'")
+        if dishes_num <= 0:
+            return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                 detail=f"dishes num should be greater than 0")
         logger.info(f"User {user_email} try using recipe {recipe_id} x{dishes_num} for household '{household_id}'")
         await user_household_service.use_recipe(user_email, household_id, recipe_id,
                                                 mealT, dishes_num)
