@@ -7,7 +7,7 @@ ingredientsCRUD = IngredientsCRUD()
 
 
 def to_ingredient_data_boundary(ingredient) -> IngredientDataBoundary:
-    ingredient_id = ingredient['ingredientId']
+    ingredient_id = str(ingredient['ingredientId'])
     name = ingredient['ingredient']
     expirationData = ingredient['expirationData']
     gCO2e_per_100g = ingredient['gCO2e_per_100g']
