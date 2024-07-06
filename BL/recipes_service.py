@@ -30,8 +30,8 @@ async def convert_ingredient_unit_to_gram(ingredient: IngredientBoundary) -> Ing
     if ingredient.unit != 'g' and ingredient.unit != 'gram':
         ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(
             ingredient.name, ingredient.amount, ingredient.unit)
-        ingredient.unit = "gram"
-    return ingredient
+        ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(ingredient.name, ingredient.amount
+                                                                                      , ingredient.unit)
 
 
 def calc_co2_emission_for_ingredient(ingredient):
