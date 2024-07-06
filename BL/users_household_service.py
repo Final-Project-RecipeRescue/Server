@@ -609,8 +609,6 @@ class UsersHouseholdService:
     async def get_all_ingredients_in_household(self, user_email, household_id) -> dict:
         household = await self.get_household_user_by_id(user_email, household_id)
         if isinstance(household, HouseholdBoundary):
-            for ingredient_id, data in household.ingredients.items():
-                household.ingredients[ingredient_id].sort(key=lambda x: x.purchase_date)
             return household.ingredients
 
     def get_sum_of_ing_in_household_byID(self, ingredient: IngredientBoundary, household: HouseholdBoundary):
