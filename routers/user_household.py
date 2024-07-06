@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from fastapi import  HTTPException, status
+from fastapi import HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary, \
@@ -313,15 +313,10 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
                                                   co2_weight: Optional[float] = 0.5,
                                                   expiration_weight: Optional[float] = 0.5):
     try:
-        household = await get_household_user_by_id(user_email, household_id)
-        ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
-        if isinstance(ingredients_dict, HTTPException):
-            return ingredients_dict
         ingredients_str = ""
-        for ingredient_id, ingredients in ingredients_dict.items():
-            unique_names = list(set([ing.name for ing in ingredients]))
-            ingredients_str += ", ".join(unique_names) + ", "
-        ingredients_str = ingredients_str.rstrip(', ')
+        household = await user_household_service.get_household_user_by_id(user_email, household_id)
+        if isinstance(household, HouseholdBoundary):
+            ingredients_str = ",".join(household.get_all_unique_names_ingredient())
         recipes = await get_recipes_without_missed_ingredients(ingredients_str)
         recipes_rv: [RecipeBoundaryWithGasPollution] = []
         for recipe in recipes:
