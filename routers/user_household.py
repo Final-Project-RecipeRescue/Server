@@ -1,15 +1,16 @@
-import asyncio
 import os
 from typing import Optional
-from fastapi import APIRouter, HTTPException, status
+from fastapi import  HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
-from routers_boundaries.HouseholdBoundary import HouseholdBoundary
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary, \
+    HouseholdBoundaryWithGasPollution
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
-, IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges)
+, IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges, Date)
 from routers_boundaries.UserBoundary import UserBoundary
-from routers.recipes import get_recipes_without_missed_ingredients, get_recipes
+from routers.recipes import get_recipes_without_missed_ingredients
+from routers_boundaries.recipe_boundary import RecipeBoundaryWithGasPollution
 
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
 from datetime import date
@@ -117,17 +118,19 @@ async def get_household_user_by_id(user_email: str, household_id: str):
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
+
 @router.get("/get_household_and_users_data_by_id")
 async def get_household_and_users_data_by_id(user_email: str, household_id: str):
     try:
-        household = await get_household_user_by_id(user_email,household_id)
-        if isinstance(household,HouseholdBoundary):
+        household = await get_household_user_by_id(user_email, household_id)
+        if isinstance(household, HouseholdBoundary):
             logger.info("convert HouseholdBoundary to HouseholdBoundaryWithUsersData")
             return await user_household_service.to_household_boundary_with_users_data(household)
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error retrieving household user by ID: '{household_id}'")
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, UserException) else status.HTTP_404_NOT_FOUND
         raise HTTPException(status_code=status_code, detail=str(e.message))
+
 
 # Getting a household user by name
 @router.get("/get_household_user_by_name")
@@ -205,17 +208,8 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 # Adding a list of ingredients to a household
 @router.post("/add_list_ingredients_to_household")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
-    # Create a list of coroutine objects for each ingredient addition
-    tasks = [
-        add_ingredient_to_household_by_ingredient_name(user_email, household_id, ingredient)
-        for ingredient in list_ingredients.ingredients
-    ]
-
-    # Run all tasks concurrently and wait for all of them to finish
-    results = await asyncio.gather(*tasks)
+    await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
     logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
-    # Optionally, you can handle the results array or errors as needed
-    return {"status": "success", "results": results}
 
 
 '''
@@ -229,7 +223,7 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
     ingredient_date = None
     try:
         # Create a date object from the provided year, month, and day
-        ingredient_date = date(ingredient.year, ingredient.mount, ingredient.day)
+        ingredient_date = date(ingredient.date.year, ingredient.date.mount, ingredient.date.day)
     except ValueError:
         logger.error("Invalid date provided")
         raise HTTPException(status_code=400, detail="Invalid date provided")
@@ -253,14 +247,18 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
 @router.delete("/remove_ingredient_from_household")
 async def remove_ingredient_from_household(user_email: str, household_id: str, ingredient: IngredientInput):
     try:
-        await user_household_service.remove_household_ingredient(user_email, household_id, ingredient.name,
-                                                                 ingredient.amount)
+
+        household = await user_household_service.get_household_user_by_id(user_email, household_id)
+        if household:
+            await user_household_service.remove_one_ingredient_from_household(household, ingredient.name,
+                                                                              ingredient.amount,
+                                                                              ingredient.ingredient_id)
         logger.info(
             f"Ingredient '{ingredient.name}' "
-            f"removed from household '{household_id}' successfully by user '{user_email}'")
+            f"removed {ingredient.amount} from household '{household_id}' successfully by user '{user_email}'")
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient"
-                     f" {ingredient.name} from household: {household_id} error : {e}")
+                     f" {ingredient.ingredient_id} : {ingredient.name} from household: {household_id} error : {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
@@ -288,18 +286,21 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
         if mealT is None:
             logger.error(f"No meal type")
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                 detail=f"Invalid meal meals type is : {meal_types}")
-        logger.info(f"User {user_email} try using recipe {recipe_id} for household {household_id}")
+                                 detail=f"Invalid meal meals type is : '{meal_types}'")
+        logger.info(f"User {user_email} try using recipe {recipe_id} x{dishes_num} for household '{household_id}'")
         await user_household_service.use_recipe(user_email, household_id, recipe_id,
                                                 mealT, dishes_num)
-        logger.info(f"Successfully using recipe")
+        logger.info(f"Successfully '{household_id}' using recipe '{recipe_id}' by '{user_email}'")
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
-        logger.error(f"Error retrieving : {e}")
+        logger.error(f"Error retrieving : {e.message}")
         raise HTTPException(status_code=status_code, detail=str(e.message))
     except ValueError as e:
         logger.error(f"Error retrieving : {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error retrieving : {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.get("/get_meal_types")
@@ -308,8 +309,11 @@ def get_meal_types():
 
 
 @router.get("/get_all_recipes_that_household_can_make")
-async def get_all_recipes_that_household_can_make(user_email: str, household_id: str):
+async def get_all_recipes_that_household_can_make(user_email: str, household_id: str,
+                                                  co2_weight: Optional[float] = 0.5,
+                                                  expiration_weight: Optional[float] = 0.5):
     try:
+        household = await get_household_user_by_id(user_email, household_id)
         ingredients_dict = await get_all_ingredients_in_household(user_email, household_id)
         if isinstance(ingredients_dict, HTTPException):
             return ingredients_dict
@@ -319,6 +323,24 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
             ingredients_str += ", ".join(unique_names) + ", "
         ingredients_str = ingredients_str.rstrip(', ')
         recipes = await get_recipes_without_missed_ingredients(ingredients_str)
+        recipes_rv: [RecipeBoundaryWithGasPollution] = []
+        for recipe in recipes:
+            for ingredient in recipe.ingredients:
+                if not await user_household_service.check_ingredient_availability(household, ingredient, 0):
+                    logger.info(f"Recipe {recipe.recipe_id} removed")
+                    continue
+            recipes_rv.append(recipe)
+        recipes = recipes_rv
+        # Calculate closest expiration date for each recipe
+        if isinstance(household, HouseholdBoundaryWithGasPollution):
+            for recipe in recipes:
+                closest_days_to_expire = (user_household_service.get_the_ingredient_with_the_closest_expiration_date(
+                    recipe,
+                    household.ingredients))
+                recipe.set_closest_expiration_days(closest_days_to_expire)
+
+        # Sort recipes by composite score with given weights
+        recipes.sort(key=lambda r: r.composite_score(co2_weight, expiration_weight), reverse=True)
         return recipes
     except (Exception, TypeError, ValueError) as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
@@ -339,6 +361,47 @@ async def check_if_household_exist_in_system(household_id: str):
 @router.get("/check_if_household_can_make_recipe")
 async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[int] = 1):
     return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
+
+
+@router.post("/get_gas_pollution_of_household_in_range_dates")
+async def get_gas_pollution_of_household_in_range_dates(user_email: str, household_id: str, startDate: Date,
+                                                        endDate: Date):
+    try:
+        # Create a date object from the provided year, month, and day
+        start = date(startDate.year, startDate.mount, startDate.day)
+        end = date(endDate.year, endDate.mount, endDate.day)
+        # Check if the start date is before the end date
+        if start >= end:
+            logger.error(f"Start date {start} must be before end date {end}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Start date must be before end date")
+        logger.info(f"Retrieve a gas pollution of household {household_id} in range time {start} - {end}")
+        return await user_household_service.calculate_gas_pollution_of_household_in_range_dates(user_email,
+                                                                                                household_id, start,
+                                                                                                end)
+    except ValueError:
+        logger.error("Invalid date provided")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date provided")
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.__dict__)
+
+
+@router.post("/get_gas_pollution_of_user_in_range_dates")
+async def get_gas_pollution_of_user_in_range_dates(user_email: str, startDate: Date, endDate: Date):
+    try:
+        # Create a date object from the provided year, month, and day
+        start = date(startDate.year, startDate.mount, startDate.day)
+        end = date(endDate.year, endDate.mount, endDate.day)
+        # Check if the start date is before the end date
+        if start >= end:
+            logger.error(f"Start date {start} must be before end date {end}")
+            raise HTTPException(status_code=400, detail="Start date must be before end date")
+        logger.info(f"Retrieve a gas pollution of user {user_email} in range time {start} - {end}")
+        return await user_household_service.calculate_gas_pollution_of_user_in_range_dates(user_email, start, end)
+    except ValueError:
+        logger.error("Invalid date provided")
+        raise HTTPException(status_code=400, detail="Invalid date provided")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=e.__dict__)
 
 
 from fastapi import File, UploadFile

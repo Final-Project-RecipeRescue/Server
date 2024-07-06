@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional
+from typing import List, Optional, Dict
 from routers_boundaries.MealBoundary import MealBoundary, meal_types
 
 
@@ -9,7 +9,7 @@ def is_valid_email(email):
 
 
 class UserBoundary:
-    def __init__(self, first_name: str, last_name: str, user_email: str, image : str, households_ids: List[str],
+    def __init__(self, first_name: str, last_name: str, user_email: str, image: str, households_ids: List[str],
                  meals: {str: {meal_types: {str: MealBoundary}}}, country: str, state: Optional[str]):
         self.first_name = first_name
         self.last_name = last_name
@@ -19,3 +19,18 @@ class UserBoundary:
         self.meals = meals
         self.country = country
         self.state = state
+
+
+class UserBoundaryWithGasPollution(UserBoundary):
+    def __init__(self, userBoundary: UserBoundary, sum_gas_pollution: Dict[str, float]):
+        super().__init__(
+            userBoundary.first_name,
+            userBoundary.last_name,
+            userBoundary.user_email,
+            userBoundary.image,
+            userBoundary.households,
+            userBoundary.meals,
+            userBoundary.country,
+            userBoundary.state
+        )
+        self.sum_gas_pollution = sum_gas_pollution

@@ -1,9 +1,6 @@
 import logging
-from datetime import datetime
 from typing import List, Optional
-
 from BL.ingredient_service import IngredientService
-from DAL.IngredientsCRUD import IngredientsCRUD
 from Data.IngredientEntity import IngredientEntity
 from Data.Recipe_stepsEntity import Recipe_stepsEntity
 from Data.recipe_entity import RecipeEntity, RecipeEntityByIngredientSpoonacular, RecipeEntityByIDSpoonacular
@@ -12,6 +9,7 @@ from routers_boundaries.recipe_boundary import RecipeBoundary, RecipeBoundaryWit
 from protocols.ServiceProtocol import Service
 from DAL.recipes_db_connection import SpoonacularAPI, RecipesCRUD, RecipesInstructionsCRUD
 from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary, Step
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logger = logging.getLogger("my_logger")
 date_format = "%Y-%m-%d"
@@ -30,27 +28,34 @@ def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
 
 async def convert_ingredient_unit_to_gram(ingredient: IngredientBoundary) -> IngredientBoundary:
     if ingredient.unit != 'g' and ingredient.unit != 'gram':
+        ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(
+            ingredient.name, ingredient.amount, ingredient.unit)
         ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(ingredient.name, ingredient.amount
                                                                                       , ingredient.unit)
-        ingredient.unit = "gram"
-    return ingredient
 
 
-def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollution:
-    logger.info(f"recipe {recipe.recipe_name} calc gas co2")
-    sumGas = 0
-    for ingredient in recipe.ingredients:
-        co2_emissions = 0
+def calc_co2_emission_for_ingredient(ingredient):
+    co2_emissions = 0
+    try:
+        '''
+        Search by ID
+        '''
+        ing_data = ingredientService.get_ingredient_by_id(ingredient.ingredient_id)
+        co2_emissions = (ingredient.amount / 100) * ing_data.gCO2e_per_100g
+    except Exception:
         try:
-            ing_data = ingredientService.get_ingredient_by_id(ingredient.ingredient_id)
-            co2_emissions = (ingredient.amount / 100) * ing_data.gCO2e_per_100g
-        except Exception:
             '''
             Search by name if the ID is not found
-            If we find ingredient with the same name we
-            will take him but if not then we will take the first one that appears
             '''
+            ing_data = ingredientService.search_ingredient_by_name(ingredient.name)
+            co2_emissions = (ingredient.amount / 100) * ing_data.gCO2e_per_100g
+        except Exception:
             try:
+                '''
+                Search by autocomplete
+                If we find ingredient with the same name we
+                will take him but if not then we will take the first one that appears
+                '''
                 ingredients_data = ingredientService.autocomplete_by_ingredient_name(ingredient.name)
                 ing_data = ingredients_data[0]
                 for ing in ingredients_data:
@@ -58,22 +63,38 @@ def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollu
                         ing_data = ing
                 co2_emissions = (ingredient.amount / 100) * ing_data.gCO2e_per_100g
             except Exception:
-                logger.error(
-                    f"fail to find co2 to ingredient : ing : {ingredient.name} ing_id : {ingredient.ingredient_id}")
-        sumGas += co2_emissions
+                logger.error(f"fail to find co2 for ingredient: {ingredient.name} ing_id: {ingredient.ingredient_id}")
+    return co2_emissions
+
+
+def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollution:
+    #logger.info(f"recipe {recipe.recipe_name} calc gas co2")
+    sumGas = 0
+
+    # Use ThreadPoolExecutor to parallelize ingredient processing
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(calc_co2_emission_for_ingredient, ingredient) for ingredient in recipe.ingredients]
+
+        # Only the main thread will collect and sum the results
+        for future in as_completed(futures):
+            sumGas += future.result()
+
+    # Create the result object
     recipeBoundaryWithGasPollution = RecipeBoundaryWithGasPollution(
         recipe,
-        {})
+        {}
+    )
     recipeBoundaryWithGasPollution.sumGasPollution["CO2"] = sumGas
+
     return recipeBoundaryWithGasPollution
 
 
 async def toBoundaryRecipe(recipeEntity: RecipeEntity) -> RecipeBoundary:
-    logger.info(f"In toBoundaryRecipe get Recipe Entity : {recipeEntity.__dict__}")
+    # logger.info(f"In toBoundaryRecipe get Recipe Entity : {recipeEntity.__dict__}")
     recipeBoundary = RecipeBoundary(int(recipeEntity.id)
-                                                    , recipeEntity.title
-                                                    , []
-                                                    , recipeEntity.image)
+                                    , recipeEntity.title
+                                    , []
+                                    , recipeEntity.image)
     if isinstance(recipeEntity, RecipeEntityByIngredientSpoonacular):
         recipeBoundary.ingredients = ([to_ingredient_boundary(ingredient)
                                        for ingredient in recipeEntity.missed_ingredients]
@@ -86,7 +107,7 @@ async def toBoundaryRecipe(recipeEntity: RecipeEntity) -> RecipeBoundary:
         recipeBoundary.summery = recipeEntity.summary
     recipeBoundary.ingredients = [await convert_ingredient_unit_to_gram(ingredient) for ingredient in
                                   recipeBoundary.ingredients]
-    logger.info(f"Success to do toBoundaryRecipe")
+    # logger.info(f"Success to do toBoundaryRecipe")
     return recipeBoundary
 
 
@@ -102,47 +123,41 @@ def toBoundaryRecipeInstructions(recipe: Recipe_stepsEntity) -> recipe_instructi
         ) for step in recipe.steps]
     )
 
+import time
 
 class RecipesService(Service):
     def __init__(self):
         self.recipeDB = RecipesCRUD()
         self.recipesInstructionsCRUD = RecipesInstructionsCRUD()
 
+    async def add_missing_recipes_to_mongo(self, recipes: [RecipeEntityByIngredientSpoonacular]):
+        for recipe in recipes:
+            recipe_from_mongo = await self.recipeDB.get_recipe_by_id(str(recipe.id))
+            if recipe_from_mongo is None:
+                logger.info(f"not exist in mongo data: {recipe.title}")
+                await self.add_recipe_to_mongoDB(await toBoundaryRecipe(recipe))
+                logger.info(f"recipe {recipe.title} added to mongo data")
+
+    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missed_ingredients):
+        result = []
+
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for recipe in recipes:
+                if missed_ingredients or recipe.missed_ingredient_count == 0:
+                    futures.append(executor.submit(
+                        calc_cos_gas_pollution, await self.recipeDB.get_recipe_by_id(str(recipe.id))
+                    ))
+            for future in as_completed(futures):
+                result.append(future.result())
+        return result
+
     async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missed_ingredients: bool) \
             -> Optional[List[RecipeBoundaryWithGasPollution]]:
         try:
             recipes = await spoonacular_instance.find_recipes_by_ingredients(ingredients)
-            for recipe in recipes:
-                recipe_from_mongo = await self.recipeDB.get_recipe_by_id(str(recipe.id))
-                if recipe_from_mongo is None:
-                    logger.info(f"not exist in mongo data: {recipe.title}")
-                    await self.add_recipe_to_mongoDB(await toBoundaryRecipe(recipe))
-                    logger.info(f"recipe {recipe.title} added to mongo data")
-
-            result: [RecipeBoundaryWithGasPollution] = []
-            if missed_ingredients:
-                for recipe in recipes:
-                    result.append(
-                        calc_cos_gas_pollution(
-                            await self.recipeDB.get_recipe_by_id(
-                                str(
-                                    recipe.id
-                                )
-                            )
-                        )
-                    )
-            else:
-                for recipe in recipes:
-                    if recipe.missed_ingredient_count == 0:
-                        result.append(
-                            calc_cos_gas_pollution(
-                                await self.recipeDB.get_recipe_by_id(
-                                    str(
-                                        recipe.id
-                                    )
-                                )
-                            )
-                        )
+            await self.add_missing_recipes_to_mongo(recipes)
+            result = await self.filter_and_calc_pollution(recipes, missed_ingredients)
             return result
         except Exception as e:
             logger.error("In get_recipes_by_ingredients_lst func: %s", e)

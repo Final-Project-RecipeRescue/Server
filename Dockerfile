@@ -4,7 +4,7 @@ LABEL authors="nissa"
 ENTRYPOINT ["top", "-b"]
 
 # Use an official Python runtime as a parent image
-FROM python:3.11
+FROM python:3.11-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -27,4 +27,4 @@ ENV MONGO_USER admin
 ENV MONGO_PASS secret123
 ENV FIREBASE_KEY_ID 9d8c8a63421445a506c5655d5a32250319584ed7
 ENV databaseURL "https://reciperescue-6da9c-default-rtdb.europe-west1.firebasedatabase.app"
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
