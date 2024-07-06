@@ -1,10 +1,9 @@
-import asyncio
 import os
 from typing import Optional
-from fastapi import APIRouter, HTTPException, status
+from fastapi import  HTTPException, status
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
-from routers_boundaries.HouseholdBoundary import HouseholdBoundary, HouseholdBoundaryWithUsersData, \
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary, \
     HouseholdBoundaryWithGasPollution
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput

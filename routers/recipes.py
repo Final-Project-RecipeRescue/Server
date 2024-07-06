@@ -65,6 +65,7 @@ async def get_recipe_by_id(recipe_id: str):
         logger.error(f"Error retrieving recipe by ID: {recipe_id}, {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.__str__())
 
+
 @router.get("/getRecipesByName/{recipe_name}")
 async def get_recipes_by_name(recipe_name: str):
     logger.debug(f"Received request to get recipes by name: {recipe_name}")

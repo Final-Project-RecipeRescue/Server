@@ -25,7 +25,7 @@ RecipeRescue API is a RESTful web service built with Python and FastAPI. It prov
 
 To start the server, run the following command:
 
-    ```bash
+    ```bash```
     uvicorn main:app --reload
 
 
@@ -45,40 +45,43 @@ getRecipesByIngredients
         
         [
           {
-            "recipe_id": 634048,
-            "recipe_name": "Banana Chocolate Pudding",
-            "ingredients": [
-              {
-                "ingredient_id": "9040",
-                "name": "bananas",
-                "amount": 472,
-                "unit": "gram",
-                "purchase_date": null
-              },
-              {
-                "ingredient_id": "19165",
-                "name": "cocoa powder",
-                "amount": 28.67,
-                "unit": "gram",
-                "purchase_date": null
-              },
-              {
-                "ingredient_id": "16098",
-                "name": "peanut butter",
-                "amount": 129,
-                "unit": "gram",
-                "purchase_date": null
-              },
-              {
-                "ingredient_id": "9037",
-                "name": "avocado",
-                "amount": 201,
-                "unit": "gram",
-                "purchase_date": null
+              "recipe_id": 634048,
+              "recipe_name": "Banana Chocolate Pudding",
+              "ingredients": [
+                {
+                  "ingredient_id": "9040",
+                  "name": "bananas",
+                  "amount": 472,
+                  "unit": "gram",
+                  "purchase_date": null
+                },
+                {
+                  "ingredient_id": "19165",
+                  "name": "cocoa powder",
+                  "amount": 28.67,
+                  "unit": "gram",
+                  "purchase_date": null
+                },
+                {
+                  "ingredient_id": "16098",
+                  "name": "peanut butter",
+                  "amount": 129,
+                  "unit": "gram",
+                  "purchase_date": null
+                },
+                {
+                  "ingredient_id": "9037",
+                  "name": "avocado",
+                  "amount": 201,
+                  "unit": "gram",
+                  "purchase_date": null
+                }
+              ],
+              "image_url": "https://img.spoonacular.com/recipes/634048-312x231.jpg",
+              "sumGasPollution": {
+                "CO2": 1382.525
               }
-            ],
-            "image_url": "https://img.spoonacular.com/recipes/634048-312x231.jpg"
-          },...
+            },...
         ]
 
 getRecipesByIngredientsWithoutMissedIngredients
@@ -96,32 +99,7 @@ getRecipeByID
 getRecipesByName
 
     GET /recipes/getRecipesByName/{recipe_name}
-        Returns a list of recipes in this form:
-        {
-            "recipe_id": int,
-            "recipe_name": string,
-            "ingredients": [],
-            "image_url": string
-        }
-        recipe_name: Name of the recipe.
-
-    Example
-        http://127.0.0.1:8000/recipes/getRecipesByName/Banana%20Chocolate%20Pudding
-        
-        [
-          {
-            "recipe_id": 634048,
-            "recipe_name": "Banana Chocolate Pudding",
-            "ingredients": [],
-            "image_url": "https://img.spoonacular.com/recipes/634048-312x231.jpg"
-          },
-          {
-            "recipe_id": 634047,
-            "recipe_name": "Banana Chocolate Pudding Cake",
-            "ingredients": [],
-            "image_url": "https://img.spoonacular.com/recipes/634047-312x231.jpg"
-          }
-        ]
+        Returns a list of RecipeBoundary by its name
 
 getRecipeInstructions
 
@@ -415,19 +393,28 @@ getAllSystemIngredients
     GET /ingredients/getAllSystemIngredients
      Retrieves a list of ingredients in this from:
       {
-        "ingredient_id": String,
-        "name": Name of the ingredient
+         "ingredient_id": String,
+         "name": Name of the ingredient,
+         "expirationData": number of days to expire : Int
+         "gCO2e_per_100g": The amount of carbon dioxide emitted if it is thrown : Int
       }
     
 autocompleteIngredient
 
-    GET /ingredients/autocompleteIngredient
-    Retrieves a list of ingredients whose prefix is ​​a partial_name in this from:
-      {
-        "ingredient_id": String,
-        "name": Name of the ingredient
-      }
-    partial_name : String
+       GET /ingredients/autocompleteIngredient
+       Retrieves a list of ingredients whose prefix is partial_name
+       partial_name : String
+
+getIngredientById
+
+      GET /ingredients/getIngredientById
+      Retrieves a ingredient by id
+      ingredient_id: int
+
+getIngredientByName
+
+      Retrieves a ingredient by name
+      ingredient_name: str
 
 Users and Household Operations
 
@@ -495,28 +482,66 @@ get_user
     http://127.0.0.1:8000/users_household/get_user?user_email=example%40example.example
     
     Return value:
-    {
-        "first_name": "example",
-        "last_name": "example",
-        "user_email": "example@example.example",
+      {
+        "first_name": "Nissan",
+        "last_name": "Yamin",
+        "user_email": "nissanyam1@gmail.com",
         "image": null,
         "households": [
-          "2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3"
+          "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
+          "bd616751-cc28-41b5-9719-fbf1b1f52df3"
         ],
         "meals": {
-          "2024-05-19": {
+          "2024-06-26": {
             "Lunch": {
-              "634435": {
+              "635058": {
                 "users": [
-                  "example@example.example"
+                  "nissanyam1@gmail.com"
                 ],
-                "number_of_dishes": 2
+                "number_of_dishes": 0,
+                "sum_gas_pollution": {
+                  "CO2": 0
+                }
+              },
+              "643514": {
+                "users": [
+                  "nissanyam1@gmail.com"
+                ],
+                "number_of_dishes": 0,
+                "sum_gas_pollution": {
+                  "CO2": 0
+                }
+              },
+              "664932": {
+                "users": [
+                  "nissanyam1@gmail.com"
+                ],
+                "number_of_dishes": 0,
+                "sum_gas_pollution": {
+                  "CO2": 0
+                }
+              }
+            }
+          },
+          "2024-06-27": {
+            "Lunch": {
+              "643514": {
+                "users": [
+                  "nissanyam1@gmail.com"
+                ],
+                "number_of_dishes": 0,
+                "sum_gas_pollution": {
+                  "CO2": 0
+                }
               }
             }
           }
         },
-        "country": "example",
-        "state": "example"
+        "country": "Israel",
+        "state": "Haifa District",
+        "sum_gas_pollution": {
+          "CO2": 0
+        }
       }
 
 update_personal_user_info 
@@ -535,7 +560,7 @@ delete_user
 
     DELETE /users_household/delete_user
         Remove user from system and remove him from households
-        user_mail: Email of the user creating the household.
+        user_mail: Email of the user
 
 get_household_user_by_id
 
@@ -659,6 +684,14 @@ get_household_user_by_id
         }
       }
 
+get_household_and_users_data_by_id
+
+      GET /users_household/get_household_and_users_data_by_id
+      Retuen a HouseholdBoundary by user mail and household id .
+      The information in participants is not users' emails, it is users' objects.
+         user_mail: Email of the user.
+         household_id : Id of household
+
 get_household_user_by_name
 
     GET /users_household/get_household_user_by_name
@@ -723,11 +756,14 @@ remove_ingredient_from_household_by_date
                 "ingredient_id": "1001",
                 "name": "Butter",
                 "amount": 3,
-                "unit": "string"
+                "unit": "string"/// in defult in gram
               },
-              "year": 2024,
-              "mount": 5,
-              "day": 19
+               "date":{
+                 "year": 2024,
+                 "mount": 5,
+                 "day": 19
+               }
+
          }
 
 remove_ingredient_from_household
@@ -777,6 +813,8 @@ use_recipe_by_recipe_id
         Return list of recipes that household can make or 404 if there no recipes
         user_mail: Email of the user to add.
         household_id: Id of the household.
+         co2_weight : Default value : 0.5 : fout /// for the sorting by 2 parameters
+         expiration_weight : Default value : 0.5 : fout /// for the sorting by 2 parameters
 
     GET /users_household/check_if_household_exist_in_system
          Return true if the hosehold exist in the system
@@ -790,6 +828,49 @@ use_recipe_by_recipe_id
          
          Returns a boolean indicating whether the household can make the specified recipe
 
+get_gas_pollution_of_household_in_range_dates
+
+      Post /users_household/get_gas_pollution_of_household_in_range_dates
+      This endpoint returns the total gas emissions of the household on the specified dates
+      user_mail: Email of user in household.
+      household_id: Id of the household.
+      require body :
+      {
+        "startDate": {
+          "year": 0,
+          "mount": 0,
+          "day": 0
+        },
+        "endDate": {
+          "year": 0,
+          "mount": 0,
+          "day": 0
+        }
+      }
+      example : 
+      'http://127.0.0.1:8000/users_household/get_gas_pollution_of_household_in_range_dates?user_email=nissanyam1%40gmail.com&household_id=67fc717d-67b4-43e0-a8dc-cb5189a9c383'
+      {
+        "startDate": {
+          "year": 2024,
+          "mount": 6,
+          "day": 1
+        },
+        "endDate": {
+          "year": 2024,
+          "mount": 7,
+          "day": 10
+        }
+         return :
+         {
+           "CO2": 33428.79239999999
+         }
+
+get_gas_pollution_of_user_in_range_dates
+
+      Post /users_household/get_gas_pollution_of_user_in_range_dates
+      This endpoint returns the total gas emissions of the user on the specified dates
+      user_mail: Email of the user.
+
 Object Definitions
 
 RecipeBoundary
@@ -800,6 +881,7 @@ Represents a recipe object returned by the API.
     recipe_name: Name of the recipe. : string
     ingredients: List of ingredients in the recipe, each represented by an IngredientBoundary object. : [IngredientBoundary]
     image_url: URL of the image associated with the recipe. : string
+    sumGasPollution : Dict of gas that would emmitin if the ingredients throws
 
 recipe_instructionsBoundary
 
@@ -835,11 +917,13 @@ Represents a household object returned by the API.
     participants: List of participants email in the household. [String] 
     ingredients: Dictionary of ingredients in the household, where keys are ingredient id and values are lists of IngredientBoundary objects. {string : [IngredientBoundary]}
     meals: List of meals in the household, where keys are meal dates and values are meal types ("Breakfast", "Lunch", "Dinner", "Snacks"), the type is a dictionary of recipe ID and value is MealBoundary. {string : {string : { string : [MealBoundary]}}}
+    sumGasPollution : Dict of gas emissions that the household saved
 
 MealBoundary
 
     users: list of users that take a part of this meal. ([String])
     number_of_dishes : The number of dishes that will be made from the recipe in this meal.(Double)
+    sumGasPollution : Dict of gas emissions that the meal saved
 
 UserBoundary
 
@@ -853,3 +937,6 @@ Represents a user object returned by the API.
     meals: date -> meal type -> recipe id -> meal. {string : {string : {string : MealBoundary}}}
     country: Country of the user. : string
     state: State of the user. : string
+    sumGasPollution : Dict of gas emissions that the user saved
+
+
