@@ -22,7 +22,7 @@ class IngredientBoundary:
 
 
 class IngredientBoundaryWithExpirationData(IngredientBoundary):
-    def __init__(self, ingredient: IngredientBoundary, expiration_date: datetime.date):
+    def __init__(self, ingredient: IngredientBoundary, expiration_date: datetime.date or str):
         super().__init__(
             ingredient.ingredient_id,
             ingredient.name,
@@ -33,4 +33,11 @@ class IngredientBoundaryWithExpirationData(IngredientBoundary):
         if expiration_date is None:
             self.expiration_date = None
         else:
-            self.expiration_date = expiration_date.strftime("%Y-%m-%d")
+            if isinstance(expiration_date, datetime.date):
+                self.expiration_date = expiration_date.strftime("%Y-%m-%d")
+            elif isinstance(expiration_date, str):
+                try:
+                    datetime.datetime.strptime(expiration_date, "%Y-%m-%d")
+                    self.expiration_date = expiration_date
+                except ValueError:
+                    pass

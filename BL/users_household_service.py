@@ -45,18 +45,30 @@ def to_ingredient_entity(ingredient: IngredientBoundary) -> IngredientEntity:
     ingredient_entity.purchase_date = ingredient.purchase_date
     ingredient_entity.amount = ingredient.amount
     ingredient_entity.unit = ingredient.unit
+    if isinstance(ingredient, IngredientBoundaryWithExpirationData):
+        if ingredient.expiration_date is not None:
+            ingredient_entity.expiration_date = ingredient.expiration_date
+    else:
+        exper_date = calc_expiration(ingredient)
+        ingredient_entity.expiration_date = exper_date.strftime(date_format)
     return ingredient_entity
 
 
 def to_ingredient_boundary(ingredient: object) -> IngredientBoundary:
     ingredientEntity = IngredientEntity(ingredient)
-    return IngredientBoundary(
+    ing_boundary = IngredientBoundary(
         ingredientEntity.id,
         ingredientEntity.name,
         ingredientEntity.amount,
         ingredientEntity.unit,
         datetime.strptime(ingredientEntity.purchase_date, date_format)
     )
+    if ingredientEntity.expiration_date is not None:
+        return IngredientBoundaryWithExpirationData(
+            ing_boundary,
+            datetime.strptime(ingredientEntity.expiration_date, date_format)
+        )
+    return ing_boundary
 
 
 def calc_expiration(ingredient: IngredientBoundary) -> Optional[datetime.date]:
@@ -83,6 +95,8 @@ def calc_expiration(ingredient: IngredientBoundary) -> Optional[datetime.date]:
 
 
 def to_ingredient_boundary_with_expiration_data(ingredient: IngredientBoundary) -> IngredientBoundaryWithExpirationData:
+    if isinstance(ingredient, IngredientBoundaryWithExpirationData):
+        return ingredient
     return IngredientBoundaryWithExpirationData(
         ingredient,
         calc_expiration(ingredient)

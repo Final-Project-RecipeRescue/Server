@@ -8,6 +8,7 @@ class IngredientEntity:
         self.amount = data.get("amount") if data.get("amount") else None
         self.unit = data.get("unit") if data.get("unit") else "gram"
         self.purchase_date = data.get("purchase_date") if data.get("purchase_date") else None
+        self.expiration_date = data.get("expiration_date") if data.get("expiration_date") else None
 
 
 class IngredientEntitySpoonacular(IngredientEntity):
