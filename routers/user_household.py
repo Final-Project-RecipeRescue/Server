@@ -320,19 +320,16 @@ import concurrent.futures
 
 def check_recipe_ingredients_availability(household: HouseholdBoundary, recipe: RecipeBoundary) -> bool:
     def check_availability(ingredient):
-        logger.info(f"Check ingredient {ingredient.name} : {ingredient.ingredient_id}"
-                    f" in household {household.household_id} by recipe {recipe.recipe_id}")
         return user_household_service.check_ingredient_availability(household, ingredient, 0)
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(check_availability, ingredient) for ingredient in recipe.ingredients]
 
-        for future in concurrent.futures.as_completed(futures):
+        for ingredient, future in zip(recipe.ingredients, concurrent.futures.as_completed(futures)):
             if not future.result():
-                logger.info(f"Recipe {recipe.recipe_id} removed due to missing ingredient")
+                logger.info(f"Recipe {recipe.recipe_id} removed due Ingredient {ingredient.name} "
+                            f": {ingredient.ingredient_id} is not available.")
                 return False
-
-    logger.info(f"Household {household.household_id} can make recipe {recipe.recipe_id}")
     return True
 
 
@@ -340,12 +337,10 @@ def check_recipe_ingredients_availability(household: HouseholdBoundary, recipe: 
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str,
                                                   co2_weight: Optional[float] = 0.5,
                                                   expiration_weight: Optional[float] = 0.5):
-    start_time = time.time()  # Record start time
     try:
         recipes_rv: List[RecipeBoundaryWithGasPollution] = []
         household = await user_household_service.get_household_user_by_id(user_email, household_id)
         if isinstance(household, HouseholdBoundary):
-
             recipes = await recipes_service.get_recipes_by_ingredients_lst(household.get_all_unique_names_ingredient(),
                                                                            False)
 
@@ -369,17 +364,13 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
                     recipe,
                     household.ingredients)
                 recipe.set_closest_expiration_days(closest_days_to_expire)
-
+                
         # Sort recipes by composite score with given weights
         recipes.sort(key=lambda r: r.composite_score(co2_weight, expiration_weight), reverse=True)
         return recipes
     except (Exception, TypeError, ValueError) as e:
         logger.error(f"Error retrieving recipes for household {household_id}: {str(e)}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
-    finally:
-        end_time = time.time()  # Record end time
-        elapsed_time = end_time - start_time
-        logger.info(f"Time taken to execute get_all_recipes_that_household_can_make: {elapsed_time:.2f} seconds")
 
 
 @router.get("/check_if_household_exist_in_system")
