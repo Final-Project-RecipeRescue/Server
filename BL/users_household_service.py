@@ -642,9 +642,9 @@ class UsersHouseholdService:
         except Exception as e:
             raise Exception
 
-    async def check_ingredient_availability(self, household: HouseholdBoundary,
-                                            recipe_ingredient: IngredientBoundary,
-                                            dishes_number: float) -> bool:
+    def check_ingredient_availability(self, household: HouseholdBoundary,
+                                      recipe_ingredient: IngredientBoundary,
+                                      dishes_number: float) -> bool:
         required_amount = recipe_ingredient.amount * dishes_number
         if required_amount < 0:
             raise InvalidArgException("Invalid ingredient amount, it cannot be a negative number")
@@ -659,7 +659,7 @@ class UsersHouseholdService:
             except Exception as e:
                 logger.error(
                     f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name}"
-                    f" is not available in the household. Error: {str(e)}")
+                    f" is not available in the household.")
                 return False
 
     async def _add_meal_to_household_and_user(self, user_email: str, household: HouseholdBoundary,
@@ -713,7 +713,7 @@ class UsersHouseholdService:
             for ingredient in recipe.ingredients:
                 # logger.debug(f"before {ingredient.ingredient_id}")
                 # logger.info(f"Check if {ingredient.name} exist")
-                if not await self.check_ingredient_availability(household, ingredient, dishes_number):
+                if not self.check_ingredient_availability(household, ingredient, dishes_number):
                     message = (f"Household '{household.household_name}' id : '{household.household_id}'"
                                f" does not have enough '{ingredient.name}' : '{ingredient.ingredient_id}'"
                                f" ingredient for"
@@ -751,7 +751,7 @@ class UsersHouseholdService:
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
             for ingredient in recipe.ingredients:
-                if not await self.check_ingredient_availability(household, ingredient, dishes_number):
+                if not self.check_ingredient_availability(household, ingredient, dishes_number):
                     return False
             return True
         return False
