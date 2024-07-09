@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from unittest import TestCase
 
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
@@ -162,10 +162,10 @@ def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes
                                    f"&dishes_num={dishes_num}")
 
 
-def use_recipe(user_email: str, household_id: str,
+def use_recipe(users_email: List[str], household_id: str,
                meal: str, dishes_num: float, recipe_id: str):
     return requests.post(
-        base_url + f"/users_household/use_recipe_by_recipe_id?user_email={user_email}&household_id={household_id}&meal={meal}&dishes_num={dishes_num}&recipe_id={recipe_id}")
+        base_url + f"/users_household/use_recipe_by_recipe_id?household_id={household_id}&meal={meal}&dishes_num={dishes_num}&recipe_id={recipe_id}",json=users_email)
 
 
 def parse_ingredient(ingredient_data: Dict) -> IngredientBoundary:
@@ -471,7 +471,7 @@ class HouseholdTests(TestCase):
         for recipe in recipes:
             meal_type = meal_types[random.randint(0, len(meal_types)-1)]
             response = use_recipe(
-                self.user_email,
+                [self.user_email],
                 self.household_id,
                 meal_type,
                 random.randint(1, 5),
@@ -482,6 +482,8 @@ class HouseholdTests(TestCase):
                 user = parse_user_boundary(response.json())
                 self.assertIsNotNone(
                     user.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)])
+                print(user.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)].users)
+                self.assertIn(self.user_email,user.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)].users)
                 response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
                 self.assertEqual(200, response.status_code)
                 household = parse_household(response.json())
