@@ -792,7 +792,6 @@ use_recipe_by_recipe_id
 
     POST /users_household/use_recipe_by_recipe_id
         Add to the history of consumption of meals at household.
-        user_email: Email of the user to add.
         household_id: Id of the household.
         meal : [
               "Breakfast",
@@ -802,9 +801,17 @@ use_recipe_by_recipe_id
             ] need to be on of them
          dishes_num : flout
          recipe_id : id of recipe to use : string
+         
+         body : 
+               user_email: list of email of the user to add.
+         
       Example:
-         http://127.0.0.1:8000/users_household/use_recipe_by_recipe_id?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3&meal=Lunch&dishes_num=1&recipe_id=634435
-      return Null if sucseessful 
+         http://127.0.0.1:8000/users_household/use_recipe_by_recipe_id?household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3&meal=Lunch&dishes_num=1&recipe_id=634435
+         with this body
+            [
+               "example@example.example"
+            ]
+         return Null if sucseessful 
 
     GET /users_household/get_meal_types
         Return list of meals types

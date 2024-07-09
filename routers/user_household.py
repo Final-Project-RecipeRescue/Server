@@ -279,7 +279,7 @@ async def get_all_ingredients_in_household(user_email: str, household_id: str):
 
 
 @router.post("/use_recipe_by_recipe_id")
-async def use_recipe_by_recipe_id(user_email: str, household_id: str,
+async def use_recipe_by_recipe_id(users_email: List[str], household_id: str,
                                   meal: str, dishes_num: float, recipe_id: str):
     try:
         mealT = None
@@ -293,10 +293,10 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
         if dishes_num <= 0:
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                  detail=f"dishes num should be greater than 0")
-        logger.info(f"User {user_email} try using recipe {recipe_id} x{dishes_num} for household '{household_id}'")
-        await user_household_service.use_recipe(user_email, household_id, recipe_id,
+        logger.info(f"Users {users_email} try using recipe {recipe_id} x {dishes_num} for household '{household_id}'")
+        await user_household_service.use_recipe(users_email, household_id, recipe_id,
                                                 mealT, dishes_num)
-        logger.info(f"Successfully '{household_id}' using recipe '{recipe_id}' by '{user_email}'")
+        logger.info(f"Successfully '{household_id}' using recipe '{recipe_id}' by users '{users_email}'")
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
         logger.error(f"Error retrieving : {e.message}")
@@ -385,7 +385,7 @@ async def check_if_household_exist_in_system(household_id: str):
 
 
 @router.get("/check_if_household_can_make_recipe")
-async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[int] = 1):
+async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[float] = 1):
     return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
 
 

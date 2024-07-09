@@ -1,3 +1,4 @@
+import copy
 import datetime
 import logging
 import os
@@ -376,7 +377,7 @@ class UsersHouseholdService:
 
     def check_email(self, email: str):
         if not user_entity_py.is_valid_email(email):
-            raise InvalidArgException("Invalid email format")
+            raise InvalidArgException(f"{email} invalid email format")
 
     async def check_user_if_user_exist(self, email: str):
         if self.firebase_instance.get_firebase_data(f'users/{encoded_email(email)}') == None:
@@ -676,50 +677,71 @@ class UsersHouseholdService:
                     f" is not available in the household.")
                 return False
 
-    async def _add_meal_to_household_and_user(self, user_email: str, household: HouseholdBoundary,
-                                              recipe: RecipeBoundaryWithGasPollution, dishes_number: float,
-                                              mealType: meal_types):
-        new_meal = MealBoundary([user_email], dishes_number)
-        gas_pollution = recipe.sumGasPollution
-        for gas in gas_pollution.keys():
-            gas_pollution[gas] *= dishes_number
-        new_meal = MealBoundaryWithGasPollution(new_meal, gas_pollution)
-        add_meal_to_household(household, new_meal, datetime.now().strftime("%Y-%m-%d"), mealType, str(recipe.recipe_id))
-        user = await self.get_user(user_email)
-        add_meal_to_user(user, new_meal, datetime.now().strftime("%Y-%m-%d"), mealType, str(recipe.recipe_id))
-        if isinstance(household, HouseholdBoundaryWithGasPollution):
-            logger.debug("Is a household with gas pollution")
-            for gas in gas_pollution.keys():
-                try:
-                    household.sum_gas_pollution[gas] += gas_pollution[gas]
-                    logger.debug(f"Add to {gas} {gas_pollution[gas]} to household")
-                except (Exception, ValueError) as e:
-                    logger.debug(f"Add new gas to household {gas_pollution[gas]}")
-                    household.sum_gas_pollution[gas] = gas_pollution[gas]
-        else:
-            logger.debug("Convert to household with gas pollution")
-            household = HouseholdBoundaryWithGasPollution(household, gas_pollution)
-        if isinstance(user, UserBoundaryWithGasPollution):
-            logger.debug("Is a user with gas pollution")
-            for gas in gas_pollution.keys():
-                try:
-                    user.sum_gas_pollution[gas] += gas_pollution[gas]
-                    logger.debug(f"Add to {gas} {gas_pollution[gas]} to user")
-                except (Exception, ValueError) as e:
-                    logger.debug(f"Add new gas to user {gas_pollution[gas]}")
-                    user.sum_gas_pollution[gas] = gas_pollution[gas]
-        else:
-            logger.debug("Convert to user with gas pollution")
-            user = UserBoundaryWithGasPollution(user, gas_pollution)
-        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', to_user_entity(user).__dict__)
+    async def _add_meal_to_household_and_users(self, users_email: List[str], household: HouseholdBoundary,
+                                               recipe: RecipeBoundaryWithGasPollution, dishes_number: float,
+                                               mealType: meal_types):
+        logger.info(f"Gas pollution of recipe is {recipe.sumGasPollution}")
+        new_meal_for_household = MealBoundary(users_email, dishes_number)
+        gas_pollution_for_household = self._calculate_gas_pollution(recipe.sumGasPollution, dishes_number)
+        new_meal_for_household = MealBoundaryWithGasPollution(new_meal_for_household, gas_pollution_for_household)
+
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        add_meal_to_household(household, new_meal_for_household, date_str, mealType, str(recipe.recipe_id))
+
+        for user_email in users_email:
+            dishes_number_for_user = dishes_number / len(users_email)
+            new_meal_for_user = MealBoundary([user_email], dishes_number_for_user)
+            gas_pollution_for_user = self._calculate_gas_pollution(recipe.sumGasPollution, dishes_number_for_user)
+            new_meal_for_user = MealBoundaryWithGasPollution(new_meal_for_user, gas_pollution_for_user)
+
+            user = await self.get_user(user_email)
+            add_meal_to_user(user, new_meal_for_user, date_str, mealType, str(recipe.recipe_id))
+            self._update_user_gas_pollution(user, gas_pollution_for_user)
+            self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
+                                                        to_user_entity(user).__dict__)
+
+        self._update_household_gas_pollution(household, gas_pollution_for_household)
         self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
                                                     to_household_entity(household).__dict__)
 
-    async def use_recipe(self, user_email: str, household_id: str, recipe_id: str,
-                         mealType: meal_types, dishes_number: float):
+    def _calculate_gas_pollution(self, sumGasPollution: dict, dishes_number: float) -> dict:
+        gas_pollution = copy.deepcopy(sumGasPollution)
+        for gas in gas_pollution.keys():
+            gas_pollution[gas] *= dishes_number
+        return gas_pollution
 
+    def _update_user_gas_pollution(self, user, gas_pollution: dict):
+        if isinstance(user, UserBoundaryWithGasPollution):
+            logger.debug("Is a user with gas pollution")
+            for gas, pollution in gas_pollution.items():
+                user.sum_gas_pollution[gas] = user.sum_gas_pollution.get(gas, 0) + pollution
+                logger.debug(f"Add to {gas} : {pollution} to user")
+        else:
+            logger.debug("Convert to user with gas pollution")
+            user = UserBoundaryWithGasPollution(user, gas_pollution)
+
+    def _update_household_gas_pollution(self, household, gas_pollution: dict):
+        if isinstance(household, HouseholdBoundaryWithGasPollution):
+            logger.debug("Is a household with gas pollution")
+            for gas, pollution in gas_pollution.items():
+                household.sum_gas_pollution[gas] = household.sum_gas_pollution.get(gas, 0) + pollution
+                logger.debug(f"Add to {gas} : {pollution} to household")
+        else:
+            logger.debug("Convert to household with gas pollution")
+            household = HouseholdBoundaryWithGasPollution(household, gas_pollution)
+
+    async def use_recipe(self, users_email: List[str], household_id: str, recipe_id: str,
+                         mealType: meal_types, dishes_number: float):
+        for user_email in users_email:
+            self.check_email(user_email)
         """Get household and recipe from DB"""
-        household = await self.get_household_user_by_id(user_email, household_id)
+        if users_email.__len__() <= 0:
+            raise Exception("list of users email need to be grayer then 0")
+        household = await self.get_household_user_by_id(users_email[0], household_id)
+        for user_email in users_email:
+            if user_email not in household.participants:
+                raise Exception(f"user {user_email} not in household {household_id}")
+
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         """Check if everything exist"""
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
@@ -734,7 +756,7 @@ class UsersHouseholdService:
                                f" recipe '{recipe_id}'. Needed: {ingredient.amount * dishes_number}")
                     try:
                         s = sum(ingredient.amount for ingredient in household.ingredients[ingredient.ingredient_id])
-                        message += f"Available: {s}"
+                        message += f" Available: {s}"
                     except KeyError as e:
                         pass
 
@@ -755,7 +777,7 @@ class UsersHouseholdService:
                     )
                 except InvalidArgException as e:
                     raise InvalidArgException(e.message)
-            await self._add_meal_to_household_and_user(user_email, household, recipe, dishes_number, mealType)
+            await self._add_meal_to_household_and_users(users_email, household, recipe, dishes_number, mealType)
         else:
             raise InvalidArgException(f"The household id or recipe id is invalid")
 
