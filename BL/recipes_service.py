@@ -68,7 +68,7 @@ def calc_co2_emission_for_ingredient(ingredient):
 
 
 def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollution:
-    #logger.info(f"recipe {recipe.recipe_name} calc gas co2")
+    # logger.info(f"recipe {recipe.recipe_name} calc gas co2")
     sumGas = 0
 
     # Use ThreadPoolExecutor to parallelize ingredient processing
@@ -123,7 +123,9 @@ def toBoundaryRecipeInstructions(recipe: Recipe_stepsEntity) -> recipe_instructi
         ) for step in recipe.steps]
     )
 
+
 import time
+
 
 class RecipesService(Service):
     def __init__(self):
@@ -138,8 +140,9 @@ class RecipesService(Service):
                 await self.add_recipe_to_mongoDB(await toBoundaryRecipe(recipe))
                 logger.info(f"recipe {recipe.title} added to mongo data")
 
-    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missed_ingredients):
-        result = []
+    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missed_ingredients) -> \
+            List[RecipeBoundaryWithGasPollution]:
+        result: [RecipeBoundaryWithGasPollution] = []
 
         with ThreadPoolExecutor() as executor:
             futures = []
@@ -158,6 +161,7 @@ class RecipesService(Service):
             recipes = await spoonacular_instance.find_recipes_by_ingredients(ingredients)
             await self.add_missing_recipes_to_mongo(recipes)
             result = await self.filter_and_calc_pollution(recipes, missed_ingredients)
+            result.sort(key=lambda r: r.composite_score(1, 0), reverse=True)
             return result
         except Exception as e:
             logger.error("In get_recipes_by_ingredients_lst func: %s", e)
