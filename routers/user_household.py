@@ -1,6 +1,8 @@
 import os
 from typing import Optional
 from fastapi import HTTPException, status
+
+from BL.recipes_service import RecipesService
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary, \
@@ -9,7 +11,6 @@ from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges, Date)
 from routers_boundaries.UserBoundary import UserBoundary
-from routers.recipes import get_recipes_without_missed_ingredients
 from routers_boundaries.recipe_boundary import RecipeBoundaryWithGasPollution
 
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
@@ -28,7 +29,7 @@ async def createNewHousehold(user_mail: str, household_name: str, ingredients: O
         logger.info(f"Creating new household with ingredients : {ingredients.ingredients} and name : {household_name}")
         household_id = await user_household_service.create_household(user_mail, household_name)
         if ingredients is not None:
-            await add_list_ingredients_to_household(user_mail, household_id, ingredients)
+            await user_household_service.add_ingredients_to_household(user_mail, household_id, ingredients)
         logger.info(f"Household '{household_name}' added successfully by user '{user_mail}'")
         return {"message": "Household added successfully", 'household_id': household_id}
     except UserException as e:
@@ -122,7 +123,7 @@ async def get_household_user_by_id(user_email: str, household_id: str):
 @router.get("/get_household_and_users_data_by_id")
 async def get_household_and_users_data_by_id(user_email: str, household_id: str):
     try:
-        household = await get_household_user_by_id(user_email, household_id)
+        household = await user_household_service.get_household_user_by_id(user_email, household_id)
         if isinstance(household, HouseholdBoundary):
             logger.info("convert HouseholdBoundary to HouseholdBoundaryWithUsersData")
             return await user_household_service.to_household_boundary_with_users_data(household)
@@ -249,7 +250,7 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
     try:
 
         household = await user_household_service.get_household_user_by_id(user_email, household_id)
-        if household:
+        if isinstance(household, HouseholdBoundary):
             await user_household_service.remove_one_ingredient_from_household(household, ingredient.name,
                                                                               ingredient.amount,
                                                                               ingredient.ingredient_id)
@@ -310,24 +311,23 @@ async def use_recipe_by_recipe_id(user_email: str, household_id: str,
 def get_meal_types():
     return [f'{meal_type}' for meal_type in meal_types]
 
+recipes_service = RecipesService()
 
 @router.get("/get_all_recipes_that_household_can_make")
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str,
                                                   co2_weight: Optional[float] = 0.5,
                                                   expiration_weight: Optional[float] = 0.5):
     try:
-        ingredients_str = ""
+        recipes_rv: [RecipeBoundaryWithGasPollution] = []
         household = await user_household_service.get_household_user_by_id(user_email, household_id)
         if isinstance(household, HouseholdBoundary):
-            ingredients_str = ",".join(household.get_all_unique_names_ingredient())
-        recipes = await get_recipes_without_missed_ingredients(ingredients_str)
-        recipes_rv: [RecipeBoundaryWithGasPollution] = []
-        for recipe in recipes:
-            for ingredient in recipe.ingredients:
-                if not await user_household_service.check_ingredient_availability(household, ingredient, 0):
-                    logger.info(f"Recipe {recipe.recipe_id} removed")
-                    continue
-            recipes_rv.append(recipe)
+            recipes = await recipes_service.get_recipes_by_ingredients_lst(household.get_all_unique_names_ingredient(), False)
+            for recipe in recipes:
+                for ingredient in recipe.ingredients:
+                    if not await user_household_service.check_ingredient_availability(household, ingredient, 0):
+                        logger.info(f"Recipe {recipe.recipe_id} removed")
+                        continue
+                recipes_rv.append(recipe)
         recipes = recipes_rv
         # Calculate closest expiration date for each recipe
         if isinstance(household, HouseholdBoundaryWithGasPollution):
@@ -405,39 +405,39 @@ async def get_gas_pollution_of_user_in_range_dates(user_email: str, startDate: D
 from fastapi import File, UploadFile
 
 
-# Uploading an image for a household
-@router.post("/upload_user_image")
-async def upload_user_image(user_email: str, file: UploadFile = File(...)):
-    try:
-        split_tup = os.path.splitext(file.filename)
-        file_extension = split_tup[1]
-
-        image_url = await user_household_service.upload_file_to_storage(file,
-                                                                        f"images/users", user_email, file_extension)
-
-        # Log success
-        logger.info(f"Image uploaded for user '{user_email}' successfully")
-
-        # Return success response
-        return {"message": "Image uploaded successfully", "image_url": image_url}
-    except (UserException, InvalidArgException) as e:
-        logger.error(f"Unexpected error: {e.message}")
-        code = status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST
-        raise HTTPException(status_code=code, detail=e.message)
-
-
-#from PIL import Image
-import base64
-
-
-@router.get("/get_user_images")
-async def get_user_images(file_path: str):
-    await user_household_service.download_file_from_storage(f"images/users/{file_path}", file_path)
-
-    rv = None
-    with open(file_path, "rb") as imageFile:
-        s = base64.b64encode(imageFile.read())
-        rv = str(bytearray(s))
-
-    os.remove(file_path)
-    return rv
+# # Uploading an image for a household
+# @router.post("/upload_user_image")
+# async def upload_user_image(user_email: str, file: UploadFile = File(...)):
+#     try:
+#         split_tup = os.path.splitext(file.filename)
+#         file_extension = split_tup[1]
+#
+#         image_url = await user_household_service.upload_file_to_storage(file,
+#                                                                         f"images/users", user_email, file_extension)
+#
+#         # Log success
+#         logger.info(f"Image uploaded for user '{user_email}' successfully")
+#
+#         # Return success response
+#         return {"message": "Image uploaded successfully", "image_url": image_url}
+#     except (UserException, InvalidArgException) as e:
+#         logger.error(f"Unexpected error: {e.message}")
+#         code = status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST
+#         raise HTTPException(status_code=code, detail=e.message)
+#
+#
+# # from PIL import Image
+# import base64
+#
+#
+# @router.get("/get_user_images")
+# async def get_user_images(file_path: str):
+#     await user_household_service.download_file_from_storage(f"images/users/{file_path}", file_path)
+#
+#     rv = None
+#     with open(file_path, "rb") as imageFile:
+#         s = base64.b64encode(imageFile.read())
+#         rv = str(bytearray(s))
+#
+#     os.remove(file_path)
+#     return rv
