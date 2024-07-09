@@ -313,8 +313,6 @@ def get_meal_types():
     return [f'{meal_type}' for meal_type in meal_types]
 
 
-import asyncio
-import time
 import concurrent.futures
 
 
