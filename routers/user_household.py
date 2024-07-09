@@ -291,8 +291,7 @@ async def use_recipe_by_recipe_id(users_email: List[str], household_id: str,
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                  detail=f"Invalid meal meals type is : '{meal_types}'")
         if dishes_num <= 0:
-            return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                 detail=f"dishes num should be greater than 0")
+            raise Exception(f"dishes num should be grater than 0")
         logger.info(f"Users {users_email} try using recipe {recipe_id} x {dishes_num} for household '{household_id}'")
         await user_household_service.use_recipe(users_email, household_id, recipe_id,
                                                 mealT, dishes_num)
@@ -306,7 +305,7 @@ async def use_recipe_by_recipe_id(users_email: List[str], household_id: str,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         logger.error(f"Error retrieving : {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/get_meal_types")
