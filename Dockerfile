@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM arm64v8/node:slim
 LABEL authors="nissa"
 
 ENTRYPOINT ["top", "-b"]
