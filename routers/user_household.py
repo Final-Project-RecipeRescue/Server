@@ -11,7 +11,6 @@ from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges, Date)
 from routers_boundaries.UserBoundary import UserBoundary
-from routers.recipes import get_recipes_without_missed_ingredients
 from routers_boundaries.recipe_boundary import RecipeBoundaryWithGasPollution
 
 router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
