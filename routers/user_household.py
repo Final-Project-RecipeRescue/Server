@@ -265,9 +265,11 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
         logger.info(
             f"Ingredient '{ingredient.name}' "
             f"removed {ingredient.amount} from household '{household_id}' successfully by user '{user_email}'")
+    except (KeyError,ValueError) as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient"
-                     f" {ingredient.ingredient_id} : {ingredient.name} from household: {household_id} error : {e}")
+                     f" {ingredient.ingredient_id} : {ingredient.name} from household: {household_id} error : {e.message}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 

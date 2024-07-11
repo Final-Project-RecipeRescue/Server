@@ -583,16 +583,22 @@ class UsersHouseholdService:
 
     async def remove_one_ingredient_from_household(self, household: HouseholdBoundary, ingredient_name: str,
                                                    ingredient_amount: float, ingredient_id: Optional[str]):
-        if ingredient_amount < 0:
+        if ingredient_amount <= 0:
             raise InvalidArgException("Invalid ingredient amount, it cannot be a negative number")
 
         ing_id = _get_ingredient_id(ingredient_name, ingredient_id, household)
+        ingredient_to_remove = IngredientBoundary(
+            ing_id,
+            ingredient_name,
+            ingredient_amount,
+            "gram",
+            None
+        )
         # Update the household ingredients with the new amounts
         try:
-            household.ingredients[ing_id] = remove_ingredient_from_household(household, ing_id, ingredient_amount,
-                                                                             ingredient_name)
+            household.remove_ingredient_amount(ingredient_to_remove)
         except (KeyError, ValueError, InvalidArgException) as e:
-            raise InvalidArgException(e.message)
+            raise e
         self.update_household(household)
 
 

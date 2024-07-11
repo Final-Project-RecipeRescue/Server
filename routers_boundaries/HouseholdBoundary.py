@@ -52,34 +52,71 @@ class HouseholdBoundary:
 
     def remove_ingredient_by_date(self, ingredient_to_remove: IngredientBoundary):
         from BL.users_household_service import InvalidArgException
-        lst = self.ingredients[str(ingredient_to_remove.ingredient_id)]
         try:
-            for ing in lst:
-                if ing.purchase_date == ingredient_to_remove.purchase_date:
-                    if ingredient_to_remove.amount > ing.amount:
-                        m = (f"The amount you wanted to remove from the household {self.household_name}"
-                             f" is greater than the amount that is in ingredient "
-                             f"{ingredient_to_remove.name} on this date. "
-                             f"The maximum amount is {ing.amount}")
-                        logger.error(m)
-                        raise InvalidArgException(m)
-                    if ing.amount >= ingredient_to_remove.amount:
-                        ing.amount -= ingredient_to_remove.amount
-                    if ing.amount <= 0:
-                        self._remove_ingredient(ing)
-                    return
-            exp = InvalidArgException(
-                f"No such ingredient '{ingredient_to_remove.name}' in household '{self.household_name}' with date "
-                f"{ingredient_to_remove.purchase_date}")
-            logger.info(exp.message)
-            raise exp
-        except (KeyError, ValueError, InvalidArgException) as e:
+            lst = self.ingredients[str(ingredient_to_remove.ingredient_id)]
+        except (KeyError, ValueError) as e:
             raise InvalidArgException(f"No such ingredient {ingredient_to_remove.name} : "
                                       f"{ingredient_to_remove.ingredient_id} "
                                       f"in household {self.household_name} : {self.household_id}")
+        for ing in lst:
+            if ing.purchase_date == ingredient_to_remove.purchase_date:
+                if ingredient_to_remove.amount > ing.amount:
+                    m = (f"The amount you wanted to remove from the household {self.household_name}"
+                         f" is greater than the amount that is in ingredient "
+                         f"{ingredient_to_remove.name} on this date. "
+                         f"The maximum amount is {ing.amount}")
+                    logger.error(m)
+                    raise InvalidArgException(m)
+                if ing.amount >= ingredient_to_remove.amount:
+                    ing.amount -= ingredient_to_remove.amount
+                if ing.amount <= 0:
+                    self._remove_ingredient(ing)
+                return
+        exp = InvalidArgException(
+            f"No such ingredient '{ingredient_to_remove.name}' in household '{self.household_name}' with date "
+            f"{ingredient_to_remove.purchase_date}")
+        logger.info(exp.message)
+        raise exp
+
+    def remove_ingredient_amount(self, ingredient: IngredientBoundary):
+        from BL.users_household_service import InvalidArgException
+        try:
+            ingredient_lst = self.ingredients[str(ingredient.ingredient_id)]
+            ingredient_lst.sort(key=lambda x: x.purchase_date)
+        except (KeyError, ValueError) as e:
+            raise InvalidArgException(f"No such ingredient {ingredient.name} : "
+                                      f"{ingredient.ingredient_id} "
+                                      f"in household {self.household_name} : {self.household_id}")
+        total_amount = sum([ing.amount for ing in ingredient_lst])
+        if total_amount < ingredient.amount:
+            raise InvalidArgException(
+                f"The max amount to remove of ingredient '{ingredient.name}' with id : {ingredient.ingredient_id} is {total_amount}"
+                f" .you try remove {ingredient.amount}")
+        remaining_amount = ingredient.amount
+        updated_ingredients: [IngredientBoundary] = []
+        for ing in ingredient_lst:
+            if remaining_amount <= 0:
+                updated_ingredients.append(ing)
+                continue
+            if ing.amount <= remaining_amount:
+                remaining_amount -= ing.amount
+                ing.amount = 0
+            else:
+                ing.amount -= remaining_amount
+                remaining_amount = 0
+
+            if ing.amount > 0:
+                updated_ingredients.append(ing)
+        self.ingredients[str(ingredient.ingredient_id)] = updated_ingredients
 
     def _remove_ingredient(self, ingredient: IngredientBoundary):
-        self.ingredients[str(ingredient.ingredient_id)].remove(ingredient)
+        from BL.users_household_service import InvalidArgException
+        try:
+            self.ingredients[str(ingredient.ingredient_id)].remove(ingredient)
+        except (KeyError, ValueError) as e:
+            raise InvalidArgException(f"No such ingredient {ingredient.name} : "
+                                      f"{ingredient.ingredient_id} "
+                                      f"in household {self.household_name} : {self.household_id}")
 
 
 class HouseholdBoundaryWithUsersData(HouseholdBoundary):
