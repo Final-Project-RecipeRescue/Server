@@ -56,12 +56,11 @@ async def delete_household_by_id(household_id: str):
 # Adding a new user
 @router.post("/add_user")
 async def add_user(user: UserInputForAddUser):
-    # Logic to add a new user
     try:
         await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country,
                                                  user.state)
         logger.info(f"User '{user.email}' added successfully")
-        return {"message": "Successfully Added User"}
+        return {"message": f"Successfully Added User {user.email}"}
     except UserException as e:
         logger.error(f"Error creating user: {e.message}")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e.message))

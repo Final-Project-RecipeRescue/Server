@@ -385,12 +385,15 @@ class UsersHouseholdService:
     def write_household(self,household:HouseholdBoundary):
         self.firebase_instance.write_firebase_data(f'households/{household.household_id}',
                                                    to_household_entity(household).__dict__)
+    def write_user(self,user:UserBoundary):
+        self.firebase_instance.write_firebase_data(f'users/{encoded_email(user.user_email)}',
+                                                   to_user_entity(user).__dict__)
     def check_email(self, email: str):
         if not user_entity_py.is_valid_email(email):
             raise InvalidArgException(f"{email} invalid email format")
 
     async def check_user_if_user_exist(self, email: str):
-        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(email)}') == None:
+        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(email)}') is None:
             raise UserException("User not exists")
 
     async def create_household(self, user_mail: str, household_name: str) -> str:
@@ -416,23 +419,24 @@ class UsersHouseholdService:
         self.update_user(user)
         return household_id
 
-    # TODO:need to add option to enter image
-    async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str,
+    async def create_user(self, user_first_name: str, user_last_name: str, user_email: str, country: str,
                           state: Optional[str]):
-        self.check_email(user_mail)
-        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') is not None:
-            raise UserException("User already exists")
-        if user_first_name == "" or user_last_name == "" or country == "":
-            raise InvalidArgException("Fill all fields before")
-        user = UserBoundary(user_first_name,
-                            user_last_name,
-                            user_mail,
-                            "",
-                            [],
-                            {},
-                            country,
-                            state)
-        self.firebase_instance.write_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
+        try:
+            await self.get_user(user_email)
+        except UserException:
+            if user_first_name == "" or user_last_name == "" or country == "":
+                raise InvalidArgException("Fill all fields before")
+            user = UserBoundary(user_first_name,
+                                user_last_name,
+                                user_email,
+                                None,
+                                [],
+                                {},
+                                country,
+                                state)
+            self.write_user(user)
+            return
+        raise UserException("User already exists")
 
     async def get_user(self, email: str) -> UserBoundary:
         self.check_email(email)
