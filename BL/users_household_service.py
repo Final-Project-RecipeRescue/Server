@@ -494,24 +494,24 @@ class UsersHouseholdService:
     async def add_user_to_household(self, user_email: str, household_id: str):
         user = await self.get_user(user_email)
         household = await self.get_household_by_Id(household_id)
+        if user_email in household.participants and household_id in user.households:
+            raise Exception(
+                'User exist in the household\'s participants or household exist in user\'s households')
         user.add_household(household_id)
         household.add_user(user_email)
         self.update_household(household)
         self.update_user(user)
 
     async def remove_user_from_household(self, user_email, household_id):
-        user_boundary = await self.get_user(user_email)
+        user = await self.get_user(user_email)
         household = await self.get_household_by_Id(household_id)
-        if isinstance(household, HouseholdBoundary):
-            if user_email in household.participants and household_id in user_boundary.households:
-                household.participants.remove(user_email)
-                user_boundary.households.remove(household_id)
-                self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                            to_household_entity(household).__dict__)
-                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
-                                                            to_user_entity(user_boundary).__dict__)
-            else:
-                raise Exception('User not exists in the household')
+        if user_email not in household.participants and household_id not in user.households:
+            raise Exception(
+                'User does not exist in the household\'s participants or household does not exist in user\'s households')
+        user.remove_household(household_id)
+        household.remove_user(user_email)
+        self.update_user(user)
+        self.update_household(household)
 
     async def add_ingredient_to_household_by_ingredient_name(self, user_email: str, household_id: str,
                                                              ingredient_name: str,
