@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional, Dict
 from fastapi import UploadFile
 from BL.ingredient_service import IngredientService
-from BL.recipes_service import RecipesService
+from BL.recipes_service import RecipesService, convert_ingredient_unit_to_gram
 from Data.HouseholdEntity import HouseholdEntity, HouseholdEntityWithGas
 from Data.MealEntity import MealEntity, MealEntityWithGasPollution
 from Data.UserEntity import UserEntity, UserEntityWithGasPollution
@@ -370,6 +370,34 @@ def remove_ingredient_from_household(household: HouseholdBoundary, ing_id: str, 
     return _update_ingredient_amounts(ingredient_lst, ingredient_amount)
 
 
+async def _add_ingredient_to_household(household: HouseholdBoundary, ingredient_name: str, ingredient_amount: float,
+                                       ingredient_unit: str) -> bool:
+    ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
+    if ingredient_data is None:
+        logger.error(f"Ingredient '{ingredient_name}' Not Found")
+        return False
+    new_ingredient = IngredientBoundary(
+            ingredient_data.ingredient_id,
+            ingredient_data.name,
+            ingredient_amount,
+            ingredient_unit,
+            datetime.now()
+        )
+    await convert_ingredient_unit_to_gram(new_ingredient)
+    new_ingredient = IngredientBoundaryWithExpirationData(
+        IngredientBoundary(
+            ingredient_data.ingredient_id,
+            ingredient_data.name,
+            ingredient_amount,
+            ingredient_unit,
+            datetime.now()
+        ),
+        datetime.now() + timedelta(days=ingredient_data.expirationData)
+    )
+    household.add_ingredient(new_ingredient)
+    return True
+
+
 class UsersHouseholdService:
     def __init__(self):
         self.firebase_instance = FirebaseDbConnection.get_instance()
@@ -518,57 +546,27 @@ class UsersHouseholdService:
 
     async def add_ingredient_to_household_by_ingredient_name(self, user_email: str, household_id: str,
                                                              ingredient_name: str,
-                                                             ingredient_amount: float):
+                                                             ingredient_amount: float,
+                                                             ingredient_unit: str):
         if ingredient_amount <= 0:
-            raise InvalidArgException(f"Ingredient amount need to be grater then 0")
+            raise InvalidArgException("Ingredient amount needs to be greater than 0")
+
         household = await self.get_household_user_by_id(user_email, household_id)
-        ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
-        if ingredient_data is None:
+        if not await _add_ingredient_to_household(household, ingredient_name, ingredient_amount, ingredient_unit):
             raise ValueError(f"Ingredient {ingredient_name} Not Found")
-        new_ingredient = IngredientBoundaryWithExpirationData(
-            IngredientBoundary(
-                ingredient_data.ingredient_id,
-                ingredient_data.name,
-                ingredient_amount,
-                "gram",
-                datetime.now()
-            ),
-            datetime.now() + timedelta(days=ingredient_data.expirationData)
-        )
-        household.add_ingredient(new_ingredient)
         self.update_household(household)
 
     async def add_ingredients_to_household(self, user_email: str, household_id: str,
                                            ingredients_lst_names_and_amounts: ListIngredientsInput):
         household = await self.get_household_user_by_id(user_email, household_id)
+
         for ingredient in ingredients_lst_names_and_amounts.ingredients:
             if ingredient.amount <= 0:
-                logger.error(f"Ingredient {ingredient.name} amount need to be grater then 0")
-            ingredient_data = ingredientService.search_ingredient_by_name(ingredient.name)
-            if ingredient_data is None:
-                logger.error(f"Ingredient {ingredient.name} Not Found")
-            new_ingredient = IngredientBoundary(ingredient_data.ingredient_id, ingredient_data.name, ingredient.amount,
-                                                "gram",
-                                                datetime.now())
-            try:
-                existing_ingredients = household.ingredients[str(new_ingredient.ingredient_id)]
-                found = False
-                for ing in existing_ingredients:
-                    if ing.purchase_date == new_ingredient.purchase_date:
-                        ing.amount += ingredient.amount
-                        found = True
-                        break
-                if not found:
-                    existing_ingredients.append(new_ingredient)
-                household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
-            except KeyError as e:
-                logger.debug(f"Household {household.household_name}"
-                             f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
-                             f"with name {ingredient_data.name}")
-                household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
+                logger.error(f"Ingredient '{ingredient.name}' amount needs to be greater than 0")
+                continue
+            await _add_ingredient_to_household(household, ingredient.name, ingredient.amount, ingredient.unit)
 
-        self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                    to_household_entity(household).__dict__)
+        self.update_household(household)
 
     async def remove_household_ingredient_by_date(self, user_mail: str, household_id, ingredient_name: str,
                                                   ingredient_amount: float, ingredient_date: datetime.date):

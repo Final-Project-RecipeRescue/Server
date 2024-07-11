@@ -197,7 +197,8 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
     try:
         await user_household_service.add_ingredient_to_household_by_ingredient_name(user_email, household_id,
                                                                                     ingredient.name,
-                                                                                    ingredient.amount)
+                                                                                    ingredient.amount,
+                                                                                    ingredient.unit)
         logger.info(
             f"Ingredient '{ingredient.name}' added to household '{household_id}' successfully by user "
             f"'{user_email}'")
@@ -213,9 +214,13 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 # Adding a list of ingredients to a household
 @router.post("/add_list_ingredients_to_household")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
-    await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
-    logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
-
+    try:
+        await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
+        logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
+    except (UserException, InvalidArgException, HouseholdException) as e:
+        logger.error(f"Error adding ingredient to household by name: {e.message}")
+        status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 '''
 Remove ingredient from a certain date
