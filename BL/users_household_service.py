@@ -571,27 +571,15 @@ class UsersHouseholdService:
         if not ingredient_data:
             raise InvalidArgException(f"The ingredient {ingredient_name} dose not exist in the system")
         ing_id = _get_ingredient_id(ingredient_name, ingredient_data.ingredient_id, household)
-        try:
-            for ing in household.ingredients[ing_id]:
-                if ing.purchase_date == ingredient_date.strftime(date_format):
-                    if ingredient_amount > ing.amount:
-                        m = (f"The amount you wanted to remove from the household {household.household_name}"
-                             f" is greater than the amount that is in ingredient {ingredient_name} on this date. "
-                             f"The maximum amount is {ing.amount}")
-                        logger.error(m)
-                        raise InvalidArgException(m)
-                    if ing.amount >= ingredient_amount:
-                        ing.amount -= ingredient_amount
-                    if ing.amount <= 0:
-                        household.ingredients[ing_id].remove(ing)
-                    self.firebase_instance.update_firebase_data(f'households/{household_id}'
-                                                                , to_household_entity(household).__dict__)
-                    return
-            raise InvalidArgException(
-                f"No such ingredient '{ingredient_name}' in household '{household.household_name}' with date "
-                f"{ingredient_date.strftime(date_format)}")
-        except (KeyError, ValueError, InvalidArgException) as e:
-            raise InvalidArgException(f"No such ingredient {ingredient_name} in household {household.household_name}")
+        ingredient_to_remove = IngredientBoundary(
+            ing_id,
+            ingredient_name,
+            ingredient_amount,
+            "gram",
+            ingredient_date
+        )
+        household.remove_ingredient_by_date(ingredient_to_remove)
+        self.update_household(household)
 
     async def remove_one_ingredient_from_household(self, household: HouseholdBoundary, ingredient_name: str,
                                                    ingredient_amount: float, ingredient_id: Optional[str]):
@@ -605,8 +593,8 @@ class UsersHouseholdService:
                                                                              ingredient_name)
         except (KeyError, ValueError, InvalidArgException) as e:
             raise InvalidArgException(e.message)
-        self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
-                                                    to_household_entity(household).__dict__)
+        self.update_household(household)
+
 
     async def get_all_ingredients_in_household(self, user_email, household_id) -> dict:
         household = await self.get_household_user_by_id(user_email, household_id)

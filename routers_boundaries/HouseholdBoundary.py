@@ -1,4 +1,5 @@
 from typing import List, Dict
+
 from routers_boundaries import MealBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.MealBoundary import meal_types
@@ -6,6 +7,7 @@ from routers_boundaries.UserBoundary import UserBoundary
 import logging
 
 logger = logging.getLogger("my_logger")
+
 
 class HouseholdBoundary:
     def __init__(self, household_id: str, household_name: str, household_image, participants: List[str],
@@ -47,6 +49,37 @@ class HouseholdBoundary:
                         f" with id {self.household_id} add new ingredient {ingredient.ingredient_id} "
                         f"with name {ingredient.name}")
             self.ingredients[str(ingredient.ingredient_id)] = [ingredient]
+
+    def remove_ingredient_by_date(self, ingredient_to_remove: IngredientBoundary):
+        from BL.users_household_service import InvalidArgException
+        lst = self.ingredients[str(ingredient_to_remove.ingredient_id)]
+        try:
+            for ing in lst:
+                if ing.purchase_date == ingredient_to_remove.purchase_date:
+                    if ingredient_to_remove.amount > ing.amount:
+                        m = (f"The amount you wanted to remove from the household {self.household_name}"
+                             f" is greater than the amount that is in ingredient "
+                             f"{ingredient_to_remove.name} on this date. "
+                             f"The maximum amount is {ing.amount}")
+                        logger.error(m)
+                        raise InvalidArgException(m)
+                    if ing.amount >= ingredient_to_remove.amount:
+                        ing.amount -= ingredient_to_remove.amount
+                    if ing.amount <= 0:
+                        self._remove_ingredient(ing)
+                    return
+            exp = InvalidArgException(
+                f"No such ingredient '{ingredient_to_remove.name}' in household '{self.household_name}' with date "
+                f"{ingredient_to_remove.purchase_date}")
+            logger.info(exp.message)
+            raise exp
+        except (KeyError, ValueError, InvalidArgException) as e:
+            raise InvalidArgException(f"No such ingredient {ingredient_to_remove.name} : "
+                                      f"{ingredient_to_remove.ingredient_id} "
+                                      f"in household {self.household_name} : {self.household_id}")
+
+    def _remove_ingredient(self, ingredient: IngredientBoundary):
+        self.ingredients[str(ingredient.ingredient_id)].remove(ingredient)
 
 
 class HouseholdBoundaryWithUsersData(HouseholdBoundary):
