@@ -492,19 +492,12 @@ class UsersHouseholdService:
         return to_household_boundary(household)
 
     async def add_user_to_household(self, user_email: str, household_id: str):
-        user_boundary = await self.get_user(user_email)
+        user = await self.get_user(user_email)
         household = await self.get_household_by_Id(household_id)
-        if isinstance(household, HouseholdBoundary):
-            for user in household.participants:
-                if user == user_boundary.user_email:
-                    raise HouseholdException('User already exists in the household')
-            household.participants.append(user_email)
-            user_boundary.households.append(household.household_id)
-
-            self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                        to_household_entity(household).__dict__)
-            self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
-                                                        to_user_entity(user_boundary).__dict__)
+        user.add_household(household_id)
+        household.add_user(user_email)
+        self.update_household(household)
+        self.update_user(user)
 
     async def remove_user_from_household(self, user_email, household_id):
         user_boundary = await self.get_user(user_email)
