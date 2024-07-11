@@ -385,13 +385,7 @@ async def _add_ingredient_to_household(household: HouseholdBoundary, ingredient_
         )
     await convert_ingredient_unit_to_gram(new_ingredient)
     new_ingredient = IngredientBoundaryWithExpirationData(
-        IngredientBoundary(
-            ingredient_data.ingredient_id,
-            ingredient_data.name,
-            ingredient_amount,
-            ingredient_unit,
-            datetime.now()
-        ),
+        new_ingredient,
         datetime.now() + timedelta(days=ingredient_data.expirationData)
     )
     household.add_ingredient(new_ingredient)
