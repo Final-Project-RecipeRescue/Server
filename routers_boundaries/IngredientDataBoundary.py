@@ -1,4 +1,4 @@
-class IngredientDataBoundary():
+class IngredientDataBoundary:
     def __init__(self, ingredient_id: str
                  , name: str
                  , expirationData: int

@@ -56,12 +56,11 @@ async def delete_household_by_id(household_id: str):
 # Adding a new user
 @router.post("/add_user")
 async def add_user(user: UserInputForAddUser):
-    # Logic to add a new user
     try:
         await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country,
                                                  user.state)
         logger.info(f"User '{user.email}' added successfully")
-        return {"message": "Successfully Added User"}
+        return {"message": f"Successfully Added User {user.email}"}
     except UserException as e:
         logger.error(f"Error creating user: {e.message}")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e.message))
@@ -150,20 +149,21 @@ async def get_household_user_by_name(user_email: str, household_name: str):
 
 @router.get("/get_all_households_details_by_user_mail")
 async def get_all_household_details_by_user_mail(user_email: str):
-    user = await get_user(user_email)
-    if isinstance(user, HTTPException):
-        return user
-
-    households = []
-    if isinstance(user, UserBoundary):
+    try:
+        user = await user_household_service.get_user(user_email)
+        households = []
         for _ in user.households:
             try:
-                household_details = await get_household_user_by_id(user_email, _)
-                if isinstance(household_details, HouseholdBoundary):
-                    households.append(household_details)
-            except Exception as e:
+                household_details = await user_household_service.get_household_user_by_id(user_email, _)
+                households.append(household_details)
+            except HouseholdException as e:
                 logger.error(f"Error retrieving household details for user {user_email} and household id : {_}")
-    return households
+        return households
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Error retrieving user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST,
+            detail=str(e.message))
 
 
 # Adding a user to a household
@@ -195,7 +195,8 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
     try:
         await user_household_service.add_ingredient_to_household_by_ingredient_name(user_email, household_id,
                                                                                     ingredient.name,
-                                                                                    ingredient.amount)
+                                                                                    ingredient.amount,
+                                                                                    ingredient.unit)
         logger.info(
             f"Ingredient '{ingredient.name}' added to household '{household_id}' successfully by user "
             f"'{user_email}'")
@@ -211,8 +212,13 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 # Adding a list of ingredients to a household
 @router.post("/add_list_ingredients_to_household")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
-    await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
-    logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
+    try:
+        await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
+        logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
+    except (UserException, InvalidArgException, HouseholdException) as e:
+        logger.error(f"Error adding ingredient to household by name: {e.message}")
+        status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
+        raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
 '''
@@ -223,7 +229,6 @@ Remove ingredient from a certain date
 @router.delete("/remove_ingredient_from_household_by_date")
 async def remove_ingredient_from_household_by_date(user_email: str, household_id: str,
                                                    ingredient: IngredientToRemoveByDateInput):
-    ingredient_date = None
     try:
         # Create a date object from the provided year, month, and day
         ingredient_date = date(ingredient.date.year, ingredient.date.mount, ingredient.date.day)
@@ -241,9 +246,10 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
             f"Ingredient '{ingredient.ingredient_data.name}' in {ingredient_date}"
             f" removed from household '{household_id}' successfully by user '{user_email}'")
     except InvalidArgException as e:
-        logger.error(f"Error removing ingredient {ingredient.ingredient_data.name}"
-                     f" from household: {household_id} error : {e}")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
+        m = str(f"Error removing ingredient {ingredient.ingredient_data.name}"
+                f" from household: {household_id} in date {ingredient_date}")
+        logger.error(m)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(m))
 
 
 # Removing an ingredient from a household
@@ -259,9 +265,11 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
         logger.info(
             f"Ingredient '{ingredient.name}' "
             f"removed {ingredient.amount} from household '{household_id}' successfully by user '{user_email}'")
+    except (KeyError,ValueError) as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
     except InvalidArgException as e:
         logger.error(f"Error removing ingredient"
-                     f" {ingredient.ingredient_id} : {ingredient.name} from household: {household_id} error : {e}")
+                     f" {ingredient.ingredient_id} : {ingredient.name} from household: {household_id} error : {e.message}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.message))
 
 
@@ -362,7 +370,7 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
                     recipe,
                     household.ingredients)
                 recipe.set_closest_expiration_days(closest_days_to_expire)
-                
+
         # Sort recipes by composite score with given weights
         recipes.sort(key=lambda r: r.composite_score(co2_weight, expiration_weight), reverse=True)
         return recipes

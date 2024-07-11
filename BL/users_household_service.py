@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional, Dict
 from fastapi import UploadFile
 from BL.ingredient_service import IngredientService
-from BL.recipes_service import RecipesService
+from BL.recipes_service import RecipesService, convert_ingredient_unit_to_gram
 from Data.HouseholdEntity import HouseholdEntity, HouseholdEntityWithGas
 from Data.MealEntity import MealEntity, MealEntityWithGasPollution
 from Data.UserEntity import UserEntity, UserEntityWithGasPollution
@@ -290,26 +290,6 @@ def add_meal_to_user(user: UserBoundary, new_meal: MealBoundary, date: str, meal
         user.meals[date] = {mealType: {recipe_id: new_meal}}
 
 
-def add_meal_to_household(household: HouseholdBoundary, new_meal: MealBoundary, date: str,
-                          mealType: meal_types,
-                          recipe_id: str):
-    if not household.meals:
-        household.meals = {}
-    try:
-        date_meals = household.meals[date]
-        try:
-            type_meals = date_meals[mealType]
-            try:
-                meals_with_same_recipe_id = type_meals[recipe_id]
-                meals_with_same_recipe_id.append(new_meal)
-            except KeyError:
-                type_meals[recipe_id] = [new_meal]
-        except KeyError:
-            date_meals[mealType] = {recipe_id: [new_meal]}
-    except KeyError:
-        household.meals[date] = {mealType: {recipe_id: [new_meal]}}
-
-
 def _get_ingredient_id(ingredient_name: str, ingredient_id: Optional[str],
                        household: HouseholdBoundary) -> str:
     if ingredient_id:
@@ -354,20 +334,33 @@ def _update_ingredient_amounts(ingredient_lst: [IngredientBoundary], ingredient_
     return updated_ingredients
 
 
-def remove_ingredient_from_household(household: HouseholdBoundary, ing_id: str, ingredient_amount: float,
-                                     ingredient_name: str) -> [IngredientBoundary]:
-    # Sort the ingredient list by purchase date
-    ingredient_lst = household.ingredients[ing_id]
-    ingredient_lst.sort(key=lambda x: x.purchase_date)
+async def _add_ingredient_to_household(household: HouseholdBoundary, ingredient_name: str, ingredient_amount: float,
+                                       ingredient_unit: str) -> bool:
+    ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
+    if ingredient_data is None:
+        logger.error(f"Ingredient '{ingredient_name}' Not Found")
+        return False
+    new_ingredient = IngredientBoundary(
+        ingredient_data.ingredient_id,
+        ingredient_data.name,
+        ingredient_amount,
+        ingredient_unit,
+        datetime.now()
+    )
+    await convert_ingredient_unit_to_gram(new_ingredient)
+    new_ingredient = IngredientBoundaryWithExpirationData(
+        new_ingredient,
+        datetime.now() + timedelta(days=ingredient_data.expirationData)
+    )
+    household.add_ingredient(new_ingredient)
+    return True
 
-    # Calculate the total available amount of the ingredient
-    total_amount = sum([ing.amount for ing in ingredient_lst])
-    if total_amount < ingredient_amount:
-        raise InvalidArgException(
-            f"The max amount to remove of ingredient '{ingredient_name}' with id : {ing_id} is {total_amount}"
-            f" you try remove {ingredient_amount}")
 
-    return _update_ingredient_amounts(ingredient_lst, ingredient_amount)
+def _calculate_gas_pollution(sumGasPollution: dict, dishes_number: float) -> dict:
+    gas_pollution = copy.deepcopy(sumGasPollution)
+    for gas in gas_pollution.keys():
+        gas_pollution[gas] *= dishes_number
+    return gas_pollution
 
 
 class UsersHouseholdService:
@@ -375,27 +368,40 @@ class UsersHouseholdService:
         self.firebase_instance = FirebaseDbConnection.get_instance()
         self.recipes_service = RecipesService()
 
+    def update_user(self, user: UserBoundary):
+        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user.user_email)}',
+                                                    to_user_entity(user).__dict__)
+
+    def update_household(self, household: HouseholdBoundary):
+        self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
+                                                    to_household_entity(household).__dict__)
+
+    def write_household(self, household: HouseholdBoundary):
+        self.firebase_instance.write_firebase_data(f'households/{household.household_id}',
+                                                   to_household_entity(household).__dict__)
+
+    def write_user(self, user: UserBoundary):
+        self.firebase_instance.write_firebase_data(f'users/{encoded_email(user.user_email)}',
+                                                   to_user_entity(user).__dict__)
+
     def check_email(self, email: str):
         if not user_entity_py.is_valid_email(email):
             raise InvalidArgException(f"{email} invalid email format")
 
     async def check_user_if_user_exist(self, email: str):
-        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(email)}') == None:
+        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(email)}') is None:
             raise UserException("User not exists")
 
-    # TODO:need to add option to enter image
     async def create_household(self, user_mail: str, household_name: str) -> str:
-        try:
-            self.check_email(user_mail)
-        except InvalidArgException as e:
-            raise InvalidArgException("Invalid email format")
-        await self.check_user_if_user_exist(user_mail)
-        user_data = self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}')
-
+        user = await self.get_user(user_mail)
         household_id = str(uuid.uuid4())
-        while (self.firebase_instance.get_firebase_data(f'households/{household_id}') != None):
-            household_id = str(uuid.uuid4())
-        user = to_user_boundary(user_data)
+        find = False
+        while not find:
+            try:
+                await self.get_household_by_Id(household_id)
+                household_id = str(uuid.uuid4())
+            except HouseholdException:
+                find = True
         household = HouseholdBoundaryWithGasPollution(HouseholdBoundary(household_id,
                                                                         household_name,
                                                                         None,
@@ -404,29 +410,29 @@ class UsersHouseholdService:
                                                                         {}),
                                                       {}
                                                       )
-        self.firebase_instance.write_firebase_data(f'households/{household_id}',
-                                                   to_household_entity(household).__dict__)
-        user.households.append(household_id)
-        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
+        self.write_household(household)
+        user.add_household(household_id)
+        self.update_user(user)
         return household_id
 
-    # TODO:need to add option to enter image
-    async def create_user(self, user_first_name: str, user_last_name: str, user_mail: str, country: str,
+    async def create_user(self, user_first_name: str, user_last_name: str, user_email: str, country: str,
                           state: Optional[str]):
-        self.check_email(user_mail)
-        if self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}') is not None:
-            raise UserException("User already exists")
-        if user_first_name == "" or user_last_name == "" or country == "":
-            raise InvalidArgException("Fill all fields before")
-        user = UserBoundary(user_first_name,
-                            user_last_name,
-                            user_mail,
-                            "",
-                            [],
-                            {},
-                            country,
-                            state)
-        self.firebase_instance.write_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
+        try:
+            await self.get_user(user_email)
+        except UserException:
+            if user_first_name == "" or user_last_name == "" or country == "":
+                raise InvalidArgException("Fill all fields before")
+            user = UserBoundary(user_first_name,
+                                user_last_name,
+                                user_email,
+                                None,
+                                [],
+                                {},
+                                country,
+                                state)
+            self.write_user(user)
+            return
+        raise UserException("User already exists")
 
     async def get_user(self, email: str) -> UserBoundary:
         self.check_email(email)
@@ -434,12 +440,10 @@ class UsersHouseholdService:
         user = self.firebase_instance.get_firebase_data(f'users/{e_email}')
         if not user:
             raise UserException("User does not exist")
-        user_boundary = to_user_boundary(user)
-        return user_boundary
+        return to_user_boundary(user)
 
     async def change_user_info(self, user_email: str, first_name: Optional[str], last_name: Optional[str],
                                country: Optional[str], state: Optional[str]):
-        self.check_email(user_email)
         user = await self.get_user(user_email)
         if not user:
             raise UserException("User does not exist")
@@ -451,7 +455,7 @@ class UsersHouseholdService:
             user.country = country
         if state is not None:
             user.state = state
-        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', to_user_entity(user).__dict__)
+        self.update_user(user)
 
     async def get_household_user_by_id(self, user_email: str, household_id: str) -> HouseholdBoundary:
         user = await self.get_user(user_email)
@@ -463,13 +467,14 @@ class UsersHouseholdService:
         raise HouseholdException(f"This user : {user_email} does not have access to this household : {household_id}")
 
     async def get_household_user_by_name(self, user_email, household_name) -> List[HouseholdBoundary]:
-        user_entity = await self.get_user(user_email)
+        user = await self.get_user(user_email)
         households = []
-        for id in user_entity.households:
-            household = await self.get_household_user_by_id(user_email, id)
+        for household_id in user.households:
+            household = await self.get_household_user_by_id(user_email, household_id)
             if not household:
                 raise HouseholdException(
-                    "You have a problem in the DB with the user the household is found but with the collection of households it is not found")
+                    "You have a problem in the DB with the user the household is found but with the collection of "
+                    "households it is not found")
             if household.household_name == household_name:
                 households.append(household)
         if households.__len__() == 0:
@@ -483,97 +488,50 @@ class UsersHouseholdService:
         return to_household_boundary(household)
 
     async def add_user_to_household(self, user_email: str, household_id: str):
-        user_boundary = await self.get_user(user_email)
+        user = await self.get_user(user_email)
         household = await self.get_household_by_Id(household_id)
-        if isinstance(household, HouseholdBoundary):
-            for user in household.participants:
-                if user == user_boundary.user_email:
-                    raise HouseholdException('User already exists in the household')
-            household.participants.append(user_email)
-            user_boundary.households.append(household.household_id)
-
-            self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                        to_household_entity(household).__dict__)
-            self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
-                                                        to_user_entity(user_boundary).__dict__)
+        if user_email in household.participants and household_id in user.households:
+            raise Exception(
+                'User exist in the household\'s participants or household exist in user\'s households')
+        user.add_household(household_id)
+        household.add_user(user_email)
+        self.update_household(household)
+        self.update_user(user)
 
     async def remove_user_from_household(self, user_email, household_id):
-        user_boundary = await self.get_user(user_email)
+        user = await self.get_user(user_email)
         household = await self.get_household_by_Id(household_id)
-        if isinstance(household, HouseholdBoundary):
-            if user_email in household.participants and household_id in user_boundary.households:
-                household.participants.remove(user_email)
-                user_boundary.households.remove(household_id)
-                self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                            to_household_entity(household).__dict__)
-                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
-                                                            to_user_entity(user_boundary).__dict__)
-            else:
-                raise Exception('User not exists in the household')
+        if user_email not in household.participants and household_id not in user.households:
+            raise Exception(
+                'User does not exist in the household\'s participants or household does not exist in user\'s households')
+        user.remove_household(household_id)
+        household.remove_user(user_email)
+        self.update_user(user)
+        self.update_household(household)
 
     async def add_ingredient_to_household_by_ingredient_name(self, user_email: str, household_id: str,
                                                              ingredient_name: str,
-                                                             ingredient_amount: float):
+                                                             ingredient_amount: float,
+                                                             ingredient_unit: str):
         if ingredient_amount <= 0:
-            raise InvalidArgException(f"Ingredient amount need to be grater then 0")
-        household = await self.get_household_user_by_id(user_email, household_id)
-        ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
-        if ingredient_data is None:
-            raise ValueError(f"Ingredient {ingredient_name} Not Found")
-        new_ingredient = IngredientBoundary(ingredient_data.ingredient_id, ingredient_data.name, ingredient_amount,
-                                            "gram",
-                                            datetime.now())
-        try:
-            existing_ingredients = household.ingredients[str(new_ingredient.ingredient_id)]
-            found = False
-            for ing in existing_ingredients:
-                if ing.purchase_date == new_ingredient.purchase_date:
-                    ing.amount += ingredient_amount
-                    found = True
-                    break
-            if not found:
-                existing_ingredients.append(new_ingredient)
-            household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
-        except KeyError as e:
-            logger.info(f"Household {household.household_name}"
-                        f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
-                        f"with name {ingredient_name}")
-            household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
+            raise InvalidArgException("Ingredient amount needs to be greater than 0")
 
-        self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                    to_household_entity(household).__dict__)
+        household = await self.get_household_user_by_id(user_email, household_id)
+        if not await _add_ingredient_to_household(household, ingredient_name, ingredient_amount, ingredient_unit):
+            raise ValueError(f"Ingredient {ingredient_name} Not Found")
+        self.update_household(household)
 
     async def add_ingredients_to_household(self, user_email: str, household_id: str,
                                            ingredients_lst_names_and_amounts: ListIngredientsInput):
         household = await self.get_household_user_by_id(user_email, household_id)
+
         for ingredient in ingredients_lst_names_and_amounts.ingredients:
             if ingredient.amount <= 0:
-                logger.error(f"Ingredient {ingredient.name} amount need to be grater then 0")
-            ingredient_data = ingredientService.search_ingredient_by_name(ingredient.name)
-            if ingredient_data is None:
-                logger.error(f"Ingredient {ingredient.name} Not Found")
-            new_ingredient = IngredientBoundary(ingredient_data.ingredient_id, ingredient_data.name, ingredient.amount,
-                                                "gram",
-                                                datetime.now())
-            try:
-                existing_ingredients = household.ingredients[str(new_ingredient.ingredient_id)]
-                found = False
-                for ing in existing_ingredients:
-                    if ing.purchase_date == new_ingredient.purchase_date:
-                        ing.amount += ingredient.amount
-                        found = True
-                        break
-                if not found:
-                    existing_ingredients.append(new_ingredient)
-                household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
-            except KeyError as e:
-                logger.debug(f"Household {household.household_name}"
-                             f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
-                             f"with name {ingredient_data.name}")
-                household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
+                logger.error(f"Ingredient '{ingredient.name}' amount needs to be greater than 0")
+                continue
+            await _add_ingredient_to_household(household, ingredient.name, ingredient.amount, ingredient.unit)
 
-        self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                    to_household_entity(household).__dict__)
+        self.update_household(household)
 
     async def remove_household_ingredient_by_date(self, user_mail: str, household_id, ingredient_name: str,
                                                   ingredient_amount: float, ingredient_date: datetime.date):
@@ -584,42 +542,35 @@ class UsersHouseholdService:
         if not ingredient_data:
             raise InvalidArgException(f"The ingredient {ingredient_name} dose not exist in the system")
         ing_id = _get_ingredient_id(ingredient_name, ingredient_data.ingredient_id, household)
-        try:
-            for ing in household.ingredients[ing_id]:
-                if ing.purchase_date == ingredient_date.strftime(date_format):
-                    if ingredient_amount > ing.amount:
-                        m = (f"The amount you wanted to remove from the household {household.household_name}"
-                             f" is greater than the amount that is in ingredient {ingredient_name} on this date. "
-                             f"The maximum amount is {ing.amount}")
-                        logger.error(m)
-                        raise InvalidArgException(m)
-                    if ing.amount >= ingredient_amount:
-                        ing.amount -= ingredient_amount
-                    if ing.amount <= 0:
-                        household.ingredients[ing_id].remove(ing)
-                    self.firebase_instance.update_firebase_data(f'households/{household_id}'
-                                                                , to_household_entity(household).__dict__)
-                    return
-            raise InvalidArgException(
-                f"No such ingredient '{ingredient_name}' in household '{household.household_name}' with date "
-                f"{ingredient_date.strftime(date_format)}")
-        except (KeyError, ValueError, InvalidArgException) as e:
-            raise InvalidArgException(f"No such ingredient {ingredient_name} in household {household.household_name}")
+        ingredient_to_remove = IngredientBoundary(
+            ing_id,
+            ingredient_name,
+            ingredient_amount,
+            "gram",
+            ingredient_date
+        )
+        household.remove_ingredient_by_date(ingredient_to_remove)
+        self.update_household(household)
 
     async def remove_one_ingredient_from_household(self, household: HouseholdBoundary, ingredient_name: str,
                                                    ingredient_amount: float, ingredient_id: Optional[str]):
-        if ingredient_amount < 0:
+        if ingredient_amount <= 0:
             raise InvalidArgException("Invalid ingredient amount, it cannot be a negative number")
 
         ing_id = _get_ingredient_id(ingredient_name, ingredient_id, household)
+        ingredient_to_remove = IngredientBoundary(
+            ing_id,
+            ingredient_name,
+            ingredient_amount,
+            "gram",
+            None
+        )
         # Update the household ingredients with the new amounts
         try:
-            household.ingredients[ing_id] = remove_ingredient_from_household(household, ing_id, ingredient_amount,
-                                                                             ingredient_name)
+            household.remove_ingredient_amount(ingredient_to_remove)
         except (KeyError, ValueError, InvalidArgException) as e:
-            raise InvalidArgException(e.message)
-        self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
-                                                    to_household_entity(household).__dict__)
+            raise e
+        self.update_household(household)
 
     async def get_all_ingredients_in_household(self, user_email, household_id) -> dict:
         household = await self.get_household_user_by_id(user_email, household_id)
@@ -672,68 +623,61 @@ class UsersHouseholdService:
             try:
                 return self.is_ingredient_available_by_substring(recipe_ingredient, household, required_amount)
             except Exception as e:
-                logger.error(
-                    f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name}"
-                    f" is not available in the household.")
-                return False
+                m = str(f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name}"
+                        f" is not available in the household.")
+                logger.error(m)
+                raise InvalidArgException(m)
 
     async def _add_meal_to_household_and_users(self, users_email: List[str], household: HouseholdBoundary,
                                                recipe: RecipeBoundaryWithGasPollution, dishes_number: float,
                                                mealType: meal_types):
         logger.info(f"Gas pollution of recipe is {recipe.sumGasPollution}")
         new_meal_for_household = MealBoundary(users_email, dishes_number)
-        gas_pollution_for_household = self._calculate_gas_pollution(recipe.sumGasPollution, dishes_number)
+        gas_pollution_for_household = _calculate_gas_pollution(recipe.sumGasPollution, dishes_number)
         new_meal_for_household = MealBoundaryWithGasPollution(new_meal_for_household, gas_pollution_for_household)
 
         date_str = datetime.now().strftime("%Y-%m-%d")
-        add_meal_to_household(household, new_meal_for_household, date_str, mealType, str(recipe.recipe_id))
+        household.add_meal(new_meal_for_household, date_str, mealType, str(recipe.recipe_id))
 
         for user_email in users_email:
             dishes_number_for_user = dishes_number / len(users_email)
             new_meal_for_user = MealBoundary([user_email], dishes_number_for_user)
-            gas_pollution_for_user = self._calculate_gas_pollution(recipe.sumGasPollution, dishes_number_for_user)
+            gas_pollution_for_user = _calculate_gas_pollution(recipe.sumGasPollution, dishes_number_for_user)
             new_meal_for_user = MealBoundaryWithGasPollution(new_meal_for_user, gas_pollution_for_user)
 
             user = await self.get_user(user_email)
-            add_meal_to_user(user, new_meal_for_user, date_str, mealType, str(recipe.recipe_id))
-            self._update_user_gas_pollution(user, gas_pollution_for_user)
-            self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
-                                                        to_user_entity(user).__dict__)
+            user.add_meal(new_meal_for_user, date_str, mealType, str(recipe.recipe_id))
+            if isinstance(user, UserBoundaryWithGasPollution):
+                user.update_gas_pollution(gas_pollution_for_user)
+            else:
+                user = UserBoundaryWithGasPollution(user, gas_pollution_for_user)
+            self.update_user(user)
 
-        self._update_household_gas_pollution(household, gas_pollution_for_household)
-        self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
-                                                    to_household_entity(household).__dict__)
-
-    def _calculate_gas_pollution(self, sumGasPollution: dict, dishes_number: float) -> dict:
-        gas_pollution = copy.deepcopy(sumGasPollution)
-        for gas in gas_pollution.keys():
-            gas_pollution[gas] *= dishes_number
-        return gas_pollution
-
-    def _update_user_gas_pollution(self, user, gas_pollution: dict):
-        if isinstance(user, UserBoundaryWithGasPollution):
-            logger.debug("Is a user with gas pollution")
-            for gas, pollution in gas_pollution.items():
-                user.sum_gas_pollution[gas] = user.sum_gas_pollution.get(gas, 0) + pollution
-                logger.debug(f"Add to {gas} : {pollution} to user")
-        else:
-            logger.debug("Convert to user with gas pollution")
-            user = UserBoundaryWithGasPollution(user, gas_pollution)
-
-    def _update_household_gas_pollution(self, household, gas_pollution: dict):
         if isinstance(household, HouseholdBoundaryWithGasPollution):
-            logger.debug("Is a household with gas pollution")
-            for gas, pollution in gas_pollution.items():
-                household.sum_gas_pollution[gas] = household.sum_gas_pollution.get(gas, 0) + pollution
-                logger.debug(f"Add to {gas} : {pollution} to household")
+            household.update_gas_pollution(gas_pollution_for_household)
         else:
-            logger.debug("Convert to household with gas pollution")
-            household = HouseholdBoundaryWithGasPollution(household, gas_pollution)
+            household = HouseholdBoundaryWithGasPollution(household, gas_pollution_for_household)
+        self.update_household(household)
+
+    def _remove_recipe_ingredients_from_household(self, ingredients: list[IngredientBoundary],
+                                                  household: HouseholdBoundary, dishes_number: float):
+        for recipe_ingredient in ingredients:
+            try:
+                household.remove_ingredient_amount(
+                    IngredientBoundary(
+                        _get_ingredient_id(recipe_ingredient.name, recipe_ingredient.ingredient_id, household),
+                        recipe_ingredient.name,
+                        recipe_ingredient.amount * dishes_number,
+                        "gram",
+                        None
+                    )
+                )
+            except InvalidArgException as e:
+                raise InvalidArgException(e.message)
 
     async def use_recipe(self, users_email: List[str], household_id: str, recipe_id: str,
                          mealType: meal_types, dishes_number: float):
-        for user_email in users_email:
-            self.check_email(user_email)
+        users = [await self.get_user(user_email) for user_email in users_email]
         """Get household and recipe from DB"""
         if users_email.__len__() <= 0:
             raise Exception("list of users email need to be grayer then 0")
@@ -743,46 +687,36 @@ class UsersHouseholdService:
                 raise Exception(f"user {user_email} not in household {household_id}")
 
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
+
         """Check if everything exist"""
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
             logger.debug(f"recipe {recipe_id} ingredients : {[ing.name for ing in recipe.ingredients]}")
             for ingredient in recipe.ingredients:
-                # logger.debug(f"before {ingredient.ingredient_id}")
-                # logger.info(f"Check if {ingredient.name} exist")
-                if not self.check_ingredient_availability(household, ingredient, dishes_number):
-                    message = (f"Household '{household.household_name}' id : '{household.household_id}'"
-                               f" does not have enough '{ingredient.name}' : '{ingredient.ingredient_id}'"
-                               f" ingredient for"
-                               f" recipe '{recipe_id}'. Needed: {ingredient.amount * dishes_number}")
-                    try:
-                        s = sum(ingredient.amount for ingredient in household.ingredients[ingredient.ingredient_id])
-                        message += f" Available: {s}"
-                    except KeyError as e:
-                        pass
-
-                    logger.error(message)
-                    raise InvalidArgException(message)
-                # logger.debug(f"after {ingredient.ingredient_id}")
-            #     logger.info(f"{ingredient.name} exist")
-            # logger.info(f"Household can make a recipe {recipe.recipe_id}")
-            '''There is enough of all the ingredients to use in the recipe'''
-            '''Removing the ingredients in a household'''
-            for recipe_ingredient in recipe.ingredients:
                 try:
-                    household.ingredients[recipe_ingredient.ingredient_id] = remove_ingredient_from_household(
-                        household,
-                        _get_ingredient_id(recipe_ingredient.name, recipe_ingredient.ingredient_id, household),
-                        recipe_ingredient.amount * dishes_number,
-                        recipe_ingredient.name
-                    )
+                    if not self.check_ingredient_availability(household, ingredient, dishes_number):
+                        message = (f"Household '{household.household_name}' id : '{household.household_id}'"
+                                   f" does not have enough '{ingredient.name}' : '{ingredient.ingredient_id}'"
+                                   f" ingredient for"
+                                   f" recipe '{recipe_id}'. Needed: {ingredient.amount * dishes_number}")
+                        try:
+                            s = sum(ingredient.amount for ingredient in household.ingredients[ingredient.ingredient_id])
+                            message += f" Available: {s}"
+                        except KeyError as e:
+                            pass
+
+                        logger.error(message)
+                        raise InvalidArgException(message)
                 except InvalidArgException as e:
                     raise InvalidArgException(e.message)
+            '''There is enough of all the ingredients to use in the recipe'''
+            '''Removing the ingredients in a household'''
+            self._remove_recipe_ingredients_from_household(recipe.ingredients, household, dishes_number)
             await self._add_meal_to_household_and_users(users_email, household, recipe, dishes_number, mealType)
         else:
             raise InvalidArgException(f"The household id or recipe id is invalid")
 
     async def check_if_household_can_make_the_recipe(self, household_id: str, recipe_id: str,
-                                                     dishes_number: int) -> bool:
+                                                     dishes_number: float) -> bool:
         household = await self.get_household_by_Id(household_id)
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
@@ -798,21 +732,18 @@ class UsersHouseholdService:
             for household_id in user.households:
                 household = await self.get_household_user_by_id(user_email, household_id)
                 if isinstance(household, HouseholdBoundary):
-                    household.participants.remove(user.user_email)
-                    self.firebase_instance.update_firebase_data(f'households/{household_id}'
-                                                                , to_household_entity(household).__dict__)
+                    household.remove_user(user_email)
+                    self.update_household(household)
             self.firebase_instance.delete_firebase_data(f'users/{encoded_email(user_email)}')
 
     async def delete_household(self, household_id: str):
         household = await self.get_household_by_Id(household_id)
-        if household is None:
-            raise HouseholdException("No such household")
         if isinstance(household, HouseholdBoundary):
             for user_email in household.participants:
                 user = await self.get_user(user_email)
-                user.households.remove(household_id)
-                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
-                                                            to_user_entity(user).__dict__)
+                if isinstance(user, UserBoundary):
+                    user.remove_household(household_id)
+                    self.update_user(user)
             self.firebase_instance.delete_firebase_data(f'households/{household_id}')
 
     async def upload_file_to_storage(self, file: UploadFile,
