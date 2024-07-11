@@ -375,6 +375,16 @@ class UsersHouseholdService:
         self.firebase_instance = FirebaseDbConnection.get_instance()
         self.recipes_service = RecipesService()
 
+    def update_user(self, user: UserBoundary):
+        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user.user_email)}',
+                                                    to_user_entity(user).__dict__)
+
+    def update_household(self, household: HouseholdBoundary):
+        self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
+                                                    to_household_entity(household).__dict__)
+    def write_household(self,household:HouseholdBoundary):
+        self.firebase_instance.write_firebase_data(f'households/{household.household_id}',
+                                                   to_household_entity(household).__dict__)
     def check_email(self, email: str):
         if not user_entity_py.is_valid_email(email):
             raise InvalidArgException(f"{email} invalid email format")
@@ -386,8 +396,13 @@ class UsersHouseholdService:
     async def create_household(self, user_mail: str, household_name: str) -> str:
         user = await self.get_user(user_mail)
         household_id = str(uuid.uuid4())
-        while (self.firebase_instance.get_firebase_data(f'households/{household_id}') != None):
-            household_id = str(uuid.uuid4())
+        find = False
+        while not find:
+            try:
+                await self.get_household_by_Id(household_id)
+                household_id = str(uuid.uuid4())
+            except HouseholdException:
+                find = True
         household = HouseholdBoundaryWithGasPollution(HouseholdBoundary(household_id,
                                                                         household_name,
                                                                         None,
@@ -396,10 +411,9 @@ class UsersHouseholdService:
                                                                         {}),
                                                       {}
                                                       )
-        self.firebase_instance.write_firebase_data(f'households/{household_id}',
-                                                   to_household_entity(household).__dict__)
-        user.households.append(household_id)
-        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_mail)}', to_user_entity(user).__dict__)
+        self.write_household(household)
+        user.add_household(household_id)
+        self.update_user(user)
         return household_id
 
     # TODO:need to add option to enter image
@@ -802,9 +816,9 @@ class UsersHouseholdService:
         if isinstance(household, HouseholdBoundary):
             for user_email in household.participants:
                 user = await self.get_user(user_email)
-                user.households.remove(household_id)
-                self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}',
-                                                            to_user_entity(user).__dict__)
+                if isinstance(user, UserBoundary):
+                    user.remove_household(household_id)
+                    self.update_user(user)
             self.firebase_instance.delete_firebase_data(f'households/{household_id}')
 
     async def upload_file_to_storage(self, file: UploadFile,

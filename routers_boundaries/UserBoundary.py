@@ -20,6 +20,14 @@ class UserBoundary:
         self.country = country
         self.state = state
 
+    def remove_household(self, household_id: str):
+        if household_id in self.households:
+            self.households.remove(household_id)
+
+    def add_household(self, household_id: str):
+        if household_id not in self.households:
+            self.households.append(household_id)
+
 
 class UserBoundaryWithGasPollution(UserBoundary):
     def __init__(self, userBoundary: UserBoundary, sum_gas_pollution: Dict[str, float]):
