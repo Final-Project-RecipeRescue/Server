@@ -118,6 +118,24 @@ class HouseholdBoundary:
                                       f"{ingredient.ingredient_id} "
                                       f"in household {self.household_name} : {self.household_id}")
 
+    def add_meal(self, new_meal: MealBoundary, meal_date: str, mealType: meal_types,
+                 recipe_id: str):
+        if not self.meals:
+            self.meals = {}
+        try:
+            date_meals = self.meals[meal_date]
+            try:
+                type_meals = date_meals[mealType]
+                try:
+                    meals_with_same_recipe_id = type_meals[recipe_id]
+                    meals_with_same_recipe_id.append(new_meal)
+                except KeyError:
+                    type_meals[recipe_id] = [new_meal]
+            except KeyError:
+                date_meals[mealType] = {recipe_id: [new_meal]}
+        except KeyError:
+            self.meals[meal_date] = {mealType: {recipe_id: [new_meal]}}
+
 
 class HouseholdBoundaryWithUsersData(HouseholdBoundary):
     def __init__(self, household: HouseholdBoundary, participants: List[UserBoundary]):
@@ -143,3 +161,13 @@ class HouseholdBoundaryWithGasPollution(HouseholdBoundary):
             household.meals
         )
         self.sum_gas_pollution = sum_gas_pollution
+    def update_gas_pollution(self, gas_pollution: dict):
+        try:
+            for gas, pollution in gas_pollution.items():
+                try:
+                    self.sum_gas_pollution[gas] = self.sum_gas_pollution.get(gas, 0) + pollution
+                except KeyError:
+                    self.sum_gas_pollution[gas] = pollution
+                logger.debug(f"Add to {gas} : {pollution} to household to {self.household_name}")
+        except KeyError:
+            self.sum_gas_pollution = gas_pollution
