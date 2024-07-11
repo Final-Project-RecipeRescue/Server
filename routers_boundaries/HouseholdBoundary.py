@@ -1,10 +1,11 @@
 from typing import List, Dict
-
 from routers_boundaries import MealBoundary
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.UserBoundary import UserBoundary
+import logging
 
+logger = logging.getLogger("my_logger")
 
 class HouseholdBoundary:
     def __init__(self, household_id: str, household_name: str, household_image, participants: List[str],
@@ -29,6 +30,23 @@ class HouseholdBoundary:
     def add_user(self, user_email: str):
         if user_email not in self.participants:
             self.participants.append(user_email)
+
+    def add_ingredient(self, ingredient: IngredientBoundary):
+        try:
+            existing_ingredients = self.ingredients[str(ingredient.ingredient_id)]
+            found = False
+            for ing in existing_ingredients:
+                if ing.purchase_date == ingredient.purchase_date:
+                    ing.amount += ingredient.amount
+                    found = True
+                    break
+            if not found:
+                existing_ingredients.append(ingredient)
+        except KeyError as e:
+            logger.info(f"Household {self.household_name}"
+                        f" with id {self.household_id} add new ingredient {ingredient.ingredient_id} "
+                        f"with name {ingredient.name}")
+            self.ingredients[str(ingredient.ingredient_id)] = [ingredient]
 
 
 class HouseholdBoundaryWithUsersData(HouseholdBoundary):

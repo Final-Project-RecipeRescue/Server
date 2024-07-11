@@ -382,12 +382,15 @@ class UsersHouseholdService:
     def update_household(self, household: HouseholdBoundary):
         self.firebase_instance.update_firebase_data(f'households/{household.household_id}',
                                                     to_household_entity(household).__dict__)
-    def write_household(self,household:HouseholdBoundary):
+
+    def write_household(self, household: HouseholdBoundary):
         self.firebase_instance.write_firebase_data(f'households/{household.household_id}',
                                                    to_household_entity(household).__dict__)
-    def write_user(self,user:UserBoundary):
+
+    def write_user(self, user: UserBoundary):
         self.firebase_instance.write_firebase_data(f'users/{encoded_email(user.user_email)}',
                                                    to_user_entity(user).__dict__)
+
     def check_email(self, email: str):
         if not user_entity_py.is_valid_email(email):
             raise InvalidArgException(f"{email} invalid email format")
@@ -522,28 +525,18 @@ class UsersHouseholdService:
         ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
         if ingredient_data is None:
             raise ValueError(f"Ingredient {ingredient_name} Not Found")
-        new_ingredient = IngredientBoundary(ingredient_data.ingredient_id, ingredient_data.name, ingredient_amount,
-                                            "gram",
-                                            datetime.now())
-        try:
-            existing_ingredients = household.ingredients[str(new_ingredient.ingredient_id)]
-            found = False
-            for ing in existing_ingredients:
-                if ing.purchase_date == new_ingredient.purchase_date:
-                    ing.amount += ingredient_amount
-                    found = True
-                    break
-            if not found:
-                existing_ingredients.append(new_ingredient)
-            household.ingredients[new_ingredient.ingredient_id] = existing_ingredients
-        except KeyError as e:
-            logger.info(f"Household {household.household_name}"
-                        f" with id {household.household_id} add new ingredient {new_ingredient.ingredient_id} "
-                        f"with name {ingredient_name}")
-            household.ingredients[new_ingredient.ingredient_id] = [new_ingredient]
-
-        self.firebase_instance.update_firebase_data(f'households/{household_id}',
-                                                    to_household_entity(household).__dict__)
+        new_ingredient = IngredientBoundaryWithExpirationData(
+            IngredientBoundary(
+                ingredient_data.ingredient_id,
+                ingredient_data.name,
+                ingredient_amount,
+                "gram",
+                datetime.now()
+            ),
+            datetime.now() + timedelta(days=ingredient_data.expirationData)
+        )
+        household.add_ingredient(new_ingredient)
+        self.update_household(household)
 
     async def add_ingredients_to_household(self, user_email: str, household_id: str,
                                            ingredients_lst_names_and_amounts: ListIngredientsInput):
