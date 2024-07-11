@@ -149,20 +149,23 @@ async def get_household_user_by_name(user_email: str, household_name: str):
 
 @router.get("/get_all_households_details_by_user_mail")
 async def get_all_household_details_by_user_mail(user_email: str):
-    user = await get_user(user_email)
-    if isinstance(user, HTTPException):
-        return user
-
-    households = []
-    if isinstance(user, UserBoundary):
+    try:
+        user = await user_household_service.get_user(user_email)
+        households = []
         for _ in user.households:
             try:
-                household_details = await get_household_user_by_id(user_email, _)
-                if isinstance(household_details, HouseholdBoundary):
-                    households.append(household_details)
-            except Exception as e:
+                household_details = await user_household_service.get_household_user_by_id(user_email,_)
+                households.append(household_details)
+            except HouseholdException as e:
                 logger.error(f"Error retrieving household details for user {user_email} and household id : {_}")
-    return households
+        return households
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Error retrieving user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST,
+            detail=str(e.message))
+
+
 
 
 # Adding a user to a household
