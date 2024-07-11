@@ -471,13 +471,14 @@ class UsersHouseholdService:
         raise HouseholdException(f"This user : {user_email} does not have access to this household : {household_id}")
 
     async def get_household_user_by_name(self, user_email, household_name) -> List[HouseholdBoundary]:
-        user_entity = await self.get_user(user_email)
+        user = await self.get_user(user_email)
         households = []
-        for id in user_entity.households:
-            household = await self.get_household_user_by_id(user_email, id)
+        for household_id in user.households:
+            household = await self.get_household_user_by_id(user_email, household_id)
             if not household:
                 raise HouseholdException(
-                    "You have a problem in the DB with the user the household is found but with the collection of households it is not found")
+                    "You have a problem in the DB with the user the household is found but with the collection of "
+                    "households it is not found")
             if household.household_name == household_name:
                 households.append(household)
         if households.__len__() == 0:
