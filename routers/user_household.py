@@ -3,7 +3,8 @@ import time
 from typing import Optional, List
 from fastapi import HTTPException, status
 from BL.recipes_service import RecipesService
-from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
+from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException, \
+    get_the_ingredient_with_the_closest_expiration_date
 from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary, \
     HouseholdBoundaryWithGasPollution
@@ -366,7 +367,7 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
         # Calculate closest expiration date for each recipe
         if isinstance(household, HouseholdBoundaryWithGasPollution):
             for recipe in recipes:
-                closest_days_to_expire = user_household_service.get_the_ingredient_with_the_closest_expiration_date(
+                closest_days_to_expire = get_the_ingredient_with_the_closest_expiration_date(
                     recipe,
                     household.ingredients)
                 recipe.set_closest_expiration_days(closest_days_to_expire)
