@@ -444,12 +444,10 @@ class UsersHouseholdService:
         user = self.firebase_instance.get_firebase_data(f'users/{e_email}')
         if not user:
             raise UserException("User does not exist")
-        user_boundary = to_user_boundary(user)
-        return user_boundary
+        return to_user_boundary(user)
 
     async def change_user_info(self, user_email: str, first_name: Optional[str], last_name: Optional[str],
                                country: Optional[str], state: Optional[str]):
-        self.check_email(user_email)
         user = await self.get_user(user_email)
         if not user:
             raise UserException("User does not exist")
@@ -461,7 +459,7 @@ class UsersHouseholdService:
             user.country = country
         if state is not None:
             user.state = state
-        self.firebase_instance.update_firebase_data(f'users/{encoded_email(user_email)}', to_user_entity(user).__dict__)
+        self.update_user(user)
 
     async def get_household_user_by_id(self, user_email: str, household_id: str) -> HouseholdBoundary:
         user = await self.get_user(user_email)
@@ -808,15 +806,12 @@ class UsersHouseholdService:
             for household_id in user.households:
                 household = await self.get_household_user_by_id(user_email, household_id)
                 if isinstance(household, HouseholdBoundary):
-                    household.participants.remove(user.user_email)
-                    self.firebase_instance.update_firebase_data(f'households/{household_id}'
-                                                                , to_household_entity(household).__dict__)
+                    household.remove_user(user_email)
+                    self.update_household(household)
             self.firebase_instance.delete_firebase_data(f'users/{encoded_email(user_email)}')
 
     async def delete_household(self, household_id: str):
         household = await self.get_household_by_Id(household_id)
-        if household is None:
-            raise HouseholdException("No such household")
         if isinstance(household, HouseholdBoundary):
             for user_email in household.participants:
                 user = await self.get_user(user_email)

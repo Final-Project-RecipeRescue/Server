@@ -22,6 +22,14 @@ class HouseholdBoundary:
             unique_names += list(set([ing.name for ing in ing_s]))
         return unique_names
 
+    def remove_user(self, user_email: str):
+        if user_email in self.participants:
+            self.participants.remove(user_email)
+
+    def add_user(self, user_email: str):
+        if user_email not in self.participants:
+            self.participants.append(user_email)
+
 
 class HouseholdBoundaryWithUsersData(HouseholdBoundary):
     def __init__(self, household: HouseholdBoundary, participants: List[UserBoundary]):
