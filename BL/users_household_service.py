@@ -383,19 +383,11 @@ class UsersHouseholdService:
         if self.firebase_instance.get_firebase_data(f'users/{encoded_email(email)}') == None:
             raise UserException("User not exists")
 
-    # TODO:need to add option to enter image
     async def create_household(self, user_mail: str, household_name: str) -> str:
-        try:
-            self.check_email(user_mail)
-        except InvalidArgException as e:
-            raise InvalidArgException("Invalid email format")
-        await self.check_user_if_user_exist(user_mail)
-        user_data = self.firebase_instance.get_firebase_data(f'users/{encoded_email(user_mail)}')
-
+        user = await self.get_user(user_mail)
         household_id = str(uuid.uuid4())
         while (self.firebase_instance.get_firebase_data(f'households/{household_id}') != None):
             household_id = str(uuid.uuid4())
-        user = to_user_boundary(user_data)
         household = HouseholdBoundaryWithGasPollution(HouseholdBoundary(household_id,
                                                                         household_name,
                                                                         None,
