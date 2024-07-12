@@ -66,7 +66,7 @@ async def add_user(user: UserInputForAddUser):
         logger.error(f"Error creating user: {e.message}")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e.message))
     except InvalidArgException as e:
-        logger.error(f"Error adding user: {e}")
+        logger.error(f"Error adding user: {e.message}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
