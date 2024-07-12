@@ -14,7 +14,7 @@ from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, Ingredien
 from routers_boundaries.UserBoundary import UserBoundary
 from routers_boundaries.recipe_boundary import RecipeBoundaryWithGasPollution, RecipeBoundary
 
-router = APIRouter(prefix='/users_household', tags=['users and household operations'])  ## tag is description of router
+router = APIRouter(prefix='/usersAndHouseholdManagement', tags=['users and household operations'])  ## tag is description of router
 from datetime import date
 import logging
 
@@ -43,7 +43,7 @@ async def createNewHousehold(user_mail: str, household_name: str, ingredients: O
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
-@router.delete("/delete_household")
+@router.delete("/deleteHousehold")
 async def delete_household_by_id(household_id: str):
     try:
         logger.info(f"Try to delete household '{household_id}'")
@@ -55,7 +55,7 @@ async def delete_household_by_id(household_id: str):
 
 
 # Adding a new user
-@router.post("/add_user")
+@router.post("/addUser")
 async def add_user(user: UserInputForAddUser):
     try:
         await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country,
@@ -71,7 +71,7 @@ async def add_user(user: UserInputForAddUser):
 
 
 # Getting a user by email
-@router.get("/get_user")
+@router.get("/getUser")
 async def get_user(user_email: str):
     try:
         user = await user_household_service.get_user(user_email)
@@ -84,7 +84,7 @@ async def get_user(user_email: str):
             detail=str(e.message))
 
 
-@router.put("/update_personal_user_info")
+@router.put("/updatePersonalUserInfo")
 async def update_personal_user_info(user: UserInputForChanges):
     try:
         await user_household_service.change_user_info(user.email, user.first_name, user.last_name, user.country,
@@ -97,7 +97,7 @@ async def update_personal_user_info(user: UserInputForChanges):
             , detail=str(e.message))
 
 
-@router.delete("/delete_user")
+@router.delete("/deleteUser")
 async def delete_user(user_email: str):
     try:
         logger.info(f"Try to delete user '{user_email}'")
@@ -109,7 +109,7 @@ async def delete_user(user_email: str):
 
 
 # Getting a household user by ID
-@router.get("/get_household_user_by_id")
+@router.get("/getHouseholdUserById")
 async def get_household_user_by_id(user_email: str, household_id: str):
     try:
         logger.info(f"Looking for user with '{user_email}' and '{household_id}'...")
@@ -122,7 +122,7 @@ async def get_household_user_by_id(user_email: str, household_id: str):
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
-@router.get("/get_household_and_users_data_by_id")
+@router.get("/getHouseholdAndUsersDataById")
 async def get_household_and_users_data_by_id(user_email: str, household_id: str):
     try:
         household = await user_household_service.get_household_user_by_id(user_email, household_id)
@@ -136,7 +136,7 @@ async def get_household_and_users_data_by_id(user_email: str, household_id: str)
 
 
 # Getting a household user by name
-@router.get("/get_household_user_by_name")
+@router.get("/getHouseholdUserByName")
 async def get_household_user_by_name(user_email: str, household_name: str):
     try:
         households = await user_household_service.get_household_user_by_name(user_email, household_name)
@@ -148,7 +148,7 @@ async def get_household_user_by_name(user_email: str, household_name: str):
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
-@router.get("/get_all_households_details_by_user_mail")
+@router.get("/getAllHouseholdsDetailsByUserMail")
 async def get_all_household_details_by_user_mail(user_email: str):
     try:
         user = await user_household_service.get_user(user_email)
@@ -168,7 +168,7 @@ async def get_all_household_details_by_user_mail(user_email: str):
 
 
 # Adding a user to a household
-@router.post("/add_user_to_household")
+@router.post("/addUserToHousehold")
 async def add_user_to_household(user_email: str, household_id: str):
     try:
         await user_household_service.add_user_to_household(user_email, household_id)
@@ -178,7 +178,7 @@ async def add_user_to_household(user_email: str, household_id: str):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
 
 
-@router.delete("/remove_user_from_household")
+@router.delete("/removeUserFromHousehold")
 async def remove_user_from_household(user_email: str, household_id: str):
     try:
         await user_household_service.remove_user_from_household(user_email, household_id)
@@ -189,7 +189,7 @@ async def remove_user_from_household(user_email: str, household_id: str):
 
 
 # Adding an ingredient to a household by name
-@router.post("/add_ingredient_to_household_by_ingredient_name")
+@router.post("/addIngredientToHouseholdByIngredientName")
 async def add_ingredient_to_household_by_ingredient_name(user_email: str, household_id: str,
                                                          ingredient: IngredientInput):
     logger.info(f"try to add ingredient: {ingredient.name} : {ingredient.amount} by name")
@@ -211,7 +211,7 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
 
 
 # Adding a list of ingredients to a household
-@router.post("/add_list_ingredients_to_household")
+@router.post("/addListIngredientsToHousehold")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
     try:
         await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
@@ -227,12 +227,12 @@ Remove ingredient from a certain date
 '''
 
 
-@router.delete("/remove_ingredient_from_household_by_date")
+@router.delete("/removeIngredientFromHouseholdByDate")
 async def remove_ingredient_from_household_by_date(user_email: str, household_id: str,
                                                    ingredient: IngredientToRemoveByDateInput):
     try:
         # Create a date object from the provided year, month, and day
-        ingredient_date = date(ingredient.date.year, ingredient.date.mount, ingredient.date.day)
+        ingredient_date = date(ingredient.date.year, ingredient.date.month, ingredient.date.day)
     except ValueError:
         logger.error("Invalid date provided")
         raise HTTPException(status_code=400, detail="Invalid date provided")
@@ -254,7 +254,7 @@ async def remove_ingredient_from_household_by_date(user_email: str, household_id
 
 
 # Removing an ingredient from a household
-@router.delete("/remove_ingredient_from_household")
+@router.delete("/removeIngredientFromHousehold")
 async def remove_ingredient_from_household(user_email: str, household_id: str, ingredient: IngredientInput):
     try:
 
@@ -275,7 +275,7 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
 
 
 # Getting all ingredients in a household
-@router.get("/get_all_ingredients_in_household")
+@router.get("/getAllIngredientsInHousehold")
 async def get_all_ingredients_in_household(user_email: str, household_id: str):
     try:
         ingredients = await user_household_service.get_all_ingredients_in_household(user_email, household_id)
@@ -287,7 +287,7 @@ async def get_all_ingredients_in_household(user_email: str, household_id: str):
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
-@router.post("/use_recipe_by_recipe_id")
+@router.post("/useRecipeByRecipeId")
 async def use_recipe_by_recipe_id(users_email: List[str], household_id: str,
                                   meal: str, dishes_num: float, recipe_id: str):
     try:
@@ -317,7 +317,7 @@ async def use_recipe_by_recipe_id(users_email: List[str], household_id: str,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/get_meal_types")
+@router.get("/getMealTypes")
 def get_meal_types():
     return [f'{meal_type}' for meal_type in meal_types]
 
@@ -340,7 +340,7 @@ def check_recipe_ingredients_availability(household: HouseholdBoundary, recipe: 
     return True
 
 
-@router.get("/get_all_recipes_that_household_can_make")
+@router.get("/getAllRecipesThatHouseholdCanMake")
 async def get_all_recipes_that_household_can_make(user_email: str, household_id: str,
                                                   co2_weight: Optional[float] = 0.5,
                                                   expiration_weight: Optional[float] = 0.5):
@@ -380,7 +380,7 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
 
 
-@router.get("/check_if_household_exist_in_system")
+@router.get("/checkIfHouseholdExistInSystem")
 async def check_if_household_exist_in_system(household_id: str):
     try:
         await user_household_service.get_household_by_Id(household_id)
@@ -392,18 +392,18 @@ async def check_if_household_exist_in_system(household_id: str):
                             detail=str(f"Household {household_id} does not exist in system"))
 
 
-@router.get("/check_if_household_can_make_recipe")
+@router.get("/checkIfHouseholdCanMakeRecipe")
 async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[float] = 1):
     return await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
 
 
-@router.post("/get_gas_pollution_of_household_in_range_dates")
+@router.post("/getGasPollutionOfHouseholdInRangeDates")
 async def get_gas_pollution_of_household_in_range_dates(user_email: str, household_id: str, startDate: Date,
                                                         endDate: Date):
     try:
         # Create a date object from the provided year, month, and day
-        start = date(startDate.year, startDate.mount, startDate.day)
-        end = date(endDate.year, endDate.mount, endDate.day)
+        start = date(startDate.year, startDate.month, startDate.day)
+        end = date(endDate.year, endDate.month, endDate.day)
         # Check if the start date is before the end date
         if start >= end:
             logger.error(f"Start date {start} must be before end date {end}")
@@ -419,12 +419,12 @@ async def get_gas_pollution_of_household_in_range_dates(user_email: str, househo
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.__dict__)
 
 
-@router.post("/get_gas_pollution_of_user_in_range_dates")
+@router.post("/getGasPollutionOfUserInRangeDates")
 async def get_gas_pollution_of_user_in_range_dates(user_email: str, startDate: Date, endDate: Date):
     try:
         # Create a date object from the provided year, month, and day
-        start = date(startDate.year, startDate.mount, startDate.day)
-        end = date(endDate.year, endDate.mount, endDate.day)
+        start = date(startDate.year, startDate.month, startDate.day)
+        end = date(endDate.year, endDate.month, endDate.day)
         # Check if the start date is before the end date
         if start >= end:
             logger.error(f"Start date {start} must be before end date {end}")

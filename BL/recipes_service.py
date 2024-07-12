@@ -101,7 +101,7 @@ async def toBoundaryRecipe(recipeEntity: RecipeEntity) -> RecipeBoundary:
                                     , recipeEntity.image)
     if isinstance(recipeEntity, RecipeEntityByIngredientSpoonacular):
         recipeBoundary.ingredients = ([to_ingredient_boundary(ingredient)
-                                       for ingredient in recipeEntity.missed_ingredients]
+                                       for ingredient in recipeEntity.missing_ingredients]
                                       + [to_ingredient_boundary(ingredient)
                                          for ingredient in recipeEntity.used_ingredients])
 
@@ -144,14 +144,14 @@ class RecipesService(Service):
                 await self.add_recipe_to_mongoDB(await toBoundaryRecipe(recipe))
                 logger.info(f"recipe {recipe.title} added to mongo data")
 
-    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missed_ingredients) -> \
+    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missing_ingredients) -> \
             List[RecipeBoundaryWithGasPollution]:
         result: [RecipeBoundaryWithGasPollution] = []
 
         with ThreadPoolExecutor() as executor:
             futures = []
             for recipe in recipes:
-                if missed_ingredients or recipe.missed_ingredient_count == 0:
+                if missing_ingredients or recipe.missing_ingredients_count == 0:
                     futures.append(executor.submit(
                         calc_cos_gas_pollution, await self.recipeDB.get_recipe_by_id(str(recipe.id))
                     ))
@@ -159,12 +159,12 @@ class RecipesService(Service):
                 result.append(future.result())
         return result
 
-    async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missed_ingredients: bool) \
+    async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missing_ingredients: bool) \
             -> Optional[List[RecipeBoundaryWithGasPollution]]:
         try:
             recipes = await spoonacular_instance.find_recipes_by_ingredients(ingredients)
             await self.add_missing_recipes_to_mongo(recipes)
-            result = await self.filter_and_calc_pollution(recipes, missed_ingredients)
+            result = await self.filter_and_calc_pollution(recipes, missing_ingredients)
             result.sort(key=lambda r: r.composite_score(1, 0), reverse=True)
             return result
         except Exception as e:
