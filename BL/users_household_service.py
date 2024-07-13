@@ -90,7 +90,7 @@ def calc_expiration(ingredient: IngredientBoundary) -> Optional[datetime.date]:
                         ing_data = ing
     if ingredient.purchase_date is not None:
         date = datetime.strptime(ingredient.purchase_date, date_format)
-        delta = timedelta(days=ing_data.expirationData)
+        delta = timedelta(days=ing_data.days_to_expire)
         new_date = date + delta
         return new_date
 
@@ -311,29 +311,6 @@ def _get_ingredient_id(ingredient_name: str, ingredient_id: Optional[str],
     raise InvalidArgException(f"'{ingredient_name}' not found in household ingredients")
 
 
-def _update_ingredient_amounts(ingredient_lst: [IngredientBoundary], ingredient_amount: float) \
-        -> list[IngredientBoundary]:
-    remaining_amount = ingredient_amount
-    updated_ingredients: [IngredientBoundary] = []
-
-    for ing in ingredient_lst:
-        if remaining_amount <= 0:
-            updated_ingredients.append(ing)
-            continue
-
-        if ing.amount <= remaining_amount:
-            remaining_amount -= ing.amount
-            ing.amount = 0
-        else:
-            ing.amount -= remaining_amount
-            remaining_amount = 0
-
-        if ing.amount > 0:
-            updated_ingredients.append(ing)
-
-    return updated_ingredients
-
-
 async def _add_ingredient_to_household(household: HouseholdBoundary, ingredient_name: str, ingredient_amount: float,
                                        ingredient_unit: str) -> bool:
     ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
@@ -350,7 +327,7 @@ async def _add_ingredient_to_household(household: HouseholdBoundary, ingredient_
     await convert_ingredient_unit_to_gram(new_ingredient)
     new_ingredient = IngredientBoundaryWithExpirationData(
         new_ingredient,
-        datetime.now() + timedelta(days=ingredient_data.expirationData)
+        datetime.now() + timedelta(days=ingredient_data.days_to_expire)
     )
     household.add_ingredient(new_ingredient)
     return True
@@ -392,7 +369,7 @@ def get_the_ingredient_with_the_closest_expiration_date(recipe: RecipeBoundary,
                     expiration_date = datetime.strptime(ing.expiration_date, date_format).date()
                     days_to_expire = (expiration_date - datetime.now().date()).days
 
-                    logger.info(f"{ing.name} ->> {days_to_expire} days to expire on {ing.expiration_date}")
+                    # logger.info(f"{ing.name} ->> {days_to_expire} days to expire on {ing.expiration_date}")
 
                     if closest_days_to_expire is None or closest_days_to_expire > days_to_expire:
                         closest_days_to_expire = days_to_expire
@@ -668,7 +645,7 @@ class UsersHouseholdService:
                 return self.is_ingredient_available_by_substring(recipe_ingredient, household, required_amount)
             except Exception as e:
                 m = str(f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name}"
-                        f" is not available in the household.")
+                        f" is not available in the household {household.household_name} : {household.household_id}.")
                 logger.error(m)
                 raise InvalidArgException(m)
 
@@ -745,12 +722,18 @@ class UsersHouseholdService:
 
     async def check_if_household_can_make_the_recipe(self, household_id: str, recipe_id: str,
                                                      dishes_number: float) -> bool:
+        import concurrent.futures
+
         household = await self.get_household_by_Id(household_id)
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
-            for ingredient in recipe.ingredients:
-                if not self.check_ingredient_availability(household, ingredient, dishes_number):
-                    return False
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = [executor.submit(self.check_ingredient_availability, household, ingredient, dishes_number) for
+                           ingredient in recipe.ingredients]
+
+                for ingredient, future in zip(recipe.ingredients, concurrent.futures.as_completed(futures)):
+                    if not future.result():
+                        return False
             return True
         return False
 
@@ -847,21 +830,6 @@ class UsersHouseholdService:
     import logging
 
     logger = logging.getLogger(__name__)
-
-    # async def sortedRecipesByExplorationDate(self, user_email: str,
-    #                                          household_id: str
-    #                                          , recipes: List[RecipeBoundary]):
-    #     household = await self.get_household_user_by_id(user_email, household_id)
-    #     recipes_rv: [RecipeBoundaryWithGasPollution] = []
-    #     for recipe in recipes:
-    #         for ingredient in recipe.ingredients:
-    #             if not await self.check_ingredient_availability(household, ingredient, 0):
-    #                 logger.info(f"Recipe {recipe.recipe_id} removed")
-    #                 continue
-    #         recipes_rv.append(recipe)
-    #     recipes_rv.sort(
-    #         key=lambda r: self.get_the_ingredient_with_the_closest_expiration_date(r, household.ingredients))
-    #     return recipes_rv
 
 
 class HouseholdException(Exception):

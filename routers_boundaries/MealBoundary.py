@@ -3,7 +3,7 @@ from typing import Dict
 
 from routers_boundaries.IngredientBoundary import IngredientBoundary
 
-meal_types = ("Breakfast", "Lunch", "Dinner", "Snakes")
+meal_types = ("Breakfast", "Lunch", "Dinner", "Snacks")
 
 
 class MealBoundary:
