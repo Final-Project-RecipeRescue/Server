@@ -369,7 +369,7 @@ def get_the_ingredient_with_the_closest_expiration_date(recipe: RecipeBoundary,
                     expiration_date = datetime.strptime(ing.expiration_date, date_format).date()
                     days_to_expire = (expiration_date - datetime.now().date()).days
 
-                    logger.info(f"{ing.name} ->> {days_to_expire} days to expire on {ing.expiration_date}")
+                    # logger.info(f"{ing.name} ->> {days_to_expire} days to expire on {ing.expiration_date}")
 
                     if closest_days_to_expire is None or closest_days_to_expire > days_to_expire:
                         closest_days_to_expire = days_to_expire
@@ -645,7 +645,7 @@ class UsersHouseholdService:
                 return self.is_ingredient_available_by_substring(recipe_ingredient, household, required_amount)
             except Exception as e:
                 m = str(f"Ingredient {recipe_ingredient.ingredient_id} : {recipe_ingredient.name}"
-                        f" is not available in the household.")
+                        f" is not available in the household {household.household_name} : {household.household_id}.")
                 logger.error(m)
                 raise InvalidArgException(m)
 
@@ -722,12 +722,18 @@ class UsersHouseholdService:
 
     async def check_if_household_can_make_the_recipe(self, household_id: str, recipe_id: str,
                                                      dishes_number: float) -> bool:
+        import concurrent.futures
+
         household = await self.get_household_by_Id(household_id)
         recipe = await self.recipes_service.get_recipe_by_id(recipe_id)
         if isinstance(household, HouseholdBoundary) and isinstance(recipe, RecipeBoundary):
-            for ingredient in recipe.ingredients:
-                if not self.check_ingredient_availability(household, ingredient, dishes_number):
-                    return False
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = [executor.submit(self.check_ingredient_availability, household, ingredient, dishes_number) for
+                           ingredient in recipe.ingredients]
+
+                for ingredient, future in zip(recipe.ingredients, concurrent.futures.as_completed(futures)):
+                    if not future.result():
+                        return False
             return True
         return False
 
