@@ -88,7 +88,7 @@ class HouseholdBoundary:
                                       f"in household {self.household_name} : {self.household_id}")
         for ing in lst:
             if ing.purchase_date == ingredient_to_update.purchase_date:
-                if ing.amount == 0:
+                if ingredient_to_update.amount == 0:
                     self._remove_ingredient(ing)
                 else:
                     ing.amount = ingredient_to_update.amount
