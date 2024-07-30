@@ -212,6 +212,35 @@ async def add_ingredient_to_household_by_ingredient_name(user_email: str, househ
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
+@router.post("/updateIngredientInHousehold")
+async def updateIngredientInHousehold(user_email: str, household_id: str,
+                                      ingredient: IngredientToRemoveByDateInput):
+    try:
+        # Create a date object from the provided year, month, and day
+        ingredient_date = date(ingredient.date.year, ingredient.date.month, ingredient.date.day)
+        if ingredient_date > date.today():
+            logger.error("Provided date is after than today")
+            raise HTTPException(status_code=400, detail="Provided date cannot be earlier than today")
+    except ValueError:
+        logger.error("Invalid date provided")
+        raise HTTPException(status_code=400, detail="Invalid date provided")
+
+    try:
+        await user_household_service.update_ingredient_by_date(user_email,
+                                                               household_id,
+                                                               ingredient.ingredient_data.name,
+                                                               ingredient.ingredient_data.amount,
+                                                               ingredient_date)
+        logger.info(
+            f"Ingredient '{ingredient.ingredient_data.name}' in {ingredient_date}"
+            f"from household '{household_id}' update successfully by user '{user_email}'")
+    except InvalidArgException as e:
+        m = str(f"Error removing ingredient {ingredient.ingredient_data.name}"
+                f" from household: {household_id} in date {ingredient_date}")
+        logger.error(m)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(m))
+
+
 # Adding a list of ingredients to a household
 @router.post("/addListIngredientsToHousehold")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):

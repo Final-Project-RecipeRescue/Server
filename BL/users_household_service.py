@@ -264,32 +264,6 @@ def to_household_entity(household: HouseholdBoundary) -> HouseholdEntity:
     return household_entity
 
 
-def add_meal_to_user(user: UserBoundary, new_meal: MealBoundary, date: str, mealType: meal_types,
-                     recipe_id: str):
-    if not user.meals:
-        user.meals = {}
-    try:
-        date_meals = user.meals[date]
-        try:
-            type_meals = date_meals[mealType]
-            try:
-                meal = type_meals[recipe_id]
-                meal.number_of_dishes += new_meal.number_of_dishes
-                if isinstance(meal, MealBoundaryWithGasPollution) and isinstance(new_meal,
-                                                                                 MealBoundaryWithGasPollution):
-                    for gas in new_meal.sum_gas_pollution.keys():
-                        try:
-                            meal.sum_gas_pollution[gas] += new_meal.sum_gas_pollution[gas]
-                        except KeyError:
-                            meal.sum_gas_pollution[gas] = new_meal.sum_gas_pollution[gas]
-            except KeyError:
-                type_meals[recipe_id] = new_meal
-        except KeyError:
-            date_meals[mealType] = {recipe_id: new_meal}
-    except KeyError:
-        user.meals[date] = {mealType: {recipe_id: new_meal}}
-
-
 def _get_ingredient_id(ingredient_name: str, ingredient_id: Optional[str],
                        household: HouseholdBoundary) -> str:
     if ingredient_id:
@@ -830,6 +804,25 @@ class UsersHouseholdService:
     import logging
 
     logger = logging.getLogger(__name__)
+
+    async def update_ingredient_by_date(self, user_mail: str, household_id, ingredient_name: str,
+                                        ingredient_amount: float, ingredient_date: datetime.date):
+        if ingredient_amount < 0:
+            raise InvalidArgException(f"Ingredient amount need to be greater than 0")
+        household = await self.get_household_user_by_id(user_mail, household_id)
+        ingredient_data = ingredientService.search_ingredient_by_name(ingredient_name)
+        if not ingredient_data:
+            raise InvalidArgException(f"The ingredient {ingredient_name} dose not exist in the system")
+        ing_id = _get_ingredient_id(ingredient_name, ingredient_data.ingredient_id, household)
+        ingredient_to_update = IngredientBoundary(
+            ing_id,
+            ingredient_name,
+            ingredient_amount,
+            "gram",
+            ingredient_date
+        )
+        household.update_ingredient_by_date(ingredient_to_update)
+        self.update_household(household)
 
 
 class HouseholdException(Exception):
