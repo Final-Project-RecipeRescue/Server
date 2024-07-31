@@ -78,6 +78,25 @@ class HouseholdBoundary:
         logger.info(exp.message)
         raise exp
 
+    def update_ingredient_by_date(self, ingredient_to_update: IngredientBoundary):
+        from BL.users_household_service import InvalidArgException
+        try:
+            lst = self.ingredients[str(ingredient_to_update.ingredient_id)]
+        except (KeyError, ValueError) as e:
+            raise InvalidArgException(f"No such ingredient {ingredient_to_update.name} : "
+                                      f"{ingredient_to_update.ingredient_id} "
+                                      f"in household {self.household_name} : {self.household_id}")
+        for ing in lst:
+            if ing.purchase_date == ingredient_to_update.purchase_date:
+                if ingredient_to_update.amount == 0:
+                    self._remove_ingredient(ing)
+                else:
+                    ing.amount = ingredient_to_update.amount
+                return
+        raise InvalidArgException(f"No such ingredient {ingredient_to_update.name} : "
+                                  f"{ingredient_to_update.ingredient_id} "
+                                  f"in household {self.household_name} : {self.household_id}")
+
     def remove_ingredient_amount(self, ingredient: IngredientBoundary):
         from BL.users_household_service import InvalidArgException
         try:
@@ -161,6 +180,7 @@ class HouseholdBoundaryWithGasPollution(HouseholdBoundary):
             household.meals
         )
         self.sum_gas_pollution = sum_gas_pollution
+
     def update_gas_pollution(self, gas_pollution: dict):
         try:
             for gas, pollution in gas_pollution.items():
