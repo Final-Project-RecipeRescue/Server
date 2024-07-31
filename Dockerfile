@@ -1,5 +1,4 @@
-FROM arm64v8/python:3.10-slim
-
+FROM arm64v8/node:slim
 LABEL authors="nissa"
 
 ENTRYPOINT ["top", "-b"]

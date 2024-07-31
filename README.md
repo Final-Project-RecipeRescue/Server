@@ -18,6 +18,15 @@ RecipeRescue API is a RESTful web service built with Python and FastAPI. It prov
     ```bash
     pip install -r requirements.txt
     ```
+3. Create a .env file in the root directory of the project and add the following variables:
+   ```
+   SPOONACULAR_API_KEY=<your_spoonacular_api_key>
+    MONGO_USER=<your_mongo_user>
+    MONGO_PASS=<your_mongo_pass>
+    FIREBASE_KEY_ID=<your_firebase_key_id>
+    databaseURL="<your_firebase_database_url>"
+    storageURL="<your_firebase_storage_url>"
+   ```
 
 ## Usage
 
