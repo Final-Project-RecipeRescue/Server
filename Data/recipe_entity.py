@@ -14,9 +14,9 @@ class RecipeEntityByIngredientSpoonacular(RecipeEntity):
     def __init__(self, data):
         super().__init__(data)
         self.likes = data.get('likes')
-        self.missed_ingredient_count = data.get('missedIngredientCount')
-        self.missed_ingredients = [Ingredient(ingredient_data) for ingredient_data in
-                                   data.get('missedIngredients', [])]
+        self.missing_ingredients_count = data.get('missedIngredientCount')
+        self.missing_ingredients = [Ingredient(ingredient_data) for ingredient_data in
+                                    data.get('missedIngredients', [])]
         self.unused_ingredients = data.get('unusedIngredients')
         self.used_ingredient_count = data.get('usedIngredientCount')
         self.used_ingredients = [Ingredient(ingredient_data) for ingredient_data in

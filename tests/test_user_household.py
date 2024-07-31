@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from unittest import TestCase
 
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary
@@ -26,15 +26,15 @@ base_url = "http://127.0.0.1:8000"
 
 
 def add_user(user_input: UserInputForAddUser):
-    return requests.post(base_url + "/users_household/add_user", json=user_input.model_dump())
+    return requests.post(base_url + "/usersAndHouseholdManagement/addUser", json=user_input.model_dump())
 
 
 def get_user(user_email: str):
-    return requests.get(base_url + f"/users_household/get_user?user_email={user_email}")
+    return requests.get(base_url + f"/usersAndHouseholdManagement/getUser?user_email={user_email}")
 
 
 def delete_user(user_email: str):
-    return requests.delete(base_url + f"/users_household/delete_user?user_email={user_email}")
+    return requests.delete(base_url + f"/usersAndHouseholdManagement/deleteUser?user_email={user_email}")
 
 
 def build_user_input():
@@ -55,26 +55,26 @@ def build_ingredients_empty_input():
 
 def create_new_household(user_email: str, household_name: str, ingredients: ListIngredientsInput):
     return requests.post(base_url +
-                         f"/users_household/createNewHousehold?user_mail={user_email}&household_name={household_name}"
+                         f"/usersAndHouseholdManagement/createNewHousehold?user_mail={user_email}&household_name={household_name}"
                          , json=ingredients.model_dump())
 
 
 def get_household_by_household_id_and_userEmail(user_email: str, household_id: str):
     return requests.get(
-        base_url + f"/users_household/get_household_user_by_id?user_email={user_email}&household_id={household_id}")
+        base_url + f"/usersAndHouseholdManagement/getHouseholdUserById?user_email={user_email}&household_id={household_id}")
 
 
 def delete_household_by_id(household_id: str):
-    return requests.delete(base_url + f'/users_household/delete_household?household_id={household_id}')
+    return requests.delete(base_url + f'/usersAndHouseholdManagement/deleteHousehold?household_id={household_id}')
 
 
 def check_if_household_exist(household_id: str):
-    return requests.get(base_url + f'/users_household/check_if_household_exist_in_system?household_id={household_id}')
+    return requests.get(base_url + f'/usersAndHouseholdManagement/checkIfHouseholdExistInSystem?household_id={household_id}')
 
 
 def get_recipes(user_email: str, household_id: str):
     return requests.get(
-        base_url + f'/users_household/get_all_recipes_that_household_can_make?user_email={user_email}&household_id={household_id}')
+        base_url + f'/usersAndHouseholdManagement/getAllRecipesThatHouseholdCanMake?user_email={user_email}&household_id={household_id}')
 
 
 def get_ingredients():
@@ -135,37 +135,37 @@ def get_ingredients():
 
 
 def update_user_information(user_input: UserInputForChanges):
-    return requests.put(base_url + "/users_household/update_personal_user_info", json=user_input.model_dump())
+    return requests.put(base_url + "/usersAndHouseholdManagement/updatePersonalUserInfo", json=user_input.model_dump())
 
 
 def remove_user_from_household(user_email: str, household_id: str):
     return requests.delete(
-        base_url + f"/users_household/remove_user_from_household?user_email={user_email}&household_id={household_id}")
+        base_url + f"/usersAndHouseholdManagement/removeUserFromHousehold?user_email={user_email}&household_id={household_id}")
 
 
 def add_ingredient_to_household(household_id: str, user_email: str, ingredient: IngredientInput):
     return requests.post(
-        base_url + f"/users_household/add_ingredient_to_household_by_ingredient_name?user_email={user_email}&household_id={household_id}",
+        base_url + f"/usersAndHouseholdManagement/addIngredientToHouseholdByIngredientName?user_email={user_email}&household_id={household_id}",
         json=ingredient.model_dump())
 
 
 def add_user_to_household(user_email: str, household_id: str):
     return requests.post(
-        base_url + f"/users_household/add_user_to_household?user_email={user_email}&household_id={household_id}")
+        base_url + f"/usersAndHouseholdManagement/addUserToHousehold?user_email={user_email}&household_id={household_id}")
 
 
 def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[int] = 1):
-    return requests.get(base_url + f"/users_household/"
-                                   f"check_if_household_can_make_recipe?"
+    return requests.get(base_url + f"/usersAndHouseholdManagement/"
+                                   f"checkIfHouseholdCanMakeRecipe?"
                                    f"&household_id={household_id}"
                                    f"&recipe_id={recipe_id}"
                                    f"&dishes_num={dishes_num}")
 
 
-def use_recipe(user_email: str, household_id: str,
+def use_recipe(users_email: List[str], household_id: str,
                meal: str, dishes_num: float, recipe_id: str):
     return requests.post(
-        base_url + f"/users_household/use_recipe_by_recipe_id?user_email={user_email}&household_id={household_id}&meal={meal}&dishes_num={dishes_num}&recipe_id={recipe_id}")
+        base_url + f"/usersAndHouseholdManagement/useRecipeByRecipeId?household_id={household_id}&meal={meal}&dishes_num={dishes_num}&recipe_id={recipe_id}",json=users_email)
 
 
 def parse_ingredient(ingredient_data: Dict) -> IngredientBoundary:
@@ -471,7 +471,7 @@ class HouseholdTests(TestCase):
         for recipe in recipes:
             meal_type = meal_types[random.randint(0, len(meal_types)-1)]
             response = use_recipe(
-                self.user_email,
+                [self.user_email],
                 self.household_id,
                 meal_type,
                 random.randint(1, 5),
@@ -482,6 +482,8 @@ class HouseholdTests(TestCase):
                 user = parse_user_boundary(response.json())
                 self.assertIsNotNone(
                     user.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)])
+                print(user.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)].users)
+                self.assertIn(self.user_email,user.meals[datetime.now().strftime("%Y-%m-%d")][meal_type][str(recipe.recipe_id)].users)
                 response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
                 self.assertEqual(200, response.status_code)
                 household = parse_household(response.json())

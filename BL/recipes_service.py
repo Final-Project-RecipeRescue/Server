@@ -27,11 +27,15 @@ def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
 
 
 async def convert_ingredient_unit_to_gram(ingredient: IngredientBoundary) -> IngredientBoundary:
-    if ingredient.unit != 'g' and ingredient.unit != 'gram':
-        ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(
+    if ingredient.unit is not None and ingredient.unit.lower() not in ['g', 'gram'] :
+        logger.info(f"Convert unit of ingredient \'{ingredient.name}\' from \'{ingredient.unit}\' to gram")
+        amount = await spoonacular_instance.convertIngredientAmountToGrams(
             ingredient.name, ingredient.amount, ingredient.unit)
-        ingredient.amount = await spoonacular_instance.convertIngredientAmountToGrams(ingredient.name, ingredient.amount
-                                                                                      , ingredient.unit)
+        if amount:
+            logger.info(f"Successful converted unit of ingredient \'{ingredient.name}\' from {ingredient.amount} on {ingredient.unit} to {amount} on gram")
+            ingredient.amount = amount
+    ingredient.unit = 'gram'  # Assuming conversion sets unit to grams
+    return ingredient
 
 
 def calc_co2_emission_for_ingredient(ingredient):
@@ -68,7 +72,7 @@ def calc_co2_emission_for_ingredient(ingredient):
 
 
 def calc_cos_gas_pollution(recipe: RecipeBoundary) -> RecipeBoundaryWithGasPollution:
-    #logger.info(f"recipe {recipe.recipe_name} calc gas co2")
+    # logger.info(f"recipe {recipe.recipe_name} calc gas co2")
     sumGas = 0
 
     # Use ThreadPoolExecutor to parallelize ingredient processing
@@ -97,7 +101,7 @@ async def toBoundaryRecipe(recipeEntity: RecipeEntity) -> RecipeBoundary:
                                     , recipeEntity.image)
     if isinstance(recipeEntity, RecipeEntityByIngredientSpoonacular):
         recipeBoundary.ingredients = ([to_ingredient_boundary(ingredient)
-                                       for ingredient in recipeEntity.missed_ingredients]
+                                       for ingredient in recipeEntity.missing_ingredients]
                                       + [to_ingredient_boundary(ingredient)
                                          for ingredient in recipeEntity.used_ingredients])
 
@@ -123,7 +127,9 @@ def toBoundaryRecipeInstructions(recipe: Recipe_stepsEntity) -> recipe_instructi
         ) for step in recipe.steps]
     )
 
+
 import time
+
 
 class RecipesService(Service):
     def __init__(self):
@@ -138,13 +144,14 @@ class RecipesService(Service):
                 await self.add_recipe_to_mongoDB(await toBoundaryRecipe(recipe))
                 logger.info(f"recipe {recipe.title} added to mongo data")
 
-    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missed_ingredients):
-        result = []
+    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missing_ingredients) -> \
+            List[RecipeBoundaryWithGasPollution]:
+        result: [RecipeBoundaryWithGasPollution] = []
 
         with ThreadPoolExecutor() as executor:
             futures = []
             for recipe in recipes:
-                if missed_ingredients or recipe.missed_ingredient_count == 0:
+                if missing_ingredients or recipe.missing_ingredients_count == 0:
                     futures.append(executor.submit(
                         calc_cos_gas_pollution, await self.recipeDB.get_recipe_by_id(str(recipe.id))
                     ))
@@ -152,12 +159,13 @@ class RecipesService(Service):
                 result.append(future.result())
         return result
 
-    async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missed_ingredients: bool) \
+    async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missing_ingredients: bool) \
             -> Optional[List[RecipeBoundaryWithGasPollution]]:
         try:
             recipes = await spoonacular_instance.find_recipes_by_ingredients(ingredients)
             await self.add_missing_recipes_to_mongo(recipes)
-            result = await self.filter_and_calc_pollution(recipes, missed_ingredients)
+            result = await self.filter_and_calc_pollution(recipes, missing_ingredients)
+            result.sort(key=lambda r: r.composite_score(1, 0), reverse=True)
             return result
         except Exception as e:
             logger.error("In get_recipes_by_ingredients_lst func: %s", e)

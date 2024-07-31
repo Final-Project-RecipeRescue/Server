@@ -5,8 +5,8 @@
       "image": "https://img.spoonacular.com/recipes/73420-312x231.jpg",
       "imageType": "jpg",
       "likes": 0,
-      "missedIngredientCount": 3,
-      "missedIngredients": [
+      "missingIngredientCount": 3,
+      "missingIngredients": [
         {
           "aisle": "Baking",
           "amount": 1.0,

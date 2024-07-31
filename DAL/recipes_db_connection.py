@@ -121,6 +121,7 @@ class SpoonacularAPI:
             return response.json().get("targetAmount")
         else:
             logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
+            return None
 
 
 

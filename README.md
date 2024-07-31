@@ -60,28 +60,28 @@ getRecipesByIngredients
                 {
                   "ingredient_id": "9040",
                   "name": "bananas",
-                  "amount": 472,
+                  "amonth": 472,
                   "unit": "gram",
                   "purchase_date": null
                 },
                 {
                   "ingredient_id": "19165",
                   "name": "cocoa powder",
-                  "amount": 28.67,
+                  "amonth": 28.67,
                   "unit": "gram",
                   "purchase_date": null
                 },
                 {
                   "ingredient_id": "16098",
                   "name": "peanut butter",
-                  "amount": 129,
+                  "amonth": 129,
                   "unit": "gram",
                   "purchase_date": null
                 },
                 {
                   "ingredient_id": "9037",
                   "name": "avocado",
-                  "amount": 201,
+                  "amonth": 201,
                   "unit": "gram",
                   "purchase_date": null
                 }
@@ -93,10 +93,10 @@ getRecipesByIngredients
             },...
         ]
 
-getRecipesByIngredientsWithoutMissedIngredients
+getRecipesByIngredientsWithoutMissingIngredients
 
-    GET /recipes/getRecipesByIngredientsWithoutMissedIngredients
-        Retrieves list of RecipeBoundary based on provided ingredients, excluding those with missed ingredients.
+    GET /recipes/getRecipesByIngredientsWithoutMissingIngredients
+        Retrieves list of RecipeBoundary based on provided ingredients, excluding those with missing ingredients.
         ingredients: Comma-separated list of ingredients.
 
 getRecipeByID
@@ -405,7 +405,7 @@ getAllSystemIngredients
          "ingredient_id": String,
          "name": Name of the ingredient,
          "expirationData": number of days to expire : Int
-         "gCO2e_per_100g": The amount of carbon dioxide emitted if it is thrown : Int
+         "gCO2e_per_100g": The amonth of carbon dioxide emitted if it is thrown : Int
       }
     
 autocompleteIngredient
@@ -429,20 +429,20 @@ Users and Household Operations
 
 createNewHousehold
 
-    POST /users_household/users_household/createNewHousehold
+    POST /usersAndHouseholdManagement/usersAndHouseholdManagement/createNewHousehold
         Creates a new household.
         user_mail: Email of the user creating the household.
         household_name: Name of the household.
         
     Example
-    http://127.0.0.1:8000/users_household/createNewHousehold?user_mail=example%40example.example&household_name=example
+    http://127.0.0.1:8000/usersAndHouseholdManagement/createNewHousehold?user_mail=example%40example.example&household_name=example
     with body
         {
           "ingredients": [
             {
               "ingredient_id": null,
               "name": "Avocado",
-              "amount": 15,
+              "amonth": 15,
               "unit": null
             }
           ]
@@ -454,21 +454,21 @@ createNewHousehold
       "household_id": "e69f3780-7eaa-4602-8b86-1fd6b38ccd64"
     }
         
-delete_household
+deleteHousehold
 
-    DELETE /users_household/delete_household
+    DELETE /usersAndHouseholdManagement/deleteHousehold
         Delete household by householdID
         household_id : Id of household
 
-add_user
+addUser
 
-    POST /users_household/add_user
+    POST /usersAndHouseholdManagement/addUser
         Create new user in system
         user : UserInputForAddUser
         user_mail: Email of the user.
     
     Example
-    http://127.0.0.1:8000/users_household/add_user
+    http://127.0.0.1:8000/usersAndHouseholdManagement/addUser
         with this body 
         {
           "first_name": "example",
@@ -482,13 +482,13 @@ add_user
           "message": "Successfully Added User"
         }
 
-get_user
+getUser
 
-    GET /users_household/get_user
+    GET /usersAndHouseholdManagement/getUser
         Return UserBoundary by user mail
     
     Example
-    http://127.0.0.1:8000/users_household/get_user?user_email=example%40example.example
+    http://127.0.0.1:8000/usersAndHouseholdManagement/getUser?user_email=example%40example.example
     
     Return value:
       {
@@ -553,9 +553,9 @@ get_user
         }
       }
 
-update_personal_user_info 
+updatePersonalUserInfo 
 
-      PUT /users_household/update_personal_user_info
+      PUT /usersAndHouseholdManagement/updatePersonalUserInfo
       Update personal user information
       {
         "first_name": optional[string],
@@ -565,20 +565,20 @@ update_personal_user_info
         "state": optional[string]
       }
       
-delete_user
+deleteUser
 
-    DELETE /users_household/delete_user
+    DELETE /usersAndHouseholdManagement/deleteUser
         Remove user from system and remove him from households
         user_mail: Email of the user
 
-get_household_user_by_id
+getHouseholdUserById
 
-    GET /users_household/get_household_user_by_id
+    GET /usersAndHouseholdManagement/getHouseholdUserById
         Retuen a HouseholdBoundary by user mail and household id.
         user_mail: Email of the user.
         household_id : Id of household
     Example:
-    http://127.0.0.1:8000/users_household/get_household_user_by_id?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3
+    http://127.0.0.1:8000/usersAndHouseholdManagement/getHouseholdUserById?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3
       
       Return value
       {
@@ -593,7 +593,7 @@ get_household_user_by_id
             {
               "ingredient_id": "1033",
               "name": "Parmesan cheese",
-              "amount": 1971.6599999999999,
+              "amonth": 1971.6599999999999,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -602,7 +602,7 @@ get_household_user_by_id
             {
               "ingredient_id": "2044",
               "name": "Basil",
-              "amount": 952,
+              "amonth": 952,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -611,7 +611,7 @@ get_household_user_by_id
             {
               "ingredient_id": "2047",
               "name": "Salt",
-              "amount": 1000,
+              "amonth": 1000,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -620,7 +620,7 @@ get_household_user_by_id
             {
               "ingredient_id": "4053",
               "name": "Olive oil",
-              "amount": 1000,
+              "amonth": 1000,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -629,7 +629,7 @@ get_household_user_by_id
             {
               "ingredient_id": "5062",
               "name": "Chicken breast",
-              "amount": 2000,
+              "amonth": 2000,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -638,7 +638,7 @@ get_household_user_by_id
             {
               "ingredient_id": "11165",
               "name": "Cilantro",
-              "amount": 1000,
+              "amonth": 1000,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -647,7 +647,7 @@ get_household_user_by_id
             {
               "ingredient_id": "11215",
               "name": "Garlic",
-              "amount": 1000,
+              "amonth": 1000,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -656,7 +656,7 @@ get_household_user_by_id
             {
               "ingredient_id": "11216",
               "name": "Ginger",
-              "amount": 2000,
+              "amonth": 2000,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -665,7 +665,7 @@ get_household_user_by_id
             {
               "ingredient_id": "11529",
               "name": "Tomato",
-              "amount": 1000,
+              "amonth": 1000,
               "unit": "gram",
               "purchase_date": "2024-05-19"
             }
@@ -693,45 +693,45 @@ get_household_user_by_id
         }
       }
 
-get_household_and_users_data_by_id
+getHouseholdAndUsersDataById
 
-      GET /users_household/get_household_and_users_data_by_id
+      GET /usersAndHouseholdManagement/getHouseholdAndUsersDataById
       Retuen a HouseholdBoundary by user mail and household id .
       The information in participants is not users' emails, it is users' objects.
          user_mail: Email of the user.
          household_id : Id of household
 
-get_household_user_by_name
+getHouseholdUserByName
 
-    GET /users_household/get_household_user_by_name
+    GET /usersAndHouseholdManagement/getHouseholdUserByName
         Return a list of HouseholdBoundary with this household_name.
         user_mail: Email of the user.
         household_name : Name of household
 
 get_all_household_details_by_user_mail
 
-    GET /users_household/get_all_household_details_by_user_mail
+    GET /usersAndHouseholdManagement/get_all_household_details_by_user_mail
         Detailed information about the user's households, including a list of each household's available ingredients. 
         Return a list of HouseholdBoundary or Null if there is a problem with the user's email 
         user_mail: Email of the user.
 
 addUserToHousehold
 
-    POST /users_household/users_household/addUserToHousehold
+    POST /usersAndHouseholdManagement/usersAndHouseholdManagement/addUserToHousehold
         Adds a user to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
-remove_user_from_household
+removeUserFromHousehold
 
-      Delete /users_household/remove_user_from_household
+      Delete /usersAndHouseholdManagement/removeUserFromHousehold
          Remove user from household
          user_mail: Email of the user to add.
          household_id: Id of the household.
 
-add_ingredient_to_household_by_ingredient_name
+addIngredientToHouseholdByIngredientName
 
-    POST /users_household/add_ingredient_to_household_by_ingredient_name
+    POST /usersAndHouseholdManagement/addIngredientToHouseholdByIngredientName
         Adds a ingredient to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
@@ -740,21 +740,21 @@ add_ingredient_to_household_by_ingredient_name
             {
               "ingredient_id": Optional - "string",
               "name": "string",
-              "amount": greater than 0,
+              "amonth": greater than 0,
               "unit": Optional - "string"
             }
 
-add_list_ingredients_to_household
+addListIngredientsToHousehold
 
-    POST /users_household/add_list_ingredients_to_household
+    POST /usersAndHouseholdManagement/addListIngredientsToHousehold
         Adds a ingredients to an existing household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
         list_ingredients: ListIngredientsInput
 
-remove_ingredient_from_household_by_date
+removeIngredientFromHouseholdByDate
 
-    DELETE /users_household/remove_ingredient_from_household_by_date
+    DELETE /usersAndHouseholdManagement/removeIngredientFromHouseholdByDate
         Remove ingredient in household on a specific date.
         user_mail: Email of the user to add.
         household_id: Id of the household.
@@ -764,20 +764,20 @@ remove_ingredient_from_household_by_date
               "ingredient_data": {
                 "ingredient_id": "1001",
                 "name": "Butter",
-                "amount": 3,
+                "amonth": 3,
                 "unit": "string"/// in defult in gram
               },
                "date":{
                  "year": 2024,
-                 "mount": 5,
+                 "month": 5,
                  "day": 19
                }
 
          }
 
-remove_ingredient_from_household
+removeIngredientFromHousehold
 
-    DELETE /users_household/remove_ingredient_from_household
+    DELETE /usersAndHouseholdManagement/removeIngredientFromHousehold
         Remove ingredient in household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
@@ -786,22 +786,21 @@ remove_ingredient_from_household
          {
            "ingredient_id": "string",
            "name": "string",
-           "amount": 0,
+           "amonth": 0,
            "unit": "string"
          }
 
-get_all_ingredients_in_household
+getAllIngredientsInHousehold
 
-    GET /users_household/get_all_ingredients_in_household
+    GET /usersAndHouseholdManagement/getAllIngredientsInHousehold
         Retrieves a list of IngredientBoundary in household.
         user_mail: Email of the user to add.
         household_id: Id of the household.
 
-use_recipe_by_recipe_id
+useRecipeByRecipeId
 
-    POST /users_household/use_recipe_by_recipe_id
+    POST /usersAndHouseholdManagement/useRecipeByRecipeId
         Add to the history of consumption of meals at household.
-        user_email: Email of the user to add.
         household_id: Id of the household.
         meal : [
               "Breakfast",
@@ -811,25 +810,33 @@ use_recipe_by_recipe_id
             ] need to be on of them
          dishes_num : flout
          recipe_id : id of recipe to use : string
+         
+         body : 
+               user_email: list of email of the user to add.
+         
       Example:
-         http://127.0.0.1:8000/users_household/use_recipe_by_recipe_id?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3&meal=Lunch&dishes_num=1&recipe_id=634435
-      return Null if sucseessful 
+         http://127.0.0.1:8000/usersAndHouseholdManagement/useRecipeByRecipeId?household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3&meal=Lunch&dishes_num=1&recipe_id=634435
+         with this body
+            [
+               "example@example.example"
+            ]
+         return Null if sucseessful 
 
-    GET /users_household/get_meal_types
+    GET /usersAndHouseholdManagement/getMealTypes
         Return list of meals types
 
-    GET /users_household/get_all_recipes_that_household_can_make
+    GET /usersAndHouseholdManagement/getAllRecipesThatHouseholdCanMake
         Return list of recipes that household can make or 404 if there no recipes
         user_mail: Email of the user to add.
         household_id: Id of the household.
          co2_weight : Default value : 0.5 : fout /// for the sorting by 2 parameters
          expiration_weight : Default value : 0.5 : fout /// for the sorting by 2 parameters
 
-    GET /users_household/check_if_household_exist_in_system
+    GET /usersAndHouseholdManagement/checkIfHouseholdExistInSystem
          Return true if the hosehold exist in the system
          household_id: Id of the household.
     
-    GET /users_household/check_if_household_can_make_recipe
+    GET /usersAndHouseholdManagement/checkIfHouseholdCanMakeRecipe
          This endpoint allows users to check if a specific household has enough ingredients to make a given recipe for a specified number of dishes.
          household_id : The ID of the household. : string
          recipe_id : The ID of the recipe. : string
@@ -837,9 +844,9 @@ use_recipe_by_recipe_id
          
          Returns a boolean indicating whether the household can make the specified recipe
 
-get_gas_pollution_of_household_in_range_dates
+getGasPollutionOfHouseholdInRangeDates
 
-      Post /users_household/get_gas_pollution_of_household_in_range_dates
+      Post /usersAndHouseholdManagement/getGasPollutionOfHouseholdInRangeDates
       This endpoint returns the total gas emissions of the household on the specified dates
       user_mail: Email of user in household.
       household_id: Id of the household.
@@ -847,26 +854,26 @@ get_gas_pollution_of_household_in_range_dates
       {
         "startDate": {
           "year": 0,
-          "mount": 0,
+          "month": 0,
           "day": 0
         },
         "endDate": {
           "year": 0,
-          "mount": 0,
+          "month": 0,
           "day": 0
         }
       }
       example : 
-      'http://127.0.0.1:8000/users_household/get_gas_pollution_of_household_in_range_dates?user_email=nissanyam1%40gmail.com&household_id=67fc717d-67b4-43e0-a8dc-cb5189a9c383'
+      'http://127.0.0.1:8000/usersAndHouseholdManagement/getGasPollutionOfHouseholdInRangeDates?user_email=nissanyam1%40gmail.com&household_id=67fc717d-67b4-43e0-a8dc-cb5189a9c383'
       {
         "startDate": {
           "year": 2024,
-          "mount": 6,
+          "month": 6,
           "day": 1
         },
         "endDate": {
           "year": 2024,
-          "mount": 7,
+          "month": 7,
           "day": 10
         }
          return :
@@ -874,9 +881,9 @@ get_gas_pollution_of_household_in_range_dates
            "CO2": 33428.79239999999
          }
 
-get_gas_pollution_of_user_in_range_dates
+getGasPollutionOfUserInRangeDates
 
-      Post /users_household/get_gas_pollution_of_user_in_range_dates
+      Post /usersAndHouseholdManagement/getGasPollutionOfUserInRangeDates
       This endpoint returns the total gas emissions of the user on the specified dates
       user_mail: Email of the user.
 
@@ -912,8 +919,8 @@ Represents an ingredient object returned by the API.
 
     ingredient_id: Unique identifier for the ingredient. : string
     name: Name of the ingredient. : string
-    amount: Amount of the ingredient. : flout
-    unit: Unit of measurement for the amount. : string 
+    amonth: Amonth of the ingredient. : flout
+    unit: Unit of measurement for the amonth. : string 
     purchase_date: Date the ingredient was purchased. : string
 
 HouseholdBoundary

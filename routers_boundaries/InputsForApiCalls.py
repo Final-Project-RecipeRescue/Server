@@ -30,7 +30,7 @@ class ListIngredientsInput(BaseModel):
 
 class Date(BaseModel):
     year: int
-    mount: int
+    month: int
     day: int
 
 
