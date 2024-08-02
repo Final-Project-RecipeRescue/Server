@@ -1,9 +1,12 @@
 import logging
 import re
 from typing import List, Optional, Dict
+
+from routers_boundaries import HouseholdBoundary
 from routers_boundaries.MealBoundary import MealBoundary, meal_types, MealBoundaryWithGasPollution
 
 logger = logging.getLogger("my_logger")
+
 
 def is_valid_email(email):
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
@@ -29,6 +32,7 @@ class UserBoundary:
     def add_household(self, household_id: str):
         if household_id not in self.households:
             self.households.append(household_id)
+
     def add_meal(self, new_meal: MealBoundary, meal_date: str, mealType: meal_types,
                  recipe_id: str):
         if not self.meals:

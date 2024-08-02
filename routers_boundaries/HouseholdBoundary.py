@@ -156,19 +156,6 @@ class HouseholdBoundary:
             self.meals[meal_date] = {mealType: {recipe_id: [new_meal]}}
 
 
-class HouseholdBoundaryWithUsersData(HouseholdBoundary):
-    def __init__(self, household: HouseholdBoundary, participants: List[UserBoundary]):
-        super().__init__(
-            household.household_id,
-            household.household_name,
-            household.household_image,
-            [],
-            household.ingredients,
-            household.meals
-        )
-        self.participants = participants
-
-
 class HouseholdBoundaryWithGasPollution(HouseholdBoundary):
     def __init__(self, household: HouseholdBoundary, sum_gas_pollution: Dict[str, float]):
         super().__init__(
@@ -191,3 +178,18 @@ class HouseholdBoundaryWithGasPollution(HouseholdBoundary):
                 logger.debug(f"Add to {gas} : {pollution} to household to {self.household_name}")
         except KeyError:
             self.sum_gas_pollution = gas_pollution
+
+
+class HouseholdBoundaryWithUsersData(HouseholdBoundary):
+    def __init__(self, household: HouseholdBoundary, participants: List[UserBoundary]):
+        super().__init__(
+            household.household_id,
+            household.household_name,
+            household.household_image,
+            [],
+            household.ingredients,
+            household.meals
+        )
+        self.participants = participants
+        if isinstance(household, HouseholdBoundaryWithGasPollution):
+            self.sum_gas_pollution = household.sum_gas_pollution

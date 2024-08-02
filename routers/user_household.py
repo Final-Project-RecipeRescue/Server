@@ -1,7 +1,7 @@
 import asyncio
 import os
 import time
-from typing import Optional, List
+from typing import Optional, List, Dict
 from fastapi import HTTPException, status
 from BL.recipes_service import RecipesService
 from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException, \
@@ -78,6 +78,16 @@ async def get_user(user_email: str):
     try:
         user = await user_household_service.get_user(user_email)
         logger.info(f"User '{user_email}' retrieved successfully")
+        households: Dict[str, HouseholdBoundary] = {}
+        for household_id in user.households:
+            try:
+                household = await user_household_service.get_household_user_by_id(user_email, household_id)
+                if isinstance(household, HouseholdBoundary):
+                    households[household_id] = household
+            except HouseholdException:
+                logger.error(f"Household {household_id} dose not exist")
+
+        user.households = households
         return user
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
