@@ -22,7 +22,7 @@ from routers_boundaries.UserBoundary import UserBoundary, UserBoundaryWithGasPol
 import routers_boundaries.UserBoundary as user_entity_py
 from Data.IngredientEntity import IngredientEntity
 from routers_boundaries.recipe_boundary import RecipeBoundary, RecipeBoundaryWithGasPollution
-
+import threading
 logger = logging.getLogger("my_logger")
 
 
@@ -354,9 +354,10 @@ def get_the_ingredient_with_the_closest_expiration_date(recipe: RecipeBoundary,
             logger.error(f"An error occurred: {e}", exc_info=True)
             continue
 
+    thread_id = threading.get_ident()
     logger.info(f"For recipe {recipe.recipe_id}, the closest expiration date is in {closest_days_to_expire} days "
                 f"({ingredient_closest.ingredient_id if ingredient_closest else None} : "
-                f"{ingredient_closest.name if ingredient_closest else None})")
+                f"{ingredient_closest.name if ingredient_closest else None}). Running in thread {thread_id}")
 
     return closest_days_to_expire
 

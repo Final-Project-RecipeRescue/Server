@@ -451,23 +451,23 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
             logger.info(f"Checked recipes for household '{household_id}' and found {len(recipes_rv)} that can be made")
         recipes = recipes_rv
         # # Calculate closest expiration date for each recipe
-        if isinstance(household, HouseholdBoundaryWithGasPollution):
-            logger.info("Calculating closest expiration dates for recipes")
-            with ThreadPoolExecutor() as executor:
-                loop = asyncio.get_running_loop()
-                expiration_tasks = [
-                    loop.run_in_executor(executor, get_the_ingredient_with_the_closest_expiration_date, recipe,
-                                         household.ingredients)
-                    for recipe in recipes]
-                expiration_results = await asyncio.gather(*expiration_tasks, return_exceptions=True)
+        logger.info("Calculating closest expiration dates for recipes")
+        with ThreadPoolExecutor() as executor:
+            logger.info(f"Number of threads in the pool: {executor._max_workers}")
+            loop = asyncio.get_running_loop()
+            expiration_tasks = [
+                loop.run_in_executor(executor, get_the_ingredient_with_the_closest_expiration_date, recipe,
+                                     household.ingredients)
+                for recipe in recipes]
+            expiration_results = await asyncio.gather(*expiration_tasks, return_exceptions=True)
 
             for recipe, closest_days_to_expire in zip(recipes, expiration_results):
                 if isinstance(closest_days_to_expire, Exception):
                     logger.error(
-                        f"Exception occurred while calculating expiration for recipe {recipe.recipe_id}: {closest_days_to_expire}")
+                        f"Exception occurred while calculating expiration for recipe "
+                        f"{recipe.recipe_id}: {closest_days_to_expire}")
                 else:
                     recipe.set_closest_expiration_days(closest_days_to_expire)
-            logger.info("Calculated expiration dates for recipes")
         # Sort recipes by composite score with given weights
         recipes.sort(key=lambda r: r.composite_score(co2_weight, expiration_weight), reverse=True)
         logger.info(
@@ -475,7 +475,8 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
         return recipes
     except (Exception, TypeError, ValueError) as e:
         logger.error(f"Error retrieving recipes for household '{household_id}': {str(e)}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(f"Error retrieving recipes for household '{household_id}': {str(e)}"))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=str(f"Error retrieving recipes for household '{household_id}': {str(e)}"))
 
 
 @router.get("/checkIfHouseholdExistInSystem")
