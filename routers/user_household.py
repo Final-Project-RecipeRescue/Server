@@ -475,7 +475,7 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
         return recipes
     except (Exception, TypeError, ValueError) as e:
         logger.error(f"Error retrieving recipes for household '{household_id}': {str(e)}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(f"Error retrieving recipes for household '{household_id}': {str(e)}"))
 
 
 @router.get("/checkIfHouseholdExistInSystem")

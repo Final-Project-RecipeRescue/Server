@@ -56,13 +56,14 @@ class SpoonacularAPI:
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
             recipes = []
-            recipes = [RecipeEntityByIngredientSpoonacular(recipe) for recipe in response.json()]
+            for recipe in response.json():
+                recipes.append(RecipeEntityByIngredientSpoonacular(recipe))
             logger.info(f"Found {len(recipes)} recipes by ingredients.")
             return recipes
         else:
             logger.error(
                 f"Failed to find recipes by ingredients. Status code: {response.status_code}. Message: {response.json()}")
-            return None
+            return []
 
     async def find_recipe_by_id(self, recipeId: int) -> RecipeEntityByIDSpoonacular:
         url = f"{self.base_url}/recipes/{recipeId}/information?includeNutrition=false?addWinePairing=false"

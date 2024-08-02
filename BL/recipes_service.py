@@ -170,6 +170,7 @@ class RecipesService(Service):
     async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missing_ingredients: bool) \
             -> Optional[List[RecipeBoundaryWithGasPollution]]:
         try:
+            logger.info(ingredients)
             recipes = await spoonacular_instance.find_recipes_by_ingredients(ingredients)
             await self.add_missing_recipes_to_mongo(recipes)
             result = await self.filter_and_calc_pollution(recipes, missing_ingredients)
@@ -177,6 +178,7 @@ class RecipesService(Service):
             return result
         except Exception as e:
             logger.error("In get_recipes_by_ingredients_lst func: %s", e)
+            return []
 
     async def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundaryWithGasPollution:
         try:
@@ -207,6 +209,7 @@ class RecipesService(Service):
             return rv
         except Exception as e:
             logger.error("In get_recipe_by_name: %s", e)
+            return []
 
     async def get_recipe_instructions(self, recipe_id: str) -> Optional[List[RecipeInstructionsBoundary]]:
         try:
