@@ -8,12 +8,11 @@ from BL.users_household_service import UsersHouseholdService, UserException, Inv
     get_the_ingredient_with_the_closest_expiration_date
 from fastapi import APIRouter
 from routers_boundaries.HouseholdBoundary import HouseholdBoundary, \
-    HouseholdBoundaryWithGasPollution
+    HouseholdBoundaryWithGasPollution, HouseholdBoundaryWithUsersData
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges, Date)
-from routers_boundaries.UserBoundary import UserBoundary
-from routers_boundaries.recipe_boundary import RecipeBoundaryWithGasPollution, RecipeBoundary
+from routers_boundaries.recipe_boundary import RecipeBoundaryWithGasPollution
 
 router = APIRouter(prefix='/usersAndHouseholdManagement',
                    tags=['users and household operations'])  ## tag is description of router
@@ -60,7 +59,8 @@ async def delete_household_by_id(household_id: str):
 @router.post("/addUser")
 async def add_user(user: UserInputForAddUser):
     try:
-        logger.info(f"Request to add user: first_name={user.first_name}, last_name={user.last_name}, email={user.email}, country={user.country}, state={user.state}")
+        logger.info(
+            f"Request to add user: first_name={user.first_name}, last_name={user.last_name}, email={user.email}, country={user.country}, state={user.state}")
         await user_household_service.create_user(user.first_name, user.last_name, user.email, user.country,
                                                  user.state)
         logger.info(f"User '{user.email}' added successfully")
@@ -80,17 +80,36 @@ async def get_user(user_email: str):
         logger.info(f"Request to retrieve user: email={user_email}")
         user = await user_household_service.get_user(user_email)
         logger.info(f"User '{user_email}' retrieved successfully")
+        return user
+    except (UserException, InvalidArgException) as e:
+        logger.error(f"Error retrieving user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST,
+            detail=str(e.message))
+
+
+@router.get("/getAllHouseholdsByUserEmail")
+async def get_all_household_by_user_email(user_email: str):
+    try:
+        logger.info(f"Request to retrieve all households of user")
+        user = await user_household_service.get_user(user_email)
+        logger.info(f"User '{user_email}' retrieved successfully")
         households: Dict[str, HouseholdBoundary] = {}
-        for household_id in user.households:
+        for household_id in user.households_ids:
             try:
                 household = await user_household_service.get_household_user_by_id(user_email, household_id)
+                household = await user_household_service.to_household_boundary_with_users_data(household)
                 if isinstance(household, HouseholdBoundary):
                     households[household_id] = household
+                    if isinstance(household, HouseholdBoundaryWithUsersData):
+                        for participant in household.participants:
+                            if hasattr(participant, 'meals'):
+                                del participant.meals
+                            if hasattr(participant, 'households_ids'):
+                                del participant.households_ids
             except HouseholdException:
                 logger.error(f"Household {household_id} dose not exist")
-
-        user.households = households
-        return user
+        return households
     except (UserException, InvalidArgException) as e:
         logger.error(f"Error retrieving user: {e}")
         raise HTTPException(
@@ -101,7 +120,8 @@ async def get_user(user_email: str):
 @router.put("/updatePersonalUserInfo")
 async def update_personal_user_info(user: UserInputForChanges):
     try:
-        logger.info(f"Request to update user: email={user.email}, first_name={user.first_name}, last_name={user.last_name}, country={user.country}, state={user.state}")
+        logger.info(
+            f"Request to update user: email={user.email}, first_name={user.first_name}, last_name={user.last_name}, country={user.country}, state={user.state}")
         await user_household_service.change_user_info(user.email, user.first_name, user.last_name, user.country,
                                                       user.state)
         logger.info(f"User '{user.email}' updated successfully")
@@ -171,7 +191,7 @@ async def get_all_household_details_by_user_mail(user_email: str):
         logger.info(f"Request to retrieve all household details for user: email={user_email}")
         user = await user_household_service.get_user(user_email)
         households = []
-        for _ in user.households:
+        for _ in user.households_ids:
             try:
                 household_details = await user_household_service.get_household_user_by_id(user_email, _)
                 households.append(household_details)
@@ -268,8 +288,9 @@ async def updateIngredientInHousehold(user_email: str, household_id: str,
 @router.post("/addListIngredientsToHousehold")
 async def add_list_ingredients_to_household(user_email: str, household_id: str, list_ingredients: ListIngredientsInput):
     try:
-        logger.info(f"Request to add list of ingredients to household: user_email={user_email}, household_id={household_id}, "
-                    f"ingredients={list_ingredients}")
+        logger.info(
+            f"Request to add list of ingredients to household: user_email={user_email}, household_id={household_id}, "
+            f"ingredients={list_ingredients}")
         await user_household_service.add_ingredients_to_household(user_email, household_id, list_ingredients)
         logger.info(f"List of ingredients added to household '{household_id}' successfully by user '{user_email}'")
     except (UserException, InvalidArgException, HouseholdException) as e:
@@ -343,7 +364,8 @@ async def remove_ingredient_from_household(user_email: str, household_id: str, i
 @router.get("/getAllIngredientsInHousehold")
 async def get_all_ingredients_in_household(user_email: str, household_id: str):
     try:
-        logger.info(f"Request to retrieve all ingredients from household: user_email={user_email}, household_id={household_id}")
+        logger.info(
+            f"Request to retrieve all ingredients from household: user_email={user_email}, household_id={household_id}")
         ingredients = await user_household_service.get_all_ingredients_in_household(user_email, household_id)
         logger.info(f"All ingredients retrieved from household '{household_id}' successfully by user '{user_email}'")
         return ingredients
@@ -371,10 +393,12 @@ async def use_recipe_by_recipe_id(users_email: List[str], household_id: str,
             logger.error(f"Invalid number of dishes: {dishes_num}. It must be greater than 0.")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail="Dishes number should be greater than 0")
-        logger.info(f"Users {users_email} are trying to use recipe {recipe_id} for {dishes_num} dishes in household '{household_id}'")
+        logger.info(
+            f"Users {users_email} are trying to use recipe {recipe_id} for {dishes_num} dishes in household '{household_id}'")
         await user_household_service.use_recipe(users_email, household_id, recipe_id,
                                                 mealT, dishes_num)
-        logger.info(f"Successfully used recipe '{recipe_id}' for {dishes_num} dishes in household '{household_id}' by users {users_email}")
+        logger.info(
+            f"Successfully used recipe '{recipe_id}' for {dishes_num} dishes in household '{household_id}' by users {users_email}")
     except (UserException, InvalidArgException, HouseholdException) as e:
         status_code = status.HTTP_400_BAD_REQUEST if isinstance(e, InvalidArgException) else status.HTTP_404_NOT_FOUND
         logger.error(f"Error using recipe: {e.message}")
@@ -437,13 +461,15 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
 
             for recipe, closest_days_to_expire in zip(recipes, expiration_results):
                 if isinstance(closest_days_to_expire, Exception):
-                    logger.error(f"Exception occurred while calculating expiration for recipe {recipe.recipe_id}: {closest_days_to_expire}")
+                    logger.error(
+                        f"Exception occurred while calculating expiration for recipe {recipe.recipe_id}: {closest_days_to_expire}")
                 else:
                     recipe.set_closest_expiration_days(closest_days_to_expire)
             logger.info("Calculated expiration dates for recipes")
         # Sort recipes by composite score with given weights
         recipes.sort(key=lambda r: r.composite_score(co2_weight, expiration_weight), reverse=True)
-        logger.info(f"Recipes sorted by composite score with CO2 weight={co2_weight} and expiration weight={expiration_weight}")
+        logger.info(
+            f"Recipes sorted by composite score with CO2 weight={co2_weight} and expiration weight={expiration_weight}")
         return recipes
     except (Exception, TypeError, ValueError) as e:
         logger.error(f"Error retrieving recipes for household '{household_id}': {str(e)}")
@@ -468,11 +494,14 @@ async def check_if_household_exist_in_system(household_id: str):
 
 @router.get("/checkIfHouseholdCanMakeRecipe")
 async def check_if_household_can_make_recipe(household_id: str, recipe_id: str, dishes_num: Optional[float] = 1):
-    logger.info(f"Received request to check if household with ID '{household_id}' can make recipe with ID '{recipe_id}' for {dishes_num} dishes")
+    logger.info(
+        f"Received request to check if household with ID '{household_id}' can make recipe with ID '{recipe_id}' for {dishes_num} dishes")
 
     try:
-        can_make = await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id, dishes_num)
-        logger.info(f"Household with ID '{household_id}' can {'make' if can_make else 'not make'} recipe with ID '{recipe_id}'")
+        can_make = await user_household_service.check_if_household_can_make_the_recipe(household_id, recipe_id,
+                                                                                       dishes_num)
+        logger.info(
+            f"Household with ID '{household_id}' can {'make' if can_make else 'not make'} recipe with ID '{recipe_id}'")
         return {"can_make": can_make}
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error checking if household with ID '{household_id}' can make recipe with ID '{recipe_id}': {e}")
