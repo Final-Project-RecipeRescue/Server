@@ -215,6 +215,8 @@ async def add_user_to_household(user_email: str, household_id: str):
     except (UserException, InvalidArgException, HouseholdException) as e:
         logger.error(f"Error adding user to household: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.message))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.delete("/removeUserFromHousehold")

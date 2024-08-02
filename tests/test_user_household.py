@@ -438,7 +438,7 @@ class HouseholdTests(TestCase):
         response = remove_user_from_household("test@test.test", self.household_id)
         self.assertEqual(400, response.status_code)
         response = get_user(self.user_email)
-        user_households = response.json()['households']
+        user_households = response.json()['households_ids']
         self.assertIn(self.household_id, user_households)
         response = get_household_by_household_id_and_userEmail(self.user_email, self.household_id)
         household_users = response.json()['participants']
@@ -452,13 +452,17 @@ class HouseholdTests(TestCase):
         response = add_user_to_household(user.email, self.household_id)
         self.assertEqual(200, response.status_code)
         response = get_user(self.user_email)
-        self.assertIn(self.household_id, response.json()['households'])
+        self.assertIn(self.household_id, response.json()['households_ids'])
         delete_user(user.email)
         logger.info("Test : test_add_user_to_household pass successfully")
 
     def test_add_wrong_user(self):
         self.test_crate_household()
-        response = add_user_to_household("test@test.test", self.household_id)
+        response = add_user_to_household("server_test", self.household_id)
+        self.assertEqual(400, response.status_code)
+        response = add_user_to_household("server_test@server_test.server_test", self.household_id)
+        self.assertEqual(409, response.status_code)
+        response = add_user_to_household("server_testserver_test@server_testserver_test.server_testserver_test", self.household_id)
         self.assertEqual(400, response.status_code)
 
     def test_use_recipe(self):

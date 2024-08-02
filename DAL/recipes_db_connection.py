@@ -39,6 +39,7 @@ class SpoonacularAPI:
         self.initialized = True
         self.api_key = os.getenv("SPOONACULAR_API_KEY")
         SpoonacularAPI._instance = self
+        logger.info("SpoonacularAPI initialized with base URL and API key.")
 
     async def find_recipes_by_ingredients(self, ingredients: List[str], number=10, ranking=2, ignorePantry=True) -> \
     List[RecipeEntityByIngredientSpoonacular]:
@@ -55,11 +56,12 @@ class SpoonacularAPI:
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
             recipes = []
-            for recipe in response.json():
-                recipes.append(RecipeEntityByIngredientSpoonacular(recipe))
+            recipes = [RecipeEntityByIngredientSpoonacular(recipe) for recipe in response.json()]
+            logger.info(f"Found {len(recipes)} recipes by ingredients.")
             return recipes
         else:
-            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
+            logger.error(
+                f"Failed to find recipes by ingredients. Status code: {response.status_code}. Message: {response.json()}")
             return None
 
     async def find_recipe_by_id(self, recipeId: int) -> RecipeEntityByIDSpoonacular:
@@ -69,9 +71,12 @@ class SpoonacularAPI:
         }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            return RecipeEntityByIDSpoonacular(response.json())
+            recipe = RecipeEntityByIDSpoonacular(response.json())
+            logger.info(f"Recipe with ID {recipeId} found.")
+            return recipe
         else:
-            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
+            logger.error(
+                f"Failed to find recipe by ID {recipeId}. Status code: {response.status_code}. Message: {response.json()}")
             return None
 
     async def find_recipe_by_name(self, recipeName: str) -> List[RecipeEntity]:
@@ -81,12 +86,12 @@ class SpoonacularAPI:
         }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            recipes = []
-            for recipe in response.json()["results"]:
-                recipes.append(RecipeEntity(recipe))
+            recipes = [RecipeEntity(recipe) for recipe in response.json()["results"]]
+            logger.info(f"Found {len(recipes)} recipes by name '{recipeName}'.")
             return recipes
         else:
-            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
+            logger.error(
+                f"Failed to find recipe by name '{recipeName}'. Status code: {response.status_code}. Message: {response.json()}")
             return None
 
     '''Get an analyzed breakdown of a recipe's instructions. Each step is enriched with the ingredients and equipment required.'''
@@ -97,12 +102,13 @@ class SpoonacularAPI:
         }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            recipes = []
-            for recipe_stepsEntity in response.json():
-                recipes.append(Recipe_stepsEntity(recipe_stepsEntity))
+            recipes = [Recipe_stepsEntity(recipe_stepsEntity) for recipe_stepsEntity in response.json()]
+            logger.info(f"Analyzed instructions for recipe ID {recipeId} retrieved.")
             return recipes
         else:
-            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
+            logger.error(
+                f"Failed to get analyzed instructions for recipe ID {recipeId}. Status code: {response.status_code}. Message: {response.json()}")
+            return None
 
     async def convertIngredientAmountToGrams(self, ingredient_name: str, sourceNumber: float, sourceUnit: str):
         url = (f"{self.base_url}/recipes/"
@@ -115,9 +121,12 @@ class SpoonacularAPI:
         }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            return response.json().get("targetAmount")
+            target_amount = response.json().get("targetAmount")
+            logger.info(f"Converted {sourceNumber} {sourceUnit} of '{ingredient_name}' to {target_amount} grams.")
+            return target_amount
         else:
-            logger.info(f"From spoonacular : \nstatus code : {response.status_code} \nmessage : {response.json()}")
+            logger.error(
+                f"Failed to convert ingredient amount for '{ingredient_name}'. Status code: {response.status_code}. Message: {response.json()}")
             return None
 
 
@@ -125,59 +134,74 @@ class SpoonacularAPI:
 class RecipesCRUD:
     def __init__(self):
         self.collection = collection_recipes
+        logger.info("RecipesCRUD initialized with collection_recipes.")
 
     def add_recipe(self, recipe_id: str, recipe: RecipeBoundary):
-        recipe_data = {
-            "_id": recipe_id,
-            "recipe_name": recipe.recipe_name,
-            "ingredients": [
-                {
-                    "ingredient_id": ingredient.ingredient_id,
-                    "name": ingredient.name,
-                    "amount": ingredient.amount,
-                    "unit": ingredient.unit,
-                }
-                for ingredient in recipe.ingredients
-            ],
-            "image_url": recipe.image_url
-        }
-        self.collection.insert_one(recipe_data)
+        try:
+            recipe_data = {
+                "_id": recipe_id,
+                "recipe_name": recipe.recipe_name,
+                "ingredients": [
+                    {
+                        "ingredient_id": ingredient.ingredient_id,
+                        "name": ingredient.name,
+                        "amount": ingredient.amount,
+                        "unit": ingredient.unit,
+                    }
+                    for ingredient in recipe.ingredients
+                ],
+                "image_url": recipe.image_url
+            }
+            self.collection.insert_one(recipe_data)
+            logger.info(f"Recipe with ID {recipe_id} added successfully.")
+        except Exception as e:
+            logger.error(f"Error adding recipe with ID {recipe_id}: {e}")
 
     async def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundary:
-        recipe_data = self.collection.find_one({"_id": recipe_id})
-        if recipe_data is None:
+        try:
+            recipe_data = self.collection.find_one({"_id": recipe_id})
+            if recipe_data is None:
+                logger.info(f"No recipe found with ID {recipe_id}.")
+                return None
+
+            ingredients = [
+                IngredientBoundary(
+                    ingredient["ingredient_id"],
+                    ingredient["name"],
+                    ingredient["amount"],
+                    ingredient["unit"],
+                    None
+                )
+                for ingredient in recipe_data["ingredients"]
+            ]
+
+            recipe = RecipeBoundary(int(recipe_id),
+                                    recipe_data["recipe_name"],
+                                    ingredients,
+                                    recipe_data["image_url"]
+                                    )
+            logger.info(f"Recipe with ID {recipe_id} retrieved successfully.")
+            return recipe
+        except Exception as e:
+            logger.error(f"Error retrieving recipe with ID {recipe_id}: {e}")
             return None
 
-        ingredients = [
-            IngredientBoundary(
-                ingredient["ingredient_id"],
-                ingredient["name"],
-                ingredient["amount"],
-                ingredient["unit"],
-                None
-            )
-            for ingredient in recipe_data["ingredients"]
-        ]
-
-        recipe = RecipeBoundary(int(recipe_id),
-                                recipe_data["recipe_name"],
-                                ingredients,
-                                recipe_data["image_url"]
-                                )
-        return recipe
 
     def delete_all_recipes(self):
-        result = self.collection.delete_many({})
-        return result.deleted_count
+        try:
+            result = self.collection.delete_many({})
+            logger.info(f"Deleted all recipes. Count: {result.deleted_count}")
+            return result.deleted_count
+        except Exception as e:
+            logger.error(f"Error deleting all recipes: {e}")
+            return 0
 class RecipesInstructionsCRUD:
     def __init__(self):
         self.collection = collection_recipes_instructions
+        logger.info("RecipesInstructionsCRUD initialized with collection_recipes_instructions.")
 
     def serialize_temperature(self, temperature):
-        if temperature:
-            return {"number": temperature.number, "unit": temperature.unit}
-        else:
-            return None
+        return {"number": temperature.number, "unit": temperature.unit} if temperature else None
 
     def serialize_equipment(self, equipment):
         return {
@@ -204,34 +228,33 @@ class RecipesInstructionsCRUD:
         }
 
     def serialize_length(self, length):
-        if length:
-            return {"number": length.number, "unit": length.unit}
-        else:
-            return None
+        return {"number": length.number, "unit": length.unit} if length else None
 
     def add_recipe_instructions(self, recipe_id: str, recipe_stepsEntity_lst: List[Recipe_stepsEntity]):
-        recipe_data = {
-            "_id": recipe_id,
-            "steps_entities": []
-        }
-        for entity in recipe_stepsEntity_lst:
-            steps_data = [self.serialize_step(step) for step in entity.steps]
-            recipe_data["steps_entities"].append({"name": entity.name, "steps": steps_data})
+        try:
+            recipe_data = {
+                "_id": recipe_id,
+                "steps_entities": []
+            }
+            for entity in recipe_stepsEntity_lst:
+                steps_data = [self.serialize_step(step) for step in entity.steps]
+                recipe_data["steps_entities"].append({"name": entity.name, "steps": steps_data})
 
-        self.collection.insert_one(recipe_data)
+            self.collection.insert_one(recipe_data)
+            logger.info(f"Recipe instructions for ID {recipe_id} added successfully.")
+        except Exception as e:
+            logger.error(f"Error adding recipe instructions for ID {recipe_id}: {e}")
 
     def get_recipe_instructions(self, recipe_id: str) -> List[Recipe_stepsEntity]:
-        recipe_data = self.collection.find_one({"_id": recipe_id})
         try:
+            recipe_data = self.collection.find_one({"_id": recipe_id})
             if recipe_data:
-                steps_entities = []
-                lst = recipe_data.get("steps_entities", [])
-                for entity_data in lst:
-                    steps_entities.append(Recipe_stepsEntity(entity_data))
+                steps_entities = [Recipe_stepsEntity(entity_data) for entity_data in recipe_data.get("steps_entities", [])]
+                logger.info(f"Recipe instructions for ID {recipe_id} retrieved successfully.")
                 return steps_entities
             else:
+                logger.info(f"No recipe instructions found for ID {recipe_id}.")
                 return None
         except Exception as e:
-            print("Error occurred while processing recipe data:", e)  # Add this line for logging
+            logger.error(f"Error retrieving recipe instructions for ID {recipe_id}: {e}")
             return None
-
