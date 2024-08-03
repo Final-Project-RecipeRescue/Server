@@ -28,13 +28,13 @@ logger = logging.getLogger("my_logger")
 
 # Adding a new household with the user who created it
 @router.post("/createNewHousehold")
-async def createNewHousehold(user_mail: str, household_name: str, ingredients: Optional[ListIngredientsInput]):
+async def createNewHousehold(user_email: str, household_name: str, ingredients: Optional[ListIngredientsInput]):
     try:
         logger.info(f"Creating new household with ingredients : {ingredients.ingredients} and name : {household_name}")
-        household_id = await user_household_service.create_household(user_mail, household_name)
+        household_id = await user_household_service.create_household(user_email, household_name)
         if ingredients is not None:
-            await user_household_service.add_ingredients_to_household(user_mail, household_id, ingredients)
-        logger.info(f"Household '{household_name}' added successfully by user '{user_mail}'")
+            await user_household_service.add_ingredients_to_household(user_email, household_id, ingredients)
+        logger.info(f"Household '{household_name}' added successfully by user '{user_email}'")
         return {"message": "Household added successfully", 'household_id': household_id}
     except UserException as e:
         logger.error(f"Error creating household: {e.message}")
@@ -185,24 +185,24 @@ async def get_household_user_by_name(user_email: str, household_name: str):
         raise HTTPException(status_code=status_code, detail=str(e.message))
 
 
-@router.get("/getAllHouseholdsDetailsByUserMail")
-async def get_all_household_details_by_user_mail(user_email: str):
-    try:
-        logger.info(f"Request to retrieve all household details for user: email={user_email}")
-        user = await user_household_service.get_user(user_email)
-        households = []
-        for _ in user.households_ids:
-            try:
-                household_details = await user_household_service.get_household_user_by_id(user_email, _)
-                households.append(household_details)
-            except HouseholdException as e:
-                logger.error(f"Error retrieving household details for user {user_email} and household id : {_}")
-        return households
-    except (UserException, InvalidArgException) as e:
-        logger.error(f"Error retrieving user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST,
-            detail=str(e.message))
+# @router.get("/getAllHouseholdsDetailsByUserMail")
+# async def get_all_household_details_by_user_mail(user_email: str):
+#     try:
+#         logger.info(f"Request to retrieve all household details for user: email={user_email}")
+#         user = await user_household_service.get_user(user_email)
+#         households = []
+#         for _ in user.households_ids:
+#             try:
+#                 household_details = await user_household_service.get_household_user_by_id(user_email, _)
+#                 households.append(household_details)
+#             except HouseholdException as e:
+#                 logger.error(f"Error retrieving household details for user {user_email} and household id : {_}")
+#         return households
+#     except (UserException, InvalidArgException) as e:
+#         logger.error(f"Error retrieving user: {e}")
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND if isinstance(e, UserException) else status.HTTP_400_BAD_REQUEST,
+#             detail=str(e.message))
 
 
 # Adding a user to a household

@@ -55,7 +55,7 @@ def build_ingredients_empty_input():
 
 def create_new_household(user_email: str, household_name: str, ingredients: ListIngredientsInput):
     return requests.post(base_url +
-                         f"/usersAndHouseholdManagement/createNewHousehold?user_mail={user_email}&household_name={household_name}"
+                         f"/usersAndHouseholdManagement/createNewHousehold?user_email={user_email}&household_name={household_name}"
                          , json=ingredients.model_dump())
 
 

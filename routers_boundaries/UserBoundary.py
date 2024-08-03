@@ -71,7 +71,10 @@ class UserBoundaryWithGasPollution(UserBoundary):
             userBoundary.country,
             userBoundary.state
         )
-        self.sum_gas_pollution = sum_gas_pollution
+        if sum_gas_pollution is None:
+            self.sum_gas_pollution = {'CO2': 0}
+        else:
+            self.sum_gas_pollution = sum_gas_pollution
 
     def update_gas_pollution(self, gas_pollution):
         try:

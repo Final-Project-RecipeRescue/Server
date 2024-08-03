@@ -441,14 +441,14 @@ class UsersHouseholdService:
         except UserException:
             if user_first_name == "" or user_last_name == "" or country == "":
                 raise InvalidArgException("Fill all fields before")
-            user = UserBoundary(user_first_name,
+            user = UserBoundaryWithGasPollution(UserBoundary(user_first_name,
                                 user_last_name,
                                 user_email,
                                 None,
                                 [],
                                 {},
                                 country,
-                                state)
+                                state), None)
             self.write_user(user)
             return
         raise UserException("User already exists")

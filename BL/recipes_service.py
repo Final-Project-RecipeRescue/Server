@@ -27,7 +27,7 @@ def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
 
 
 async def convert_ingredient_unit_to_gram(ingredient: IngredientBoundary) -> IngredientBoundary:
-    if ingredient.unit is not None and ingredient.unit.lower() not in ['g', 'gram']:
+    if ingredient.unit is not None and ingredient.unit.lower() not in ['g', 'gram', "grams"]:
         logger.info(f"Convert unit of ingredient \'{ingredient.name}\' from \'{ingredient.unit}\' to gram")
         amount = await spoonacular_instance.convertIngredientAmountToGrams(
             ingredient.name, ingredient.amount, ingredient.unit)
