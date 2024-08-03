@@ -340,163 +340,190 @@ On success, the server returns the cooking instructions for the specified recipe
 ```
 
 
-Ingredients
+#Ingredients API
 
-getAllSystemIngredients
+## `GET /ingredients/getAllSystemIngredients`
 
-    GET /ingredients/getAllSystemIngredients
-     Retrieves a list of ingredients in this from:
-      {
-         "ingredient_id": String,
-         "name": Name of the ingredient,
-         "expirationData": number of days to expire : Int
-         "gCO2e_per_100g": The amonth of carbon dioxide emitted if it is thrown : Int
-      }
+Retrieves all food ingredients that exist in the system.
+
+### Response
+
+- **200 OK**: Returns a list of all ingredients in the system.
+  - **`ingredient_id`**: Unique identifier of the ingredient.
+  - **`name`**: Name of the ingredient.
+  - **`days_to_expire`**: Number of days until the ingredient expires.
+  - **`gCO2e_per_100g`**: CO2 emissions per 100 grams of the ingredient.
+```json
+[
+  {
+    "ingredient_id": "20081",
+    "name": "flour",
+    "days_to_expire": 365,
+    "gCO2e_per_100g": 89
+  },
+  {
+    "ingredient_id": "14412",
+    "name": "water",
+    "days_to_expire": 30,
+    "gCO2e_per_100g": 32
+  },
+  {
+    "ingredient_id": "11282",
+    "name": "onion",
+    "days_to_expire": 30,
+    "gCO2e_per_100g": 231
+  },
+  {
+    "ingredient_id": "1082047",
+    "name": "kosher salt",
+    "days_to_expire": 3650,
+    "gCO2e_per_100g": 50
+  }
+]
+```
+
+## `GET /ingredients/getIngredientById`
+
+Retrieves a specific ingredient from the system by its unique identifier.
+
+### Parameters
+
+- **`ingredient_id`** (query parameter): The unique identifier of the ingredient.
+
+### Response
+
+- **200 OK**: Returns details of the specified ingredient.
+  - **`ingredient_id`**: Unique identifier of the ingredient.
+  - **`name`**: Name of the ingredient.
+  - **`days_to_expire`**: Number of days until the ingredient expires.
+  - **`gCO2e_per_100g`**: CO2 emissions per 100 grams of the ingredient.
     
-autocompleteIngredient
+## `GET /ingredients/getIngredientByName`
 
-       GET /ingredients/autocompleteIngredient
-       Retrieves a list of ingredients whose prefix is partial_name
-       partial_name : String
+Retrieves a specific ingredient from the system by its name.
 
-getIngredientById
+### Parameters
 
-      GET /ingredients/getIngredientById
-      Retrieves a ingredient by id
-      ingredient_id: int
+- **`ingredient_name`** (query parameter): The name of the ingredient to search for.
 
-getIngredientByName
+### Response
 
-      Retrieves a ingredient by name
-      ingredient_name: str
+- **200 OK**: Returns details of the specified ingredient.
+  - **`ingredient_id`**: Unique identifier of the ingredient.
+  - **`name`**: Name of the ingredient.
+  - **`days_to_expire`**: Number of days until the ingredient expires.
+  - **`gCO2e_per_100g`**: CO2 emissions per 100 grams of the ingredient.
 
-Users and Household Operations
+#Users and Household API
 
-createNewHousehold
+## `POST /usersAndHouseholdManagement/createNewHousehold`
 
-    POST /usersAndHouseholdManagement/usersAndHouseholdManagement/createNewHousehold
-        Creates a new household.
-        user_mail: Email of the user creating the household.
-        household_name: Name of the household.
-        
-    Example
-    http://127.0.0.1:8000/usersAndHouseholdManagement/createNewHousehold?user_mail=example%40example.example&household_name=example
-    with body
-        {
-          "ingredients": [
-            {
-              "ingredient_id": null,
-              "name": "Avocado",
-              "amonth": 15,
-              "unit": null
-            }
-          ]
-        }
-    **The list of components is optional, meaning you don't have to do it
-    Return value
+**Description:**
+This endpoint allows users to create a new household and optionally add ingredients to it. The household is created based on the user's email and a given household name. If ingredients are provided, they will be added to the newly created household.
+
+- **Query Parameters:**
+- `user_email` (required): The email address of the user creating the household.
+- `household_name` (required): The name of the new household.
+
+- **Body Parameters:**
+- `ingredients` (optional): A list of ingredients to add to the household. Each ingredient includes:
+  - `ingredient_id` (string, optional): The ID of the ingredient (can be omitted if not needed).
+  - `name` (string): The name of the ingredient.
+  - `amount` (number): The amount of the ingredient.
+  - `unit` (string): The unit of measurement for the ingredient.
+### Response
+
+- **200 OK**: The household was created successfully and optionally, ingredients were added.
+  - ```json
     {
       "message": "Household added successfully",
-      "household_id": "e69f3780-7eaa-4602-8b86-1fd6b38ccd64"
+      "household_id": "3efe25e8-4272-4cfd-9524-fc391ad9b70f"
     }
-        
-deleteHousehold
+    ```
+- **404 No Found**: The user could not be found.
+- **400 Bad Request**: Invalid arguments or data provided in the request.
+- ```josn
+  {
+      "detail": "Error message describing what went wrong"
+  }
+    ```
 
-    DELETE /usersAndHouseholdManagement/deleteHousehold
-        Delete household by householdID
-        household_id : Id of household
+## `DELETE /usersAndHouseholdManagement/deleteHousehold`
 
-addUser
+**Description:**
+This endpoint allows users to delete a household by its ID. The specified household is removed from the system.
+- **Query Parameters:**
+- `household_id` (required): The unique identifier of the household to be deleted.
+**Response:**
+- **Status Codes:**
+  - `200 OK`: The household was successfully deleted.
+  - `404 Not Found`: The household with the specified ID was not found or could not be deleted.
 
-    POST /usersAndHouseholdManagement/addUser
-        Create new user in system
-        user : UserInputForAddUser
-        user_mail: Email of the user.
-    
-    Example
-    http://127.0.0.1:8000/usersAndHouseholdManagement/addUser
-        with this body 
+## `POST /usersAndHouseholdManagement/addUser`
+
+This endpoint is used to add a new user to the system.
+
+**Request Body:**
+
+The request should contain a JSON object with the following fields:
+
+- `first_name` (string): The first name of the user.
+- `last_name` (string): The last name of the user.
+- `email` (string): The email address of the user. Must be unique.
+- `country` (string): The country where the user resides.
+- `state` (string): The state or province where the user resides.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: Successfully added the user.
+  - ```json
+    {
+      "message": "Successfully Added User example@example.example"
+    }
+    ```
+  - `409 Conflict`: The email address provided already exists or there was a conflict in creating the user.
+  - `400 Bad Request`: There was an issue with the input data.
+
+
+## `GET /usersAndHouseholdManagement/getUser`
+
+Retrieves a user by their email address.
+
+**Query Parameters:**
+- `user_email` (string): The email address of the user to retrieve.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: The user was successfully retrieved.
+  - ```json
         {
           "first_name": "example",
           "last_name": "example",
-          "email": "example@example.example",
+          "user_email": "example@example.example",
+          "image": null,
+          "households_ids": [],
+          "meals": {},
           "country": "example",
-          "state": "example"
-        }
-    Return value
-        {
-          "message": "Successfully Added User"
-        }
-
-getUser
-
-    GET /usersAndHouseholdManagement/getUser
-        Return UserBoundary by user mail
-    
-    Example
-    http://127.0.0.1:8000/usersAndHouseholdManagement/getUser?user_email=example%40example.example
-    
-    Return value:
-      {
-        "first_name": "Nissan",
-        "last_name": "Yamin",
-        "user_email": "nissanyam1@gmail.com",
-        "image": null,
-        "households": [
-          "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
-          "bd616751-cc28-41b5-9719-fbf1b1f52df3"
-        ],
-        "meals": {
-          "2024-06-26": {
-            "Lunch": {
-              "635058": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              },
-              "643514": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              },
-              "664932": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              }
-            }
-          },
-          "2024-06-27": {
-            "Lunch": {
-              "643514": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              }
-            }
+          "state": "example",
+          "sum_gas_pollution": {
+            "CO2": 0
           }
-        },
-        "country": "Israel",
-        "state": "Haifa District",
-        "sum_gas_pollution": {
-          "CO2": 0
         }
-      }
+    ```
+  - `404`: 
+  ```json
+      {
+          "detail": "User does not exist"
+        }
+  ```
+  - `400 Bad Request`: There was an issue with the input data.
+  - ```json
+    {
+      "detail": "example@.example invalid email format"
+    }
+    ```
 
 updatePersonalUserInfo 
 
