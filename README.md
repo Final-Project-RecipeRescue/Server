@@ -52,6 +52,12 @@ On success, the server returns a list of recipes matching the provided ingredien
 - **`image_url`**: A URL to an image of the recipe.
 - **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
 
+### Possible Errors
+
+- **400 Bad Request**: Returned if the `ingredients` parameter is empty or improperly formatted.
+- **404 Not Found**: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
+
 ### Example Response
 
 ```json
@@ -90,11 +96,7 @@ On success, the server returns a list of recipes matching the provided ingredien
   ...
 ]
 ```
-## Possible Errors
 
-- **400 Bad Request**: Returned if the `ingredients` parameter is empty or improperly formatted.
-- **404 Not Found**: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
-- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
 
 
 getRecipesByIngredientsWithoutMissingIngredients
