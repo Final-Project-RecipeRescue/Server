@@ -89,6 +89,7 @@ On success, the server returns a list of recipes matching the provided ingredien
   },
   ...
 ]
+```
 ## Possible Errors
 
 - **400 Bad Request**: Returned if the `ingredients` parameter is empty or improperly formatted.
