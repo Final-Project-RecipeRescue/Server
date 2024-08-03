@@ -33,56 +33,64 @@ Endpoints
 
 Recipes
 
-getRecipesByIngredients
+### `GET /recipes/getRecipesByIngredients`
 
-    GET /recipes/getRecipesByIngredients
-        Retrieves list of RecipeBoundary based on provided ingredients.
-        The recipes provided may contain ingredients that are not on the ingredients list.
-        ingredients: Comma-separated list of ingredients.
+This endpoint allows users to get a list of recipes based on a list of ingredients provided to the server.
 
-    Example:
-        http://127.0.0.1:8000/recipes/getRecipesByIngredients?ingredients=Banana%2C%20avocado%2C%20mango%2C%20apple%2C%20salt
-        
-        [
-          {
-              "recipe_id": 634048,
-              "recipe_name": "Banana Chocolate Pudding",
-              "ingredients": [
-                {
-                  "ingredient_id": "9040",
-                  "name": "bananas",
-                  "amonth": 472,
-                  "unit": "gram",
-                  "purchase_date": null
-                },
-                {
-                  "ingredient_id": "19165",
-                  "name": "cocoa powder",
-                  "amonth": 28.67,
-                  "unit": "gram",
-                  "purchase_date": null
-                },
-                {
-                  "ingredient_id": "16098",
-                  "name": "peanut butter",
-                  "amonth": 129,
-                  "unit": "gram",
-                  "purchase_date": null
-                },
-                {
-                  "ingredient_id": "9037",
-                  "name": "avocado",
-                  "amonth": 201,
-                  "unit": "gram",
-                  "purchase_date": null
-                }
-              ],
-              "image_url": "https://img.spoonacular.com/recipes/634048-312x231.jpg",
-              "sumGasPollution": {
-                "CO2": 1382.525
-              }
-            },...
-        ]
+#### Parameters
+
+- **`ingredients`**: A string representing the list of ingredients, separated by commas. Example: `Banana,avocado,pineapple,salt,soy,white bread,hummus,salmon,eggs,potato,oil,pepper`.
+
+#### Response
+
+On success, the server returns a list of recipes matching the provided ingredients. Each recipe includes the following information:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including ID, name, amount, unit of measure, and purchase date (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
+
+#### Example Response
+
+```json
+[
+  {
+    "recipe_id": 663338,
+    "recipe_name": "The Scotch Egg",
+    "ingredients": [
+      {
+        "ingredient_id": "1007063",
+        "name": "pork sausage",
+        "amount": 453.59,
+        "unit": "gram",
+        "purchase_date": null
+      },
+      {
+        "ingredient_id": "10018079",
+        "name": "panko breadcrumbs",
+        "amount": 120,
+        "unit": "gram",
+        "purchase_date": null
+      },
+      {
+        "ingredient_id": "1123",
+        "name": "eggs",
+        "amount": 300,
+        "unit": "gram",
+        "purchase_date": null
+      }
+    ],
+    "image_url": "https://img.spoonacular.com/recipes/663338-312x231.jpg",
+    "sumGasPollution": {
+      "CO2": 4720.3017
+    }
+  },
+  ...
+]
+Possible Errors
+
+    400 Bad Request: Returned if the ingredients parameter is empty or improperly formatted.
+    404 Not Found: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
 
 getRecipesByIngredientsWithoutMissingIngredients
 
