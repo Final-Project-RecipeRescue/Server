@@ -24,22 +24,6 @@ async def getAllSystemIngredients():
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
 
 
-'''
-This action returns a list of ingredients that match the provided partial name
-'''
-
-
-# @router.get("/autocompleteIngredient")
-# async def autocompleteIngredient(partial_name: str):
-#     try:
-#         ingredients = ingredient_service.autocomplete_by_ingredient_name(partial_name)
-#         logger.info("Autocompleted ingredients")
-#         return ingredients
-#     except Exception as e:
-#         logger.error(f"Error in autocompleting ingredients: {str(e)}")
-#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
-
-
 @router.get("/getIngredientById")
 async def getIngredientById(ingredient_id: int):
     try:
@@ -49,6 +33,7 @@ async def getIngredientById(ingredient_id: int):
     except Exception as e:
         logger.error(f"Error in get ingredient by id : {ingredient_id}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 
 @router.get("/getIngredientByName")
 async def getIngredientByName(ingredient_name: str):

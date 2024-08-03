@@ -16,6 +16,7 @@ class RecipeBoundaryWithGasPollution(RecipeBoundary):
     def __init__(self, recipe_id: int, recipe_name: str, ingredients: [IngredientBoundary], image_url: str,
                  sumGasPollution: {str: int}):
         super().__init__(recipe_id, recipe_name, ingredients, image_url)
+        self.closest_expiration_days = 0
         self.sumGasPollution = sumGasPollution
 
     def __init__(self, recipe: RecipeBoundary, sumGasPollution: Dict[str, int]):
