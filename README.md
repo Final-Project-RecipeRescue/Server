@@ -31,17 +31,19 @@ To start the server, run the following command:
 
 Endpoints
 
-Recipes
+#Recipes
 
-### `GET /recipes/getRecipesByIngredients`
+# Recipe API
+
+## `GET /recipes/getRecipesByIngredients`
 
 This endpoint allows users to get a list of recipes based on a list of ingredients provided to the server.
 
-#### Parameters
+### Parameters
 
 - **`ingredients`**: A string representing the list of ingredients, separated by commas. Example: `Banana,avocado,pineapple,salt,soy,white bread,hummus,salmon,eggs,potato,oil,pepper`.
 
-#### Response
+### Response
 
 On success, the server returns a list of recipes matching the provided ingredients. Each recipe includes the following information:
 - **`recipe_id`**: The unique identifier of the recipe.
@@ -50,7 +52,7 @@ On success, the server returns a list of recipes matching the provided ingredien
 - **`image_url`**: A URL to an image of the recipe.
 - **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
 
-#### Example Response
+### Example Response
 
 ```json
 [
@@ -86,11 +88,13 @@ On success, the server returns a list of recipes matching the provided ingredien
     }
   },
   ...
-]```
-Possible Errors
+]
+## Possible Errors
 
-    400 Bad Request: Returned if the ingredients parameter is empty or improperly formatted.
-    404 Not Found: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
+- **400 Bad Request**: Returned if the `ingredients` parameter is empty or improperly formatted.
+- **404 Not Found**: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
+
 
 getRecipesByIngredientsWithoutMissingIngredients
 
