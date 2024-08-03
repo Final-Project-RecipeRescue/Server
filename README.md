@@ -524,182 +524,536 @@ Retrieves a user by their email address.
       "detail": "example@.example invalid email format"
     }
     ```
+## `GET /usersAndHouseholdManagement/getAllHouseholdsByUserEmail`
 
-updatePersonalUserInfo 
+Retrieves all households associated with a specific user by their email address.
 
-      PUT /usersAndHouseholdManagement/updatePersonalUserInfo
-      Update personal user information
+**Query Parameters:**
+- `user_email` (string): The email address of the user whose households are to be retrieved.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: Successfully retrieved all households for the user.
+```json
+{
+  "67fc717d-67b4-43e0-a8dc-cb5189a9c383": {
+    "household_id": "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
+    "household_name": "server_test",
+    "participants": [
       {
-        "first_name": optional[string],
-        "last_name": optional[string],
-        "email": string - must be a valid email and existing user,
-        "country": optional[string],
-        "state": optional[string]
-      }
-      
-deleteUser
-
-    DELETE /usersAndHouseholdManagement/deleteUser
-        Remove user from system and remove him from households
-        user_mail: Email of the user
-
-getHouseholdUserById
-
-    GET /usersAndHouseholdManagement/getHouseholdUserById
-        Retuen a HouseholdBoundary by user mail and household id.
-        user_mail: Email of the user.
-        household_id : Id of household
-    Example:
-    http://127.0.0.1:8000/usersAndHouseholdManagement/getHouseholdUserById?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3
-      
-      Return value
+        "first_name": "Nissan",
+        "last_name": "Yamin",
+        "user_email": "nissanyam1@gmail.com",
+        "sum_gas_pollution": {
+          "CO2": 59064.59
+        }
+      },
       {
-        "household_id": "2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3",
-        "household_name": "example",
-        "household_image": null,
-        "participants": [
-          "example@example.example"
-        ],
-        "ingredients": {
-          "1033": [
-            {
-              "ingredient_id": "1033",
-              "name": "Parmesan cheese",
-              "amonth": 1971.6599999999999,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "2044": [
-            {
-              "ingredient_id": "2044",
-              "name": "Basil",
-              "amonth": 952,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "2047": [
-            {
-              "ingredient_id": "2047",
-              "name": "Salt",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "4053": [
-            {
-              "ingredient_id": "4053",
-              "name": "Olive oil",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "5062": [
-            {
-              "ingredient_id": "5062",
-              "name": "Chicken breast",
-              "amonth": 2000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11165": [
-            {
-              "ingredient_id": "11165",
-              "name": "Cilantro",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11215": [
-            {
-              "ingredient_id": "11215",
-              "name": "Garlic",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11216": [
-            {
-              "ingredient_id": "11216",
-              "name": "Ginger",
-              "amonth": 2000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11529": [
-            {
-              "ingredient_id": "11529",
-              "name": "Tomato",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-        },
-        "meals": {
-          "2024-05-19": {
-            "Lunch": {
-              "634435": [
-                {
-                  "users": [
-                    "example@example.example"
-                  ],
-                  "number_of_dishes": 1
-                },
-                {
-                  "users": [
-                    "example@example.example"
-                  ],
-                  "number_of_dishes": 1
-                }
-              ]
-            }
-          }
+        "first_name": "Linoy",
+        "last_name": "Penikar",
+        "user_email": "linoy@gmail.com",
+        "sum_gas_pollution": {
+          "CO2": 6752.25
         }
       }
+    ],
+    "ingredients": {
+      "1001": [
+        {
+          "name": "butter",
+          "amount": 5555345,
+          "unit": "gram",
+          "expiration_date": "2024-07-23"
+        }
+      ],
+      "1033": [
+        {
+          "name": "parmesan cheese",
+          "amount": 12089.00,
+          "unit": "gram",
+          "expiration_date": "2024-07-10"
+        }
+      ],
+      // Additional ingredients omitted for brevity
+    },
+    "meals": {
+      "2024-08-02": {
+        "Lunch": {
+          "640089": [
+            {
+              "users": ["nissanyam1@gmail.com"],
+              "number_of_dishes": 1,
+              "sum_gas_pollution": {
+                "CO2": 1110.1
+              }
+            },
+            {
+              "users": ["nissanyam1@gmail.com", "linoy@gmail.com"],
+              "number_of_dishes": 2,
+              "sum_gas_pollution": {
+                "CO2": 2220.2
+              }
+            }
+          ]
+        }
+      }
+    },
+    "sum_gas_pollution": {
+      "CO2": 3330.30
+    }
+  }
+}
+```
+  - `400 Bad Request`: The provided email has an invalid format.
+  - `404 Not Found`: The user with the specified email does not exist.
 
-getHouseholdAndUsersDataById
+## `PUT /usersAndHouseholdManagement/updatePersonalUserInfo`
 
-      GET /usersAndHouseholdManagement/getHouseholdAndUsersDataById
-      Retuen a HouseholdBoundary by user mail and household id .
-      The information in participants is not users' emails, it is users' objects.
-         user_mail: Email of the user.
-         household_id : Id of household
+**Request Body Example:**
+```json
+{
+  "first_name": "string",
+  "last_name": "string",
+  "email": "string",
+  "country": "string",
+  "state": "string"
+}
 
-getHouseholdUserByName
+**Response:**
 
-    GET /usersAndHouseholdManagement/getHouseholdUserByName
-        Return a list of HouseholdBoundary with this household_name.
-        user_mail: Email of the user.
-        household_name : Name of household
+- **Status Codes:**
+  - `200 OK`: User information updated successfully.
+  - `400 Bad Request`: Invalid input data (e.g., invalid email format).
+  - `404 Not Found`: User with the specified email does not exist.
 
-get_all_household_details_by_user_mail
 
-    GET /usersAndHouseholdManagement/get_all_household_details_by_user_mail
-        Detailed information about the user's households, including a list of each household's available ingredients. 
-        Return a list of HouseholdBoundary or Null if there is a problem with the user's email 
-        user_mail: Email of the user.
+## `DELETE /usersAndHouseholdManagement/deleteUser`
 
-addUserToHousehold
+**Description:**
 
-    POST /usersAndHouseholdManagement/usersAndHouseholdManagement/addUserToHousehold
-        Adds a user to an existing household.
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
+Deletes a user by their email address.
 
-removeUserFromHousehold
+**Request:**
 
-      Delete /usersAndHouseholdManagement/removeUserFromHousehold
-         Remove user from household
-         user_mail: Email of the user to add.
-         household_id: Id of the household.
+- **Query Parameter:**
+  - `user_email` (string): The email address of the user to be deleted.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: User deleted successfully.
+  - `404 Not Found`: User with the specified email does not exist or could not be deleted.
+
+
+## `GET /usersAndHouseholdManagement/getHouseholdUserById`
+
+**Description:**
+
+Retrieves information about a specific household by its ID for a given user email.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user.
+  - `household_id` (string): The ID of the household.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "household_id": "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
+      "household_name": "server_test",
+      "household_image": null,
+      "participants": [
+        "nissanyam1@gmail.com",
+        "linoy@gmail.com"
+      ],
+      "ingredients": {
+        "1001": [
+          {
+            "ingredient_id": "1001",
+            "name": "butter",
+            "amount": 5555345,
+            "unit": "gram",
+            "purchase_date": "2024-07-09",
+            "expiration_date": "2024-07-23"
+          }
+        ],
+        ...
+      },
+      "meals": {
+        "2024-06-26": {
+          "Breakfast": {
+            "642582": [
+              {
+                "users": [
+                  "server_test@server_test.server_test"
+                ],
+                "number_of_dishes": 4,
+                "sum_gas_pollution": {
+                  "CO2": 3906.29
+                }
+              },
+              ...
+            ]
+          }
+        }
+      },
+      "sum_gas_pollution": {
+        "CO2": 84272.08
+      }
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household does not exist."
+    }
+    ```
+
+
+## `GET /usersAndHouseholdManagement/getHouseholdAndUsersDataById`
+
+**Description:**
+
+Retrieves detailed information about a specific household and its users by household ID for a given user email.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user.
+  - `household_id` (string): The ID of the household.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "household_id": "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
+      "household_name": "server_test",
+      "household_image": null,
+      "participants": [
+        {
+          "first_name": "Nissan",
+          "last_name": "Yamin",
+          "user_email": "nissanyam1@gmail.com",
+          "image": null,
+          "country": "Israel",
+          "state": "Haifa District",
+          "sum_gas_pollution": {
+            "CO2": 59064.59
+          }
+        },
+        {
+          "first_name": "Linoy",
+          "last_name": "Penikar",
+          "user_email": "linoy@gmail.com",
+          "image": null,
+          "country": "Israel",
+          "state": "Haifa",
+          "sum_gas_pollution": {
+            "CO2": 6752.25
+          }
+        }
+      ],
+      "ingredients": {
+        "1001": [
+          {
+            "ingredient_id": "1001",
+            "name": "butter",
+            "amount": 5555345,
+            "unit": "gram",
+            "purchase_date": "2024-07-09",
+            "expiration_date": "2024-07-23"
+          }
+        ],
+        ...
+      },
+      "meals": {
+        "2024-06-26": {
+          "Breakfast": {
+            "642582": [
+              {
+                "users": [
+                  "server_test@server_test.server_test"
+                ],
+                "number_of_dishes": 4,
+                "sum_gas_pollution": {
+                  "CO2": 3906.29
+                }
+              },
+              ...
+            ]
+          }
+        }
+      },
+      "sum_gas_pollution": {
+        "CO2": 84272.08
+      }
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household or user does not exist."
+    }
+    ```
+
+## `GET /usersAndHouseholdManagement/getHouseholdUserByName`
+
+**Description:**
+
+Retrieves information about households and their users based on the household name for a specific user email.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user requesting the information.
+  - `household_name` (string): The name of the household.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household or user does not exist."
+    }
+    ```
+
+## `POST /usersAndHouseholdManagement/addUserToHousehold`
+
+**Description:**
+
+Adds a user to a specified household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user to be added.
+  - `household_id` (string): The ID of the household to which the user is to be added.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "User '{user_email}' added to household '{household_id}' successfully."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data or request parameters."
+    }
+    ```
+  - **Status Code: `409 Conflict`**
+    ```json
+    {
+      "detail": "Conflict occurred while adding user to household."
+    }
+    ```
+
+## `DELETE /usersAndHouseholdManagement/removeUserFromHousehold`
+
+**Description:**
+
+Removes a user from a specified household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user to be removed.
+  - `household_id` (string): The ID of the household from which the user is to be removed.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "User '{user_email}' removed from household '{household_id}' successfully."
+    }
+    ```
+
+- **Error Response:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data or request parameters."
+    }
+    ```
+
+
+## `POST /usersAndHouseholdManagement/addIngredientToHouseholdByIngredientName`
+
+**Description:**
+
+Adds an ingredient to a specified household using the ingredient's name.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user adding the ingredient.
+  - `household_id` (string): The ID of the household to which the ingredient is to be added.
+  
+- **Body:**
+  - `IngredientInput` (object):
+    - `name` (string): The name of the ingredient.
+    - `amount` (number): The amount of the ingredient.
+    - `unit` (string): The unit of measurement for the ingredient.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "Ingredient '{ingredient.name}' added to household '{household_id}' successfully by user '{user_email}'."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data or request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Ingredient does not exist or household not found."
+    }
+    ```
+
+
+## `POST /usersAndHouseholdManagement/updateIngredientInHousehold`
+
+**Description:**
+
+Updates an ingredient in a specified household based on the provided date.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user making the update.
+  - `household_id` (string): The ID of the household where the ingredient is to be updated.
+  
+- **Body:**
+  - `IngredientToRemoveByDateInput` (object):
+    - `ingredient_data` (object):
+      - `name` (string): The name of the ingredient.
+      - `amount` (number): The new amount of the ingredient.
+    - `date` (object):
+      - `year` (number): The year of the date.
+      - `month` (number): The month of the date.
+      - `day` (number): The day of the date.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "Ingredient '{ingredient.name}' in {ingredient_date} from household '{household_id}' updated successfully by user '{user_email}'."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Provided date cannot be later than today or invalid date provided."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Error updating ingredient in household."
+    }
+    ```
+
+## `POST /usersAndHouseholdManagement/addListIngredientsToHousehold`
+
+**Description:**
+
+Adds a list of ingredients to a specified household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user making the request.
+  - `household_id` (string): The ID of the household where the ingredients are to be added.
+
+- **Body:**
+  - `ListIngredientsInput` (object):
+    - `ingredients` (array of objects):
+      - `name` (string): The name of the ingredient.
+      - `amount` (number): The amount of the ingredient.
+      - `unit` (string): The unit of measurement for the ingredient.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "List of ingredients added to household '{household_id}' successfully by user '{user_email}'."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household or user not found."
+    }
+    ```
+
+
+
+
+
+
 
 addIngredientToHouseholdByIngredientName
 
