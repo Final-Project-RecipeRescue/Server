@@ -97,309 +97,248 @@ On success, the server returns a list of recipes matching the provided ingredien
 ]
 ```
 
+## `GET /recipes/getRecipesByIngredientsWithoutMissingIngredients`
 
+This endpoint allows users to get a list of recipes based on a list of ingredients provided to the server, ensuring that the recipes do not have missing ingredients.
 
-getRecipesByIngredientsWithoutMissingIngredients
+### Parameters
 
-    GET /recipes/getRecipesByIngredientsWithoutMissingIngredients
-        Retrieves list of RecipeBoundary based on provided ingredients, excluding those with missing ingredients.
-        ingredients: Comma-separated list of ingredients.
+- **`ingredients`**: A string representing the list of ingredients, separated by commas. Example: `Banana,avocado,pineapple,salt,soy sauce,white bread,hummus,salmon,eggs,potato,oil,pepper`.
 
-getRecipeByID
+### Response
 
-    GET /recipes/getRecipeByID/{recipe_id}
-        Retrieves a RecipeBoundary by its ID.
-        recipe_id: ID of the recipe.
+On success, the server returns a list of recipes that do not have missing ingredients. Each recipe includes the following information:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including ID, name, amount, unit of measure, and purchase date (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
 
-getRecipesByName
+### Possible Errors
 
-    GET /recipes/getRecipesByName/{recipe_name}
-        Returns a list of RecipeBoundary by its name
+- **404 Not Found**: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
 
-getRecipeInstructions
+## `GET /recipes/getRecipeByID/{recipe_id}`
 
-    GET /recipes/getRecipeInstructions/{recipe_id}
-        Retrieves a list of recipe_instructionsBoundary by this Id
-        recipe_id: ID of the recipe.
-        Return list of instructions in this from:
-        [
-            {
-                name : str
-                steps : 
-                    [
-                        {
-                            number : int
-                            description : str
-                            length : flout
-                            ingredients : 
-                                [
-                                    { Ingredient Name : Ingredient image}
-                                ]
-                            equipment :
-                                [
-                                    {Equipment Name : Equipment Image
-                                ]
-                        }
-                    ]
-            }
-        ]
-    Example
-        http://127.0.0.1:8000/recipes/getRecipeInstructions/324694
-        
-        [
-          {
-            "name": "",
-            "steps": [
-              {
-                "equipment": [
-                  {
-                    "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
-                  }
-                ],
-                "ingredients": [],
-                "length": null,
-                "number": 1,
-                "description": "Preheat the oven to 200 degrees F."
-              },
-              {
-                "equipment": [
-                  {
-                    "whisk": "https://spoonacular.com/cdn/equipment_100x100/whisk.png"
-                  },
-                  {
-                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "light brown sugar": "https://spoonacular.com/cdn/ingredients_100x100/light-brown-sugar.jpg"
-                  },
-                  {
-                    "granulated sugar": "https://spoonacular.com/cdn/ingredients_100x100/sugar-in-bowl.png"
-                  },
-                  {
-                    "baking powder": "https://spoonacular.com/cdn/ingredients_100x100/white-powder.jpg"
-                  },
-                  {
-                    "baking soda": "https://spoonacular.com/cdn/ingredients_100x100/white-powder.jpg"
-                  },
-                  {
-                    "pecans": "https://spoonacular.com/cdn/ingredients_100x100/pecans.jpg"
-                  },
-                  {
-                    "all purpose flour": "https://spoonacular.com/cdn/ingredients_100x100/flour.png"
-                  },
-                  {
-                    "salt": "https://spoonacular.com/cdn/ingredients_100x100/salt.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 2,
-                "description": "Whisk together the flour, pecans, granulated sugar, light brown sugar, baking powder, baking soda, and salt in a medium bowl."
-              },
-              {
-                "equipment": [
-                  {
-                    "whisk": "https://spoonacular.com/cdn/equipment_100x100/whisk.png"
-                  },
-                  {
-                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "vanilla extract": "https://spoonacular.com/cdn/ingredients_100x100/vanilla-extract.jpg"
-                  },
-                  {
-                    "vanilla bean": "https://spoonacular.com/cdn/ingredients_100x100/vanilla.jpg"
-                  },
-                  {
-                    "buttermilk": "https://spoonacular.com/cdn/ingredients_100x100/buttermilk.jpg"
-                  },
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  },
-                  {
-                    "egg": "https://spoonacular.com/cdn/ingredients_100x100/egg.png"
-                  }
-                ],
-                "length": null,
-                "number": 3,
-                "description": "Whisk together the eggs, buttermilk, butter and vanilla extract and vanilla bean in a small bowl."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "egg": "https://spoonacular.com/cdn/ingredients_100x100/egg.png"
-                  }
-                ],
-                "length": null,
-                "number": 4,
-                "description": "Add the egg mixture to the dry mixture and gently mix to combine. Do not overmix."
-              },
-              {
-                "equipment": [],
-                "ingredients": [],
-                "length": {
-                  "number": 15,
-                  "unit": "minutes"
-                },
-                "number": 5,
-                "description": "Let the batter sit at room temperature for at least 15 minutes and up to 30 minutes before using."
-              },
-              {
-                "equipment": [
-                  {
-                    "frying pan": "https://spoonacular.com/cdn/equipment_100x100/pan.png"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  }
-                ],
-                "length": {
-                  "number": 3,
-                  "unit": "minutes"
-                },
-                "number": 6,
-                "description": "Heat a cast iron or nonstick griddle pan over medium heat and brush with melted butter. Once the butter begins to sizzle, use 2 tablespoons of the batter for each pancake and cook until the bubbles appear on the surface and the bottom is golden brown, about 2 minutes, flip over and cook until the bottom is golden brown, 1 to 2 minutes longer."
-              },
-              {
-                "equipment": [
-                  {
-                    "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
-                  }
-                ],
-                "ingredients": [],
-                "length": null,
-                "number": 7,
-                "description": "Transfer the pancakes to a platter and keep warm in a 200 degree F oven."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
-                  },
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 8,
-                "description": "Serve 6 pancakes per person, top each with some of the bourbon butter."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "powdered sugar": "https://spoonacular.com/cdn/ingredients_100x100/powdered-sugar.jpg"
-                  },
-                  {
-                    "maple syrup": "https://spoonacular.com/cdn/ingredients_100x100/maple-syrup.png"
-                  }
-                ],
-                "length": null,
-                "number": 9,
-                "description": "Drizzle with warm maple syrup and dust with confectioners' sugar."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "fresh mint": "https://spoonacular.com/cdn/ingredients_100x100/mint.jpg"
-                  },
-                  {
-                    "pecans": "https://spoonacular.com/cdn/ingredients_100x100/pecans.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 10,
-                "description": "Garnish with fresh mint sprigs and more toasted pecans, if desired."
-              }
-            ]
-          },
-          {
-            "name": "Bourbon Molasses Butter",
-            "steps": [
-              {
-                "equipment": [
-                  {
-                    "sauce pan": "https://spoonacular.com/cdn/equipment_100x100/sauce-pan.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
-                  },
-                  {
-                    "sugar": "https://spoonacular.com/cdn/ingredients_100x100/sugar-in-bowl.png"
-                  }
-                ],
-                "length": null,
-                "number": 1,
-                "description": "Combine the bourbon and sugar in a small saucepan and cook over high heat until reduced to 3 tablespoons, remove and let cool."
-              },
-              {
-                "equipment": [
-                  {
-                    "food processor": "https://spoonacular.com/cdn/equipment_100x100/food-processor.png"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "molasses": "https://spoonacular.com/cdn/ingredients_100x100/molasses.jpg"
-                  },
-                  {
-                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
-                  },
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  },
-                  {
-                    "salt": "https://spoonacular.com/cdn/ingredients_100x100/salt.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 2,
-                "description": "Put the butter, molasses, salt and cooled bourbon mixture in a food processor and process until smooth."
-              },
-              {
-                "equipment": [
-                  {
-                    "plastic wrap": "https://spoonacular.com/cdn/equipment_100x100/plastic-wrap.jpg"
-                  },
-                  {
-                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "wrap": "https://spoonacular.com/cdn/ingredients_100x100/flour-tortilla.jpg"
-                  }
-                ],
-                "length": {
-                  "number": 60,
-                  "unit": "minutes"
-                },
-                "number": 3,
-                "description": "Scrape into a bowl, cover with plastic wrap and refrigerate for at least 1 hour to allow the flavors to meld."
-              },
-              {
-                "equipment": [],
-                "ingredients": [],
-                "length": {
-                  "number": 30,
-                  "unit": "minutes"
-                },
-                "number": 4,
-                "description": "Remove from the refrigerator about 30 minutes before using to soften."
-              }
-            ]
-          }
-        ]
+This endpoint allows users to retrieve detailed information about a specific recipe by its unique ID.
+
+### Path Parameters
+
+- **`recipe_id`**: The unique identifier of the recipe. Example: `660313`.
+
+### Response
+
+On success, the server returns detailed information about the recipe, including:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including:
+  - **`ingredient_id`**: The unique identifier of the ingredient.
+  - **`name`**: The name of the ingredient.
+  - **`amount`**: The amount of the ingredient.
+  - **`unit`**: The unit of measure for the ingredient.
+  - **`purchase_date`**: The date when the ingredient was purchased (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
+
+### Possible Errors
+
+- **404 Not Found**: Returned if the `recipe_id` does not exist or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
+
+## `GET /recipes/getRecipesByName/{recipe_name}`
+
+This endpoint allows users to retrieve a list of recipes that match a specific name.
+
+### Path Parameters
+
+- **`recipe_name`**: The name of the recipe to search for. This parameter should be URL-encoded if it contains special characters or spaces. Example: `Slow-Roasted%20Tomatoes`.
+
+### Response
+
+On success, the server returns a list of recipes that match the provided name. Each recipe includes:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including:
+  - **`ingredient_id`**: The unique identifier of the ingredient.
+  - **`name`**: The name of the ingredient.
+  - **`amount`**: The amount of the ingredient.
+  - **`unit`**: The unit of measure for the ingredient.
+  - **`purchase_date`**: The date when the ingredient was purchased (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
+
+### Possible Errors
+
+- **404 Not Found**: Returned if no recipes are found for the provided name or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
+
+## `GET /recipes/getRecipeInstructions/{recipe_id}`
+
+This endpoint allows users to retrieve the cooking instructions for a specific recipe based on its unique ID.
+
+### Path Parameters
+
+- **`recipe_id`**: The unique identifier of the recipe for which you want to retrieve instructions.
+
+### Response
+
+On success, the server returns the cooking instructions for the specified recipe. The response includes:
+- **`name`**: The name of the recipe (if available).
+- **`steps`**: A list of steps for preparing the recipe. Each step includes:
+  - **`number`**: The step number.
+  - **`description`**: The detailed description of the step.
+  - **`length`**: The duration of the step in seconds (if applicable).
+  - **`equipment`**: A list of equipment used in this step, with image URLs.
+  - **`ingredients`**: A list of ingredients used in this step, with image URLs.
+- **`total_length`**: The total length of all steps in seconds.
+
+### Possible Errors
+
+- **400 Bad Request**: Returned if there is an error while retrieving the instructions for the specified recipe.
+
+```json
+{
+  "name": "",
+  "steps": [
+    {
+      "equipment": [
+        {
+          "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
+        }
+      ],
+      "ingredients": [],
+      "length": 0,
+      "number": 1,
+      "description": "Preheat oven to 150 C or 280 F"
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 2,
+      "description": "Cut the top 3rd off the tomatoes & discard top."
+    },
+    {
+      "equipment": [
+        {
+          "baking paper": "https://spoonacular.com/cdn/equipment_100x100/baking-paper.jpg"
+        },
+        {
+          "baking pan": "https://spoonacular.com/cdn/equipment_100x100/roasting-pan.jpg"
+        }
+      ],
+      "ingredients": [
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 3,
+      "description": "Place tomatoes on a baking tray, lined with parchment paper."
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "pepper": "pepper.jpg"
+        },
+        {
+          "herbs": "mixed-fresh-herbs.jpg"
+        },
+        {
+          "salt": "salt.jpg"
+        }
+      ],
+      "length": 0,
+      "number": 4,
+      "description": "Sprinkle generously with salt, pepper & herbs."
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "olive oil": "olive-oil.jpg"
+        }
+      ],
+      "length": 0,
+      "number": 5,
+      "description": "Drizzle with a generous amount of olive oil."
+    },
+    {
+      "equipment": [
+        {
+          "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
+        },
+        {
+          "frying pan": "https://spoonacular.com/cdn/equipment_100x100/pan.png"
+        }
+      ],
+      "ingredients": [
+        {
+          "olive oil": "olive-oil.jpg"
+        },
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 360,
+      "number": 6,
+      "description": "Place in the oven for 4-6 hours depending on the size of your tomatoes. Every once in a while as you pass the kitchen, baste the tomatoes in the juices & olive oil in the pan."
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 7,
+      "description": "Once the tomatoes shrivel up a bit & start to look sun-dried, they are ready. They should still hold their shape & not become mush."
+    },
+    {
+      "equipment": [
+        {
+          "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
+        }
+      ],
+      "ingredients": [
+        {
+          "anchovies": "anchovies.jpg"
+        },
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 8,
+      "description": "Remove from oven, top each tomato with a whole anchovy filet."
+    },
+    {
+      "equipment": [
+        {
+          "baking pan": "https://spoonacular.com/cdn/equipment_100x100/roasting-pan.jpg"
+        }
+      ],
+      "ingredients": [
+        {
+          "olive oil": "olive-oil.jpg"
+        }
+      ],
+      "length": 0,
+      "number": 9,
+      "description": "Serve warm or room temperature with olive oil from the baking pan drizzled over the top."
+    }
+  ],
+  "total_length": 360
+}
+```
+
 
 Ingredients
 
