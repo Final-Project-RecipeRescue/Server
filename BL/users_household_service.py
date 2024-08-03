@@ -520,7 +520,6 @@ class UsersHouseholdService:
     async def add_ingredients_to_household(self, user_email: str, household_id: str,
                                            ingredients_lst_names_and_amounts: ListIngredientsInput):
         household = await self.get_household_user_by_id(user_email, household_id)
-
         for ingredient in ingredients_lst_names_and_amounts.ingredients:
             if ingredient.amount <= 0:
                 logger.error(f"Ingredient '{ingredient.name}' amount needs to be greater than 0")
