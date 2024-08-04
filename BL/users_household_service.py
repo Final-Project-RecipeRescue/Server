@@ -478,6 +478,8 @@ class UsersHouseholdService:
         return households
 
     async def get_household_by_Id(self, household_id: str) -> HouseholdBoundary:
+        if household_id == '' or household_id is None:
+            raise HouseholdException(f'Household id is {household_id}')
         household = self.firebase_instance.get_firebase_data(f'households/{household_id}')
         if not household:
             raise HouseholdException('Household does not exist')
