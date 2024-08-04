@@ -478,6 +478,8 @@ class UsersHouseholdService:
         return households
 
     async def get_household_by_Id(self, household_id: str) -> HouseholdBoundary:
+        if household_id == '' or household_id is None:
+            raise HouseholdException(f'Household id is {household_id}')
         household = self.firebase_instance.get_firebase_data(f'households/{household_id}')
         if not household:
             raise HouseholdException('Household does not exist')
@@ -520,7 +522,6 @@ class UsersHouseholdService:
     async def add_ingredients_to_household(self, user_email: str, household_id: str,
                                            ingredients_lst_names_and_amounts: ListIngredientsInput):
         household = await self.get_household_user_by_id(user_email, household_id)
-
         for ingredient in ingredients_lst_names_and_amounts.ingredients:
             if ingredient.amount <= 0:
                 logger.error(f"Ingredient '{ingredient.name}' amount needs to be greater than 0")
