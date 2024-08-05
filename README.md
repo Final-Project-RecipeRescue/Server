@@ -34,8 +34,9 @@ RecipeRescue API is a RESTful web service built with Python and FastAPI. It prov
 
 To start the server, run the following command:
 
-    ```bash```
+    ```bash
     uvicorn main:app --reload
+    ```
 
 
 Endpoints
@@ -584,7 +585,6 @@ Retrieves all households associated with a specific user by their email address.
           "expiration_date": "2024-07-10"
         }
       ],
-      // Additional ingredients omitted for brevity
     },
     "meals": {
       "2024-08-02": {
@@ -628,6 +628,7 @@ Retrieves all households associated with a specific user by their email address.
   "country": "string",
   "state": "string"
 }
+```
 
 **Response:**
 
@@ -1233,7 +1234,7 @@ Uses a specified recipe for a given number of dishes in a household.
   - **Status Code: `404 Not Found`**
 
 
-##GET /getMealTypes`
+## GET /getMealTypes`
 
 ### Description
 
@@ -1250,11 +1251,7 @@ This endpoint does not require any parameters.
 
 
 
-## getAllRecipesThatHouseholdCanMake
-
-### Endpoint
-
-`GET /getAllRecipesThatHouseholdCanMake`
+## `GET /getAllRecipesThatHouseholdCanMake`
 
 ### Description
 
@@ -1290,28 +1287,7 @@ Retrieves all recipes that a household can make based on the ingredients availab
         "amount": 113,
         "unit": "gram",
         "purchase_date": null
-      },
-      {
-        "ingredient_id": "11165",
-        "name": "cilantro",
-        "amount": 4,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "9159",
-        "name": "lime",
-        "amount": 6,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11167",
-        "name": "corn on the cob",
-        "amount": 3,
-        "unit": "gram",
-        "purchase_date": null
-      }
+      }...
     ],
     "image_url": "https://img.spoonacular.com/recipes/640089-312x231.jpg",
     "sumGasPollution": {
@@ -1336,42 +1312,7 @@ Retrieves all recipes that a household can make based on the ingredients availab
         "amount": 3,
         "unit": "gram",
         "purchase_date": null
-      },
-      {
-        "ingredient_id": "11090",
-        "name": "broccoli heads",
-        "amount": 5.08,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11291",
-        "name": "scallions",
-        "amount": 48,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "10211215",
-        "name": "garlic cloves",
-        "amount": 3,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "1033",
-        "name": "parmigiano-reggiano",
-        "amount": 100,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "10111529",
-        "name": "grape tomatoes",
-        "amount": 226,
-        "unit": "gram",
-        "purchase_date": null
-      }
+      }}...
     ],
     "image_url": "https://img.spoonacular.com/recipes/642582-312x231.jpg",
     "sumGasPollution": {
@@ -1396,63 +1337,7 @@ Retrieves all recipes that a household can make based on the ingredients availab
         "amount": 14.2,
         "unit": "gram",
         "purchase_date": null
-      },
-      {
-        "ingredient_id": "11124",
-        "name": "carrots",
-        "amount": 42.67,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "10220445",
-        "name": "rice",
-        "amount": 370,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "1123",
-        "name": "egg",
-        "amount": 1,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11215",
-        "name": "garlic",
-        "amount": 3,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11216",
-        "name": "ginger",
-        "amount": 7,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11052",
-        "name": "green beans",
-        "amount": 55,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11304",
-        "name": "peas",
-        "amount": 72.5,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "16124",
-        "name": "soy sauce",
-        "amount": 72,
-        "unit": "gram",
-        "purchase_date": null
-      }
+      }....
     ],
     "image_url": "https://img.spoonacular.com/recipes/642138-312x231.jpg",
     "sumGasPollution": {
@@ -1470,28 +1355,7 @@ Retrieves all recipes that a household can make based on the ingredients availab
         "amount": 473.18,
         "unit": "gram",
         "purchase_date": null
-      },
-      {
-        "ingredient_id": "11677",
-        "name": "shallot",
-        "amount": 10,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11215",
-        "name": "garlic",
-        "amount": 3,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "12155",
-        "name": "walnuts",
-        "amount": 58.5,
-        "unit": "gram",
-        "purchase_date": null
-      }
+      }...
     ],
     "image_url": "https://img.spoonacular.com/recipes/652966-312x231.jpg",
     "sumGasPollution": {
@@ -1509,35 +1373,7 @@ Retrieves all recipes that a household can make based on the ingredients availab
         "amount": 2,
         "unit": "gram",
         "purchase_date": null
-      },
-      {
-        "ingredient_id": "1123",
-        "name": "eggs",
-        "amount": 2,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "11291",
-        "name": "green onion",
-        "amount": 12.5,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "10311529",
-        "name": "cherry tomatoes",
-        "amount": 4,
-        "unit": "gram",
-        "purchase_date": null
-      },
-      {
-        "ingredient_id": "1033",
-        "name": "parmesan cheese",
-        "amount": 12.5,
-        "unit": "gram",
-        "purchase_date": null
-      }
+      }...
     ],
     "image_url": "https://img.spoonacular.com/recipes/643514-312x231.jpg",
     "sumGasPollution": {
@@ -1546,6 +1382,7 @@ Retrieves all recipes that a household can make based on the ingredients availab
     "closest_expiration_days": 13
   }
 ]
+```
 
 
 ## `GET /checkIfHouseholdExistInSystem`
@@ -1565,11 +1402,6 @@ Checks if a household with a given ID exists in the system.
 
 - **404 Not Found**:
   - Returns an error message if the household does not exist in the system.
-
-### Example Request
-
-```http
-GET /checkIfHouseholdExistInSystem?household_id=12345
 
 ## `GET /checkIfHouseholdCanMakeRecipe`
 
@@ -1591,14 +1423,9 @@ Checks if a household can make a specific recipe given the number of dishes.
 - **400 Bad Request**:
   - Returns an error message if there is an issue with the request or the provided data.
 
-### Example Request
-
-```http
-GET /checkIfHouseholdCanMakeRecipe?household_id=12345&recipe_id=67890&dishes_num=3
 
 
-
-## `POST /getGasPollutionOfHouseholdInRangeDates`
+## POST /getGasPollutionOfHouseholdInRangeDates
 
 ### Description
 Retrieves the gas pollution data for a specific household within a given date range.
@@ -1608,50 +1435,73 @@ Retrieves the gas pollution data for a specific household within a given date ra
 - **Query Parameters**:
   - `user_email` (string): The email address of the user making the request.
   - `household_id` (string): The unique identifier of the household.
+- **body**:
   - `startDate` (Date): The start date of the range for which to retrieve gas pollution data.
   - `endDate` (Date): The end date of the range for which to retrieve gas pollution data.
+```json
+{
+  "startDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  },
+  "endDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  }
+}
+```
 
 ### Responses
 
 - **200 OK**:
   - Returns the gas pollution data for the specified household and date range.
-
+```json
+{
+   "total_gas_pollution": 789.12
+}
+```
 - **400 Bad Request**:
   - Returns an error message if there are issues with the dates or other request parameters.
 
-### Example Request
-```json
-{
-  "total_gas_pollution": 789.12
-}
-```
-```http
-POST /getGasPollutionOfHouseholdInRangeDates
-Content-Type: application/json
 
-{
-  "user_email": "user@example.com",
-  "household_id": "12345",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31"
-}
-
-## `POST /getGasPollutionOfUserInRangeDates`
+## POST /getGasPollutionOfUserInRangeDates
 
 ### Description
 Retrieves the gas pollution data for a user within a specified date range.
 
 ### Parameters
 
-- **Query Parameters**:
+- **Parameters**:
   - `user_email` (string): The email address of the user making the request.
+- **body**:
   - `startDate` (Date): The start date of the range for which to retrieve gas pollution data.
   - `endDate` (Date): The end date of the range for which to retrieve gas pollution data.
+```json
+{
+  "startDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  },
+  "endDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  }
+}
+```
 
 ### Responses
 
 - **200 OK**:
   - Returns the gas pollution data for the specified user and date range.
+```json
+{
+   "total_gas_pollution": 789.12
+}
+```
 
 - **400 Bad Request**:
   - Returned when the start date is not before the end date, or if invalid dates are provided.
@@ -1659,21 +1509,7 @@ Retrieves the gas pollution data for a user within a specified date range.
 - **404 Not Found**:
   - Returned if there are other issues processing the request.
 
-### Example Request
 
-```http
-POST /getGasPollutionOfUserInRangeDates
-Content-Type: application/json
 
-{
-  "user_email": "user@example.com",
-  "startDate": "2024-01-01",
-  "endDate": "2024-01-31"
-}
-```json
-{
-  "total_gas_pollution": 789.12
-}
-```
 
 
