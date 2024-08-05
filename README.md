@@ -350,7 +350,7 @@ On success, the server returns the cooking instructions for the specified recipe
 ```
 
 
-#Ingredients API
+# Ingredients API
 
 ## `GET /ingredients/getAllSystemIngredients`
 
@@ -424,7 +424,9 @@ Retrieves a specific ingredient from the system by its name.
   - **`days_to_expire`**: Number of days until the ingredient expires.
   - **`gCO2e_per_100g`**: CO2 emissions per 100 grams of the ingredient.
 
-#Users and Household API
+
+# Users and Household API
+
 
 ## `POST /usersAndHouseholdManagement/createNewHousehold`
 
@@ -441,6 +443,17 @@ This endpoint allows users to create a new household and optionally add ingredie
   - `name` (string): The name of the ingredient.
   - `amount` (number): The amount of the ingredient.
   - `unit` (string): The unit of measurement for the ingredient.
+```json
+{
+  "ingredients": [
+    {
+      "ingredient_id": "string",
+      "name": "string",
+      "amount": 0,
+      "unit": "string"
+    }
+  ]
+}```
 ### Response
 
 - **200 OK**: The household was created successfully and optionally, ingredients were added.
@@ -944,7 +957,14 @@ Adds an ingredient to a specified household using the ingredient's name.
     - `name` (string): The name of the ingredient.
     - `amount` (number): The amount of the ingredient.
     - `unit` (string): The unit of measurement for the ingredient.
-
+```json
+{
+  "ingredient_id": "string",
+  "name": "string",
+  "amount": 0,
+  "unit": "string"
+}
+```
 **Response:**
 
 - **Success Response:**
@@ -991,6 +1011,21 @@ Updates an ingredient in a specified household based on the provided date.
       - `year` (number): The year of the date.
       - `month` (number): The month of the date.
       - `day` (number): The day of the date.
+```json
+{
+  "ingredient_data": {
+    "ingredient_id": "string",
+    "name": "string",
+    "amount": 0,
+    "unit": "string"
+  },
+  "date": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  }
+}
+```
 
 **Response:**
 
@@ -1034,6 +1069,18 @@ Adds a list of ingredients to a specified household.
       - `name` (string): The name of the ingredient.
       - `amount` (number): The amount of the ingredient.
       - `unit` (string): The unit of measurement for the ingredient.
+```josn
+{
+  "ingredients": [
+    {
+      "ingredient_id": "string",
+      "name": "string",
+      "amount": 0,
+      "unit": "string"
+    }
+  ]
+}
+```
 
 **Response:**
 
