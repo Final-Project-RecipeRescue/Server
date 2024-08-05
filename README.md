@@ -453,7 +453,8 @@ This endpoint allows users to create a new household and optionally add ingredie
       "unit": "string"
     }
   ]
-}```
+}
+```
 ### Response
 
 - **200 OK**: The household was created successfully and optionally, ingredients were added.
