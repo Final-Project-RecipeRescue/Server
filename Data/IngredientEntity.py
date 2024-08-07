@@ -1,6 +1,3 @@
-import datetime
-
-
 class IngredientEntity:
     def __init__(self, data):
         self.id = str(data.get("id")) if data.get("id") else None

@@ -1,7 +1,3 @@
-from Data.MealEntity import MealEntity
-from routers_boundaries.MealBoundary import MealBoundary
-
-
 class UserEntity:
     def __init__(self, data):
         self.first_name = data.get('first_name') if data.get('first_name') else None

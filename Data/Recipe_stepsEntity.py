@@ -1,6 +1,3 @@
-import requests
-from typing import List
-
 class Temperature:
     def __init__(self, data):
         self.number = data.get("number") if data.get("number") is not None else None
