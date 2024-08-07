@@ -331,35 +331,7 @@ def _remove_recipe_ingredients_from_household(ingredients: list[IngredientBounda
             raise InvalidArgException(e.message)
 
 
-def get_the_ingredient_with_the_closest_expiration_date(recipe: RecipeBoundary,
-                                                        household_ingredients: dict[
-                                                            str, list[IngredientBoundary]]):
-    closest_days_to_expire = None
-    ingredient_closest = None
-    for ingredient in recipe.ingredients:
-        try:
-            for ing in household_ingredients.get(ingredient.ingredient_id, []):
-                if isinstance(ing, IngredientBoundaryWithExpirationData):
-                    expiration_date = datetime.strptime(ing.expiration_date, date_format).date()
-                    days_to_expire = (expiration_date - datetime.now().date()).days
 
-                    # logger.info(f"{ing.name} ->> {days_to_expire} days to expire on {ing.expiration_date}")
-
-                    if closest_days_to_expire is None or closest_days_to_expire > days_to_expire:
-                        closest_days_to_expire = days_to_expire
-                        ingredient_closest = ing
-        except KeyError:
-            continue
-        except Exception as e:
-            logger.error(f"An error occurred: {e}", exc_info=True)
-            continue
-
-    thread_id = threading.get_ident()
-    logger.info(f"For recipe {recipe.recipe_id}, the closest expiration date is in {closest_days_to_expire} days "
-                f"({ingredient_closest.ingredient_id if ingredient_closest else None} : "
-                f"{ingredient_closest.name if ingredient_closest else None}). Running in thread {thread_id}")
-
-    return closest_days_to_expire
 
 
 def check_email(email: str):
@@ -801,6 +773,36 @@ class UsersHouseholdService:
                                     except (KeyError, ValueError):
                                         gas_pollution[gas_type] = meal.sum_gas_pollution[gas_type]
         return gas_pollution
+
+    def get_the_ingredient_with_the_closest_expiration_date(self, recipe: RecipeBoundary,
+                                                            household_ingredients: dict[
+                                                                str, list[IngredientBoundary]]):
+        closest_days_to_expire = None
+        ingredient_closest = None
+        for ingredient in recipe.ingredients:
+            try:
+                for ing in household_ingredients.get(ingredient.ingredient_id, []):
+                    if isinstance(ing, IngredientBoundaryWithExpirationData):
+                        expiration_date = datetime.strptime(ing.expiration_date, date_format).date()
+                        days_to_expire = (expiration_date - datetime.now().date()).days
+
+                        # logger.info(f"{ing.name} ->> {days_to_expire} days to expire on {ing.expiration_date}")
+
+                        if closest_days_to_expire is None or closest_days_to_expire > days_to_expire:
+                            closest_days_to_expire = days_to_expire
+                            ingredient_closest = ing
+            except KeyError:
+                continue
+            except Exception as e:
+                logger.error(f"An error occurred: {e}", exc_info=True)
+                continue
+
+        thread_id = threading.get_ident()
+        logger.info(f"For recipe {recipe.recipe_id}, the closest expiration date is in {closest_days_to_expire} days "
+                    f"({ingredient_closest.ingredient_id if ingredient_closest else None} : "
+                    f"{ingredient_closest.name if ingredient_closest else None}). Running in thread {thread_id}")
+
+        return closest_days_to_expire
 
     from datetime import datetime, date
     import logging

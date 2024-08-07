@@ -1,14 +1,10 @@
 import asyncio
-import os
-import time
 from typing import Optional, List, Dict
 from fastapi import HTTPException, status
 from BL.recipes_service import RecipesService
-from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException, \
-    get_the_ingredient_with_the_closest_expiration_date
+from BL.users_household_service import UsersHouseholdService, UserException, InvalidArgException, HouseholdException
 from fastapi import APIRouter
-from routers_boundaries.HouseholdBoundary import HouseholdBoundary, \
-    HouseholdBoundaryWithGasPollution, HouseholdBoundaryWithUsersData
+from routers_boundaries.HouseholdBoundary import HouseholdBoundary,HouseholdBoundaryWithUsersData
 from routers_boundaries.MealBoundary import meal_types
 from routers_boundaries.InputsForApiCalls import (UserInputForAddUser, IngredientInput
 , IngredientToRemoveByDateInput, ListIngredientsInput, UserInputForChanges, Date)
@@ -457,7 +453,9 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
             logger.info(f"Number of threads in the pool: {executor._max_workers}")
             loop = asyncio.get_running_loop()
             expiration_tasks = [
-                loop.run_in_executor(executor, get_the_ingredient_with_the_closest_expiration_date, recipe,
+                loop.run_in_executor(executor,
+                                     user_household_service.get_the_ingredient_with_the_closest_expiration_date,
+                                     recipe,
                                      household.ingredients)
                 for recipe in recipes]
             expiration_results = await asyncio.gather(*expiration_tasks, return_exceptions=True)
