@@ -1,5 +1,5 @@
 from Data.IngredientEntity import IngredientEntitySpoonacular as Ingredient
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class RecipeEntity(ABC):

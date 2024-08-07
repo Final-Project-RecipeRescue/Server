@@ -8,7 +8,7 @@ from routers_boundaries.IngredientBoundary import IngredientBoundary
 from routers_boundaries.recipe_boundary import RecipeBoundary, RecipeBoundaryWithGasPollution
 from protocols.ServiceProtocol import Service
 from DAL.recipes_db_connection import SpoonacularAPI, RecipesCRUD, RecipesInstructionsCRUD
-from routers_boundaries.recipe_instructionsBoundary import recipe_instructionsBoundary, Step
+from routers_boundaries.recipe_instructionsBoundary import RecipeInstructionsBoundary, Step
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logger = logging.getLogger("my_logger")
@@ -27,12 +27,13 @@ def to_ingredient_boundary(ingredient: IngredientEntity) -> IngredientBoundary:
 
 
 async def convert_ingredient_unit_to_gram(ingredient: IngredientBoundary) -> IngredientBoundary:
-    if ingredient.unit is not None and ingredient.unit.lower() not in ['g', 'gram'] :
+    if ingredient.unit is not None and ingredient.unit.lower() not in ['g', 'gram', "grams"]:
         logger.info(f"Convert unit of ingredient \'{ingredient.name}\' from \'{ingredient.unit}\' to gram")
         amount = await spoonacular_instance.convertIngredientAmountToGrams(
             ingredient.name, ingredient.amount, ingredient.unit)
         if amount:
-            logger.info(f"Successful converted unit of ingredient \'{ingredient.name}\' from {ingredient.amount} on {ingredient.unit} to {amount} on gram")
+            logger.info(
+                f"Successful converted unit of ingredient \'{ingredient.name}\' from {ingredient.amount} on {ingredient.unit} to {amount} on gram")
             ingredient.amount = amount
     ingredient.unit = 'gram'  # Assuming conversion sets unit to grams
     return ingredient
@@ -115,20 +116,26 @@ async def toBoundaryRecipe(recipeEntity: RecipeEntity) -> RecipeBoundary:
     return recipeBoundary
 
 
-def toBoundaryRecipeInstructions(recipe: Recipe_stepsEntity) -> recipe_instructionsBoundary:
-    return recipe_instructionsBoundary(
+def convert_to_minutes(number: float, unit: str) -> float:
+    conversion_factors = {
+        "seconds": 1 / 60,
+        "minutes": 1,
+        "hours": 60
+    }
+    return number * conversion_factors.get(unit, 1)  # Default to 1 if unit is already minutes or unknown
+
+
+def toBoundaryRecipeInstructions(recipe: Recipe_stepsEntity) -> RecipeInstructionsBoundary:
+    return RecipeInstructionsBoundary(
         recipe.name if recipe.name is not None else "",
         [Step(
             step.number,
             step.step,
-            step.length.number if step.length is not None else 0,
+            convert_to_minutes(step.length.number, step.length.unit) if step.length is not None else 0,
             [{ingredient.name: ingredient.image} for ingredient in step.ingredients],
             [{equipment.name: equipment.image} for equipment in step.equipments]
         ) for step in recipe.steps]
     )
-
-
-import time
 
 
 class RecipesService(Service):
@@ -144,7 +151,8 @@ class RecipesService(Service):
                 await self.add_recipe_to_mongoDB(await toBoundaryRecipe(recipe))
                 logger.info(f"recipe {recipe.title} added to mongo data")
 
-    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular], missing_ingredients) -> \
+    async def filter_and_calc_pollution(self, recipes: list[RecipeEntityByIngredientSpoonacular],
+                                        missing_ingredients) -> \
             List[RecipeBoundaryWithGasPollution]:
         result: [RecipeBoundaryWithGasPollution] = []
 
@@ -162,6 +170,7 @@ class RecipesService(Service):
     async def get_recipes_by_ingredients_lst(self, ingredients: List[str], missing_ingredients: bool) \
             -> Optional[List[RecipeBoundaryWithGasPollution]]:
         try:
+            logger.info(ingredients)
             recipes = await spoonacular_instance.find_recipes_by_ingredients(ingredients)
             await self.add_missing_recipes_to_mongo(recipes)
             result = await self.filter_and_calc_pollution(recipes, missing_ingredients)
@@ -169,6 +178,7 @@ class RecipesService(Service):
             return result
         except Exception as e:
             logger.error("In get_recipes_by_ingredients_lst func: %s", e)
+            return []
 
     async def get_recipe_by_id(self, recipe_id: str) -> RecipeBoundaryWithGasPollution:
         try:
@@ -199,8 +209,9 @@ class RecipesService(Service):
             return rv
         except Exception as e:
             logger.error("In get_recipe_by_name: %s", e)
+            return []
 
-    async def get_recipe_instructions(self, recipe_id: str):
+    async def get_recipe_instructions(self, recipe_id: str) -> Optional[List[RecipeInstructionsBoundary]]:
         try:
             recipe_id = int(recipe_id)
             instructions = self.recipesInstructionsCRUD.get_recipe_instructions(str(recipe_id))
@@ -215,8 +226,7 @@ class RecipesService(Service):
             else:
                 logger.info("get recipe instructions from mongo!")
 
-            recipes_instructions_boundary = [toBoundaryRecipeInstructions(recipe) for recipe in
-                                             instructions]
+            recipes_instructions_boundary = [toBoundaryRecipeInstructions(recipe) for recipe in instructions]
             return recipes_instructions_boundary
         except Exception as e:
             logger.error("In get_recipe_instructions: %s", e)

@@ -1,9 +1,12 @@
 import logging
 import re
 from typing import List, Optional, Dict
+
+from routers_boundaries import HouseholdBoundary
 from routers_boundaries.MealBoundary import MealBoundary, meal_types, MealBoundaryWithGasPollution
 
 logger = logging.getLogger("my_logger")
+
 
 def is_valid_email(email):
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
@@ -17,18 +20,19 @@ class UserBoundary:
         self.last_name = last_name
         self.user_email = user_email if is_valid_email(user_email) else None
         self.image = image
-        self.households = households_ids if households_ids is not None else []
+        self.households_ids = households_ids if households_ids is not None else []
         self.meals = meals
         self.country = country
         self.state = state
 
     def remove_household(self, household_id: str):
-        if household_id in self.households:
-            self.households.remove(household_id)
+        if household_id in self.households_ids:
+            self.households_ids.remove(household_id)
 
     def add_household(self, household_id: str):
-        if household_id not in self.households:
-            self.households.append(household_id)
+        if household_id not in self.households_ids:
+            self.households_ids.append(household_id)
+
     def add_meal(self, new_meal: MealBoundary, meal_date: str, mealType: meal_types,
                  recipe_id: str):
         if not self.meals:
@@ -62,12 +66,15 @@ class UserBoundaryWithGasPollution(UserBoundary):
             userBoundary.last_name,
             userBoundary.user_email,
             userBoundary.image,
-            userBoundary.households,
+            userBoundary.households_ids,
             userBoundary.meals,
             userBoundary.country,
             userBoundary.state
         )
-        self.sum_gas_pollution = sum_gas_pollution
+        if sum_gas_pollution is None:
+            self.sum_gas_pollution = {'CO2': 0}
+        else:
+            self.sum_gas_pollution = sum_gas_pollution
 
     def update_gas_pollution(self, gas_pollution):
         try:

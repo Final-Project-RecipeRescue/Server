@@ -34,925 +34,1530 @@ RecipeRescue API is a RESTful web service built with Python and FastAPI. It prov
 
 To start the server, run the following command:
 
-    ```bash```
+    ```bash
     uvicorn main:app --reload
+    ```
 
 
 Endpoints
 
-Recipes
+#Recipes
 
-getRecipesByIngredients
+# Recipe API
 
-    GET /recipes/getRecipesByIngredients
-        Retrieves list of RecipeBoundary based on provided ingredients.
-        The recipes provided may contain ingredients that are not on the ingredients list.
-        ingredients: Comma-separated list of ingredients.
+## `GET /recipes/getRecipesByIngredients`
 
-    Example:
-        http://127.0.0.1:8000/recipes/getRecipesByIngredients?ingredients=Banana%2C%20avocado%2C%20mango%2C%20apple%2C%20salt
-        
-        [
-          {
-              "recipe_id": 634048,
-              "recipe_name": "Banana Chocolate Pudding",
-              "ingredients": [
-                {
-                  "ingredient_id": "9040",
-                  "name": "bananas",
-                  "amonth": 472,
-                  "unit": "gram",
-                  "purchase_date": null
-                },
-                {
-                  "ingredient_id": "19165",
-                  "name": "cocoa powder",
-                  "amonth": 28.67,
-                  "unit": "gram",
-                  "purchase_date": null
-                },
-                {
-                  "ingredient_id": "16098",
-                  "name": "peanut butter",
-                  "amonth": 129,
-                  "unit": "gram",
-                  "purchase_date": null
-                },
-                {
-                  "ingredient_id": "9037",
-                  "name": "avocado",
-                  "amonth": 201,
-                  "unit": "gram",
-                  "purchase_date": null
-                }
-              ],
-              "image_url": "https://img.spoonacular.com/recipes/634048-312x231.jpg",
-              "sumGasPollution": {
-                "CO2": 1382.525
-              }
-            },...
-        ]
+This endpoint allows users to get a list of recipes based on a list of ingredients provided to the server.
 
-getRecipesByIngredientsWithoutMissingIngredients
+### Parameters
 
-    GET /recipes/getRecipesByIngredientsWithoutMissingIngredients
-        Retrieves list of RecipeBoundary based on provided ingredients, excluding those with missing ingredients.
-        ingredients: Comma-separated list of ingredients.
+- **`ingredients`**: A string representing the list of ingredients, separated by commas. Example: `Banana,avocado,pineapple,salt,soy,white bread,hummus,salmon,eggs,potato,oil,pepper`.
 
-getRecipeByID
+### Response
 
-    GET /recipes/getRecipeByID/{recipe_id}
-        Retrieves a RecipeBoundary by its ID.
-        recipe_id: ID of the recipe.
+On success, the server returns a list of recipes matching the provided ingredients. Each recipe includes the following information:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including ID, name, amount, unit of measure, and purchase date (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
 
-getRecipesByName
+### Possible Errors
 
-    GET /recipes/getRecipesByName/{recipe_name}
-        Returns a list of RecipeBoundary by its name
+- **400 Bad Request**: Returned if the `ingredients` parameter is empty or improperly formatted.
+- **404 Not Found**: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
 
-getRecipeInstructions
+### Example Response
 
-    GET /recipes/getRecipeInstructions/{recipe_id}
-        Retrieves a list of recipe_instructionsBoundary by this Id
-        recipe_id: ID of the recipe.
-        Return list of instructions in this from:
-        [
-            {
-                name : str
-                steps : 
-                    [
-                        {
-                            number : int
-                            description : str
-                            length : flout
-                            ingredients : 
-                                [
-                                    { Ingredient Name : Ingredient image}
-                                ]
-                            equipment :
-                                [
-                                    {Equipment Name : Equipment Image
-                                ]
-                        }
-                    ]
-            }
-        ]
-    Example
-        http://127.0.0.1:8000/recipes/getRecipeInstructions/324694
-        
-        [
-          {
-            "name": "",
-            "steps": [
-              {
-                "equipment": [
-                  {
-                    "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
-                  }
-                ],
-                "ingredients": [],
-                "length": null,
-                "number": 1,
-                "description": "Preheat the oven to 200 degrees F."
-              },
-              {
-                "equipment": [
-                  {
-                    "whisk": "https://spoonacular.com/cdn/equipment_100x100/whisk.png"
-                  },
-                  {
-                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "light brown sugar": "https://spoonacular.com/cdn/ingredients_100x100/light-brown-sugar.jpg"
-                  },
-                  {
-                    "granulated sugar": "https://spoonacular.com/cdn/ingredients_100x100/sugar-in-bowl.png"
-                  },
-                  {
-                    "baking powder": "https://spoonacular.com/cdn/ingredients_100x100/white-powder.jpg"
-                  },
-                  {
-                    "baking soda": "https://spoonacular.com/cdn/ingredients_100x100/white-powder.jpg"
-                  },
-                  {
-                    "pecans": "https://spoonacular.com/cdn/ingredients_100x100/pecans.jpg"
-                  },
-                  {
-                    "all purpose flour": "https://spoonacular.com/cdn/ingredients_100x100/flour.png"
-                  },
-                  {
-                    "salt": "https://spoonacular.com/cdn/ingredients_100x100/salt.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 2,
-                "description": "Whisk together the flour, pecans, granulated sugar, light brown sugar, baking powder, baking soda, and salt in a medium bowl."
-              },
-              {
-                "equipment": [
-                  {
-                    "whisk": "https://spoonacular.com/cdn/equipment_100x100/whisk.png"
-                  },
-                  {
-                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "vanilla extract": "https://spoonacular.com/cdn/ingredients_100x100/vanilla-extract.jpg"
-                  },
-                  {
-                    "vanilla bean": "https://spoonacular.com/cdn/ingredients_100x100/vanilla.jpg"
-                  },
-                  {
-                    "buttermilk": "https://spoonacular.com/cdn/ingredients_100x100/buttermilk.jpg"
-                  },
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  },
-                  {
-                    "egg": "https://spoonacular.com/cdn/ingredients_100x100/egg.png"
-                  }
-                ],
-                "length": null,
-                "number": 3,
-                "description": "Whisk together the eggs, buttermilk, butter and vanilla extract and vanilla bean in a small bowl."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "egg": "https://spoonacular.com/cdn/ingredients_100x100/egg.png"
-                  }
-                ],
-                "length": null,
-                "number": 4,
-                "description": "Add the egg mixture to the dry mixture and gently mix to combine. Do not overmix."
-              },
-              {
-                "equipment": [],
-                "ingredients": [],
-                "length": {
-                  "number": 15,
-                  "unit": "minutes"
-                },
-                "number": 5,
-                "description": "Let the batter sit at room temperature for at least 15 minutes and up to 30 minutes before using."
-              },
-              {
-                "equipment": [
-                  {
-                    "frying pan": "https://spoonacular.com/cdn/equipment_100x100/pan.png"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  }
-                ],
-                "length": {
-                  "number": 3,
-                  "unit": "minutes"
-                },
-                "number": 6,
-                "description": "Heat a cast iron or nonstick griddle pan over medium heat and brush with melted butter. Once the butter begins to sizzle, use 2 tablespoons of the batter for each pancake and cook until the bubbles appear on the surface and the bottom is golden brown, about 2 minutes, flip over and cook until the bottom is golden brown, 1 to 2 minutes longer."
-              },
-              {
-                "equipment": [
-                  {
-                    "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
-                  }
-                ],
-                "ingredients": [],
-                "length": null,
-                "number": 7,
-                "description": "Transfer the pancakes to a platter and keep warm in a 200 degree F oven."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
-                  },
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 8,
-                "description": "Serve 6 pancakes per person, top each with some of the bourbon butter."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "powdered sugar": "https://spoonacular.com/cdn/ingredients_100x100/powdered-sugar.jpg"
-                  },
-                  {
-                    "maple syrup": "https://spoonacular.com/cdn/ingredients_100x100/maple-syrup.png"
-                  }
-                ],
-                "length": null,
-                "number": 9,
-                "description": "Drizzle with warm maple syrup and dust with confectioners' sugar."
-              },
-              {
-                "equipment": [],
-                "ingredients": [
-                  {
-                    "fresh mint": "https://spoonacular.com/cdn/ingredients_100x100/mint.jpg"
-                  },
-                  {
-                    "pecans": "https://spoonacular.com/cdn/ingredients_100x100/pecans.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 10,
-                "description": "Garnish with fresh mint sprigs and more toasted pecans, if desired."
-              }
-            ]
-          },
-          {
-            "name": "Bourbon Molasses Butter",
-            "steps": [
-              {
-                "equipment": [
-                  {
-                    "sauce pan": "https://spoonacular.com/cdn/equipment_100x100/sauce-pan.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
-                  },
-                  {
-                    "sugar": "https://spoonacular.com/cdn/ingredients_100x100/sugar-in-bowl.png"
-                  }
-                ],
-                "length": null,
-                "number": 1,
-                "description": "Combine the bourbon and sugar in a small saucepan and cook over high heat until reduced to 3 tablespoons, remove and let cool."
-              },
-              {
-                "equipment": [
-                  {
-                    "food processor": "https://spoonacular.com/cdn/equipment_100x100/food-processor.png"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "molasses": "https://spoonacular.com/cdn/ingredients_100x100/molasses.jpg"
-                  },
-                  {
-                    "bourbon": "https://spoonacular.com/cdn/ingredients_100x100/bourbon.png"
-                  },
-                  {
-                    "butter": "https://spoonacular.com/cdn/ingredients_100x100/butter-sliced.jpg"
-                  },
-                  {
-                    "salt": "https://spoonacular.com/cdn/ingredients_100x100/salt.jpg"
-                  }
-                ],
-                "length": null,
-                "number": 2,
-                "description": "Put the butter, molasses, salt and cooled bourbon mixture in a food processor and process until smooth."
-              },
-              {
-                "equipment": [
-                  {
-                    "plastic wrap": "https://spoonacular.com/cdn/equipment_100x100/plastic-wrap.jpg"
-                  },
-                  {
-                    "bowl": "https://spoonacular.com/cdn/equipment_100x100/bowl.jpg"
-                  }
-                ],
-                "ingredients": [
-                  {
-                    "wrap": "https://spoonacular.com/cdn/ingredients_100x100/flour-tortilla.jpg"
-                  }
-                ],
-                "length": {
-                  "number": 60,
-                  "unit": "minutes"
-                },
-                "number": 3,
-                "description": "Scrape into a bowl, cover with plastic wrap and refrigerate for at least 1 hour to allow the flavors to meld."
-              },
-              {
-                "equipment": [],
-                "ingredients": [],
-                "length": {
-                  "number": 30,
-                  "unit": "minutes"
-                },
-                "number": 4,
-                "description": "Remove from the refrigerator about 30 minutes before using to soften."
-              }
-            ]
-          }
-        ]
-
-Ingredients
-
-getAllSystemIngredients
-
-    GET /ingredients/getAllSystemIngredients
-     Retrieves a list of ingredients in this from:
+```json
+[
+  {
+    "recipe_id": 663338,
+    "recipe_name": "The Scotch Egg",
+    "ingredients": [
       {
-         "ingredient_id": String,
-         "name": Name of the ingredient,
-         "expirationData": number of days to expire : Int
-         "gCO2e_per_100g": The amonth of carbon dioxide emitted if it is thrown : Int
+        "ingredient_id": "1007063",
+        "name": "pork sausage",
+        "amount": 453.59,
+        "unit": "gram",
+        "purchase_date": null
+      },
+      {
+        "ingredient_id": "10018079",
+        "name": "panko breadcrumbs",
+        "amount": 120,
+        "unit": "gram",
+        "purchase_date": null
+      },
+      {
+        "ingredient_id": "1123",
+        "name": "eggs",
+        "amount": 300,
+        "unit": "gram",
+        "purchase_date": null
       }
-    
-autocompleteIngredient
+    ],
+    "image_url": "https://img.spoonacular.com/recipes/663338-312x231.jpg",
+    "sumGasPollution": {
+      "CO2": 4720.3017
+    }
+  },
+  ...
+]
+```
 
-       GET /ingredients/autocompleteIngredient
-       Retrieves a list of ingredients whose prefix is partial_name
-       partial_name : String
+## `GET /recipes/getRecipesByIngredientsWithoutMissingIngredients`
 
-getIngredientById
+This endpoint allows users to get a list of recipes based on a list of ingredients provided to the server, ensuring that the recipes do not have missing ingredients.
 
-      GET /ingredients/getIngredientById
-      Retrieves a ingredient by id
-      ingredient_id: int
+### Parameters
 
-getIngredientByName
+- **`ingredients`**: A string representing the list of ingredients, separated by commas. Example: `Banana,avocado,pineapple,salt,soy sauce,white bread,hummus,salmon,eggs,potato,oil,pepper`.
 
-      Retrieves a ingredient by name
-      ingredient_name: str
+### Response
 
-Users and Household Operations
+On success, the server returns a list of recipes that do not have missing ingredients. Each recipe includes the following information:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including ID, name, amount, unit of measure, and purchase date (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
 
-createNewHousehold
+### Possible Errors
 
-    POST /usersAndHouseholdManagement/usersAndHouseholdManagement/createNewHousehold
-        Creates a new household.
-        user_mail: Email of the user creating the household.
-        household_name: Name of the household.
-        
-    Example
-    http://127.0.0.1:8000/usersAndHouseholdManagement/createNewHousehold?user_mail=example%40example.example&household_name=example
-    with body
+- **404 Not Found**: Returned if no recipes match the provided ingredients or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
+
+## `GET /recipes/getRecipeByID/{recipe_id}`
+
+This endpoint allows users to retrieve detailed information about a specific recipe by its unique ID.
+
+### Path Parameters
+
+- **`recipe_id`**: The unique identifier of the recipe. Example: `660313`.
+
+### Response
+
+On success, the server returns detailed information about the recipe, including:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including:
+  - **`ingredient_id`**: The unique identifier of the ingredient.
+  - **`name`**: The name of the ingredient.
+  - **`amount`**: The amount of the ingredient.
+  - **`unit`**: The unit of measure for the ingredient.
+  - **`purchase_date`**: The date when the ingredient was purchased (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
+
+### Possible Errors
+
+- **404 Not Found**: Returned if the `recipe_id` does not exist or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
+
+## `GET /recipes/getRecipesByName/{recipe_name}`
+
+This endpoint allows users to retrieve a list of recipes that match a specific name.
+
+### Path Parameters
+
+- **`recipe_name`**: The name of the recipe to search for. This parameter should be URL-encoded if it contains special characters or spaces. Example: `Slow-Roasted%20Tomatoes`.
+
+### Response
+
+On success, the server returns a list of recipes that match the provided name. Each recipe includes:
+- **`recipe_id`**: The unique identifier of the recipe.
+- **`recipe_name`**: The name of the recipe.
+- **`ingredients`**: A list of ingredients required for the recipe, including:
+  - **`ingredient_id`**: The unique identifier of the ingredient.
+  - **`name`**: The name of the ingredient.
+  - **`amount`**: The amount of the ingredient.
+  - **`unit`**: The unit of measure for the ingredient.
+  - **`purchase_date`**: The date when the ingredient was purchased (if available).
+- **`image_url`**: A URL to an image of the recipe.
+- **`sumGasPollution`**: The total gas pollution for the recipe, measured in CO2 units.
+
+### Possible Errors
+
+- **404 Not Found**: Returned if no recipes are found for the provided name or if an error occurs during recipe retrieval.
+- **500 Internal Server Error**: Returned if there is a server-side error while processing the request.
+
+## `GET /recipes/getRecipeInstructions/{recipe_id}`
+
+This endpoint allows users to retrieve the cooking instructions for a specific recipe based on its unique ID.
+
+### Path Parameters
+
+- **`recipe_id`**: The unique identifier of the recipe for which you want to retrieve instructions.
+
+### Response
+
+On success, the server returns the cooking instructions for the specified recipe. The response includes:
+- **`name`**: The name of the recipe (if available).
+- **`steps`**: A list of steps for preparing the recipe. Each step includes:
+  - **`number`**: The step number.
+  - **`description`**: The detailed description of the step.
+  - **`length`**: The duration of the step in seconds (if applicable).
+  - **`equipment`**: A list of equipment used in this step, with image URLs.
+  - **`ingredients`**: A list of ingredients used in this step, with image URLs.
+- **`total_length`**: The total length of all steps in seconds.
+
+### Possible Errors
+
+- **400 Bad Request**: Returned if there is an error while retrieving the instructions for the specified recipe.
+
+```json
+{
+  "name": "",
+  "steps": [
+    {
+      "equipment": [
         {
-          "ingredients": [
-            {
-              "ingredient_id": null,
-              "name": "Avocado",
-              "amonth": 15,
-              "unit": null
-            }
-          ]
+          "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
         }
-    **The list of components is optional, meaning you don't have to do it
-    Return value
+      ],
+      "ingredients": [],
+      "length": 0,
+      "number": 1,
+      "description": "Preheat oven to 150 C or 280 F"
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 2,
+      "description": "Cut the top 3rd off the tomatoes & discard top."
+    },
+    {
+      "equipment": [
+        {
+          "baking paper": "https://spoonacular.com/cdn/equipment_100x100/baking-paper.jpg"
+        },
+        {
+          "baking pan": "https://spoonacular.com/cdn/equipment_100x100/roasting-pan.jpg"
+        }
+      ],
+      "ingredients": [
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 3,
+      "description": "Place tomatoes on a baking tray, lined with parchment paper."
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "pepper": "pepper.jpg"
+        },
+        {
+          "herbs": "mixed-fresh-herbs.jpg"
+        },
+        {
+          "salt": "salt.jpg"
+        }
+      ],
+      "length": 0,
+      "number": 4,
+      "description": "Sprinkle generously with salt, pepper & herbs."
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "olive oil": "olive-oil.jpg"
+        }
+      ],
+      "length": 0,
+      "number": 5,
+      "description": "Drizzle with a generous amount of olive oil."
+    },
+    {
+      "equipment": [
+        {
+          "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
+        },
+        {
+          "frying pan": "https://spoonacular.com/cdn/equipment_100x100/pan.png"
+        }
+      ],
+      "ingredients": [
+        {
+          "olive oil": "olive-oil.jpg"
+        },
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 360,
+      "number": 6,
+      "description": "Place in the oven for 4-6 hours depending on the size of your tomatoes. Every once in a while as you pass the kitchen, baste the tomatoes in the juices & olive oil in the pan."
+    },
+    {
+      "equipment": [],
+      "ingredients": [
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 7,
+      "description": "Once the tomatoes shrivel up a bit & start to look sun-dried, they are ready. They should still hold their shape & not become mush."
+    },
+    {
+      "equipment": [
+        {
+          "oven": "https://spoonacular.com/cdn/equipment_100x100/oven.jpg"
+        }
+      ],
+      "ingredients": [
+        {
+          "anchovies": "anchovies.jpg"
+        },
+        {
+          "tomato": "tomato.png"
+        }
+      ],
+      "length": 0,
+      "number": 8,
+      "description": "Remove from oven, top each tomato with a whole anchovy filet."
+    },
+    {
+      "equipment": [
+        {
+          "baking pan": "https://spoonacular.com/cdn/equipment_100x100/roasting-pan.jpg"
+        }
+      ],
+      "ingredients": [
+        {
+          "olive oil": "olive-oil.jpg"
+        }
+      ],
+      "length": 0,
+      "number": 9,
+      "description": "Serve warm or room temperature with olive oil from the baking pan drizzled over the top."
+    }
+  ],
+  "total_length": 360
+}
+```
+
+
+# Ingredients API
+
+## `GET /ingredients/getAllSystemIngredients`
+
+Retrieves all food ingredients that exist in the system.
+
+### Response
+
+- **200 OK**: Returns a list of all ingredients in the system.
+  - **`ingredient_id`**: Unique identifier of the ingredient.
+  - **`name`**: Name of the ingredient.
+  - **`days_to_expire`**: Number of days until the ingredient expires.
+  - **`gCO2e_per_100g`**: CO2 emissions per 100 grams of the ingredient.
+```json
+[
+  {
+    "ingredient_id": "20081",
+    "name": "flour",
+    "days_to_expire": 365,
+    "gCO2e_per_100g": 89
+  },
+  {
+    "ingredient_id": "14412",
+    "name": "water",
+    "days_to_expire": 30,
+    "gCO2e_per_100g": 32
+  },
+  {
+    "ingredient_id": "11282",
+    "name": "onion",
+    "days_to_expire": 30,
+    "gCO2e_per_100g": 231
+  },
+  {
+    "ingredient_id": "1082047",
+    "name": "kosher salt",
+    "days_to_expire": 3650,
+    "gCO2e_per_100g": 50
+  }
+]
+```
+
+## `GET /ingredients/getIngredientById`
+
+Retrieves a specific ingredient from the system by its unique identifier.
+
+### Parameters
+
+- **`ingredient_id`** (query parameter): The unique identifier of the ingredient.
+
+### Response
+
+- **200 OK**: Returns details of the specified ingredient.
+  - **`ingredient_id`**: Unique identifier of the ingredient.
+  - **`name`**: Name of the ingredient.
+  - **`days_to_expire`**: Number of days until the ingredient expires.
+  - **`gCO2e_per_100g`**: CO2 emissions per 100 grams of the ingredient.
+    
+## `GET /ingredients/getIngredientByName`
+
+Retrieves a specific ingredient from the system by its name.
+
+### Parameters
+
+- **`ingredient_name`** (query parameter): The name of the ingredient to search for.
+
+### Response
+
+- **200 OK**: Returns details of the specified ingredient.
+  - **`ingredient_id`**: Unique identifier of the ingredient.
+  - **`name`**: Name of the ingredient.
+  - **`days_to_expire`**: Number of days until the ingredient expires.
+  - **`gCO2e_per_100g`**: CO2 emissions per 100 grams of the ingredient.
+
+
+# Users and Household API
+
+
+## `POST /usersAndHouseholdManagement/createNewHousehold`
+
+**Description:**
+This endpoint allows users to create a new household and optionally add ingredients to it. The household is created based on the user's email and a given household name. If ingredients are provided, they will be added to the newly created household.
+
+- **Query Parameters:**
+- `user_email` (required): The email address of the user creating the household.
+- `household_name` (required): The name of the new household.
+
+- **Body Parameters:**
+- `ingredients` (optional): A list of ingredients to add to the household. Each ingredient includes:
+  - `ingredient_id` (string, optional): The ID of the ingredient (can be omitted if not needed).
+  - `name` (string): The name of the ingredient.
+  - `amount` (number): The amount of the ingredient.
+  - `unit` (string): The unit of measurement for the ingredient.
+```json
+{
+  "ingredients": [
+    {
+      "ingredient_id": "string",
+      "name": "string",
+      "amount": 0,
+      "unit": "string"
+    }
+  ]
+}
+```
+### Response
+
+- **200 OK**: The household was created successfully and optionally, ingredients were added.
+  - ```json
     {
       "message": "Household added successfully",
-      "household_id": "e69f3780-7eaa-4602-8b86-1fd6b38ccd64"
+      "household_id": "3efe25e8-4272-4cfd-9524-fc391ad9b70f"
     }
-        
-deleteHousehold
+    ```
+- **404 No Found**: The user could not be found.
+- **400 Bad Request**: Invalid arguments or data provided in the request.
+- ```josn
+  {
+      "detail": "Error message describing what went wrong"
+  }
+    ```
 
-    DELETE /usersAndHouseholdManagement/deleteHousehold
-        Delete household by householdID
-        household_id : Id of household
+## `DELETE /usersAndHouseholdManagement/deleteHousehold`
 
-addUser
+**Description:**
+This endpoint allows users to delete a household by its ID. The specified household is removed from the system.
+- **Query Parameters:**
+- `household_id` (required): The unique identifier of the household to be deleted.
+**Response:**
+- **Status Codes:**
+  - `200 OK`: The household was successfully deleted.
+  - `404 Not Found`: The household with the specified ID was not found or could not be deleted.
 
-    POST /usersAndHouseholdManagement/addUser
-        Create new user in system
-        user : UserInputForAddUser
-        user_mail: Email of the user.
-    
-    Example
-    http://127.0.0.1:8000/usersAndHouseholdManagement/addUser
-        with this body 
+## `POST /usersAndHouseholdManagement/addUser`
+
+This endpoint is used to add a new user to the system.
+
+**Request Body:**
+
+The request should contain a JSON object with the following fields:
+
+- `first_name` (string): The first name of the user.
+- `last_name` (string): The last name of the user.
+- `email` (string): The email address of the user. Must be unique.
+- `country` (string): The country where the user resides.
+- `state` (string): The state or province where the user resides.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: Successfully added the user.
+  - ```json
+    {
+      "message": "Successfully Added User example@example.example"
+    }
+    ```
+  - `409 Conflict`: The email address provided already exists or there was a conflict in creating the user.
+  - `400 Bad Request`: There was an issue with the input data.
+
+
+## `GET /usersAndHouseholdManagement/getUser`
+
+Retrieves a user by their email address.
+
+**Query Parameters:**
+- `user_email` (string): The email address of the user to retrieve.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: The user was successfully retrieved.
+  - ```json
         {
           "first_name": "example",
           "last_name": "example",
-          "email": "example@example.example",
+          "user_email": "example@example.example",
+          "image": null,
+          "households_ids": [],
+          "meals": {},
           "country": "example",
-          "state": "example"
+          "state": "example",
+          "sum_gas_pollution": {
+            "CO2": 0
+          }
         }
-    Return value
-        {
-          "message": "Successfully Added User"
+    ```
+  - `404`: 
+  ```json
+      {
+          "detail": "User does not exist"
         }
+  ```
+  - `400 Bad Request`: There was an issue with the input data.
+  - ```json
+    {
+      "detail": "example@.example invalid email format"
+    }
+    ```
+## `GET /usersAndHouseholdManagement/getAllHouseholdsByUserEmail`
 
-getUser
+Retrieves all households associated with a specific user by their email address.
 
-    GET /usersAndHouseholdManagement/getUser
-        Return UserBoundary by user mail
-    
-    Example
-    http://127.0.0.1:8000/usersAndHouseholdManagement/getUser?user_email=example%40example.example
-    
-    Return value:
+**Query Parameters:**
+- `user_email` (string): The email address of the user whose households are to be retrieved.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: Successfully retrieved all households for the user.
+```json
+{
+  "67fc717d-67b4-43e0-a8dc-cb5189a9c383": {
+    "household_id": "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
+    "household_name": "server_test",
+    "participants": [
       {
         "first_name": "Nissan",
         "last_name": "Yamin",
         "user_email": "nissanyam1@gmail.com",
-        "image": null,
-        "households": [
-          "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
-          "bd616751-cc28-41b5-9719-fbf1b1f52df3"
-        ],
-        "meals": {
-          "2024-06-26": {
-            "Lunch": {
-              "635058": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              },
-              "643514": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              },
-              "664932": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              }
-            }
-          },
-          "2024-06-27": {
-            "Lunch": {
-              "643514": {
-                "users": [
-                  "nissanyam1@gmail.com"
-                ],
-                "number_of_dishes": 0,
-                "sum_gas_pollution": {
-                  "CO2": 0
-                }
-              }
-            }
-          }
-        },
-        "country": "Israel",
-        "state": "Haifa District",
         "sum_gas_pollution": {
-          "CO2": 0
+          "CO2": 59064.59
+        }
+      },
+      {
+        "first_name": "Linoy",
+        "last_name": "Penikar",
+        "user_email": "linoy@gmail.com",
+        "sum_gas_pollution": {
+          "CO2": 6752.25
         }
       }
-
-updatePersonalUserInfo 
-
-      PUT /usersAndHouseholdManagement/updatePersonalUserInfo
-      Update personal user information
-      {
-        "first_name": optional[string],
-        "last_name": optional[string],
-        "email": string - must be a valid email and existing user,
-        "country": optional[string],
-        "state": optional[string]
+    ],
+    "ingredients": {
+      "1001": [
+        {
+          "name": "butter",
+          "amount": 5555345,
+          "unit": "gram",
+          "expiration_date": "2024-07-23"
+        }
+      ],
+      "1033": [
+        {
+          "name": "parmesan cheese",
+          "amount": 12089.00,
+          "unit": "gram",
+          "expiration_date": "2024-07-10"
+        }
+      ],
+    },
+    "meals": {
+      "2024-08-02": {
+        "Lunch": {
+          "640089": [
+            {
+              "users": ["nissanyam1@gmail.com"],
+              "number_of_dishes": 1,
+              "sum_gas_pollution": {
+                "CO2": 1110.1
+              }
+            },
+            {
+              "users": ["nissanyam1@gmail.com", "linoy@gmail.com"],
+              "number_of_dishes": 2,
+              "sum_gas_pollution": {
+                "CO2": 2220.2
+              }
+            }
+          ]
+        }
       }
-      
-deleteUser
+    },
+    "sum_gas_pollution": {
+      "CO2": 3330.30
+    }
+  }
+}
+```
+  - `400 Bad Request`: The provided email has an invalid format.
+  - `404 Not Found`: The user with the specified email does not exist.
 
-    DELETE /usersAndHouseholdManagement/deleteUser
-        Remove user from system and remove him from households
-        user_mail: Email of the user
+## `PUT /usersAndHouseholdManagement/updatePersonalUserInfo`
 
-getHouseholdUserById
+**Request Body Example:**
+```json
+{
+  "first_name": "string",
+  "last_name": "string",
+  "email": "string",
+  "country": "string",
+  "state": "string"
+}
+```
 
-    GET /usersAndHouseholdManagement/getHouseholdUserById
-        Retuen a HouseholdBoundary by user mail and household id.
-        user_mail: Email of the user.
-        household_id : Id of household
-    Example:
-    http://127.0.0.1:8000/usersAndHouseholdManagement/getHouseholdUserById?user_email=example%40example.example&household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3
-      
-      Return value
-      {
-        "household_id": "2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3",
-        "household_name": "example",
-        "household_image": null,
-        "participants": [
-          "example@example.example"
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: User information updated successfully.
+  - `400 Bad Request`: Invalid input data (e.g., invalid email format).
+  - `404 Not Found`: User with the specified email does not exist.
+
+
+## `DELETE /usersAndHouseholdManagement/deleteUser`
+
+**Description:**
+
+Deletes a user by their email address.
+
+**Request:**
+
+- **Query Parameter:**
+  - `user_email` (string): The email address of the user to be deleted.
+
+**Response:**
+
+- **Status Codes:**
+  - `200 OK`: User deleted successfully.
+  - `404 Not Found`: User with the specified email does not exist or could not be deleted.
+
+
+## `GET /usersAndHouseholdManagement/getHouseholdUserById`
+
+**Description:**
+
+Retrieves information about a specific household by its ID for a given user email.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user.
+  - `household_id` (string): The ID of the household.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "household_id": "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
+      "household_name": "server_test",
+      "household_image": null,
+      "participants": [
+        "nissanyam1@gmail.com",
+        "linoy@gmail.com"
+      ],
+      "ingredients": {
+        "1001": [
+          {
+            "ingredient_id": "1001",
+            "name": "butter",
+            "amount": 5555345,
+            "unit": "gram",
+            "purchase_date": "2024-07-09",
+            "expiration_date": "2024-07-23"
+          }
         ],
-        "ingredients": {
-          "1033": [
-            {
-              "ingredient_id": "1033",
-              "name": "Parmesan cheese",
-              "amonth": 1971.6599999999999,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "2044": [
-            {
-              "ingredient_id": "2044",
-              "name": "Basil",
-              "amonth": 952,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "2047": [
-            {
-              "ingredient_id": "2047",
-              "name": "Salt",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "4053": [
-            {
-              "ingredient_id": "4053",
-              "name": "Olive oil",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "5062": [
-            {
-              "ingredient_id": "5062",
-              "name": "Chicken breast",
-              "amonth": 2000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11165": [
-            {
-              "ingredient_id": "11165",
-              "name": "Cilantro",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11215": [
-            {
-              "ingredient_id": "11215",
-              "name": "Garlic",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11216": [
-            {
-              "ingredient_id": "11216",
-              "name": "Ginger",
-              "amonth": 2000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-          "11529": [
-            {
-              "ingredient_id": "11529",
-              "name": "Tomato",
-              "amonth": 1000,
-              "unit": "gram",
-              "purchase_date": "2024-05-19"
-            }
-          ],
-        },
-        "meals": {
-          "2024-05-19": {
-            "Lunch": {
-              "634435": [
-                {
-                  "users": [
-                    "example@example.example"
-                  ],
-                  "number_of_dishes": 1
-                },
-                {
-                  "users": [
-                    "example@example.example"
-                  ],
-                  "number_of_dishes": 1
+        ...
+      },
+      "meals": {
+        "2024-06-26": {
+          "Breakfast": {
+            "642582": [
+              {
+                "users": [
+                  "server_test@server_test.server_test"
+                ],
+                "number_of_dishes": 4,
+                "sum_gas_pollution": {
+                  "CO2": 3906.29
                 }
-              ]
-            }
+              },
+              ...
+            ]
           }
         }
+      },
+      "sum_gas_pollution": {
+        "CO2": 84272.08
       }
+    }
+    ```
 
-getHouseholdAndUsersDataById
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household does not exist."
+    }
+    ```
 
-      GET /usersAndHouseholdManagement/getHouseholdAndUsersDataById
-      Retuen a HouseholdBoundary by user mail and household id .
-      The information in participants is not users' emails, it is users' objects.
-         user_mail: Email of the user.
-         household_id : Id of household
 
-getHouseholdUserByName
+## `GET /usersAndHouseholdManagement/getHouseholdAndUsersDataById`
 
-    GET /usersAndHouseholdManagement/getHouseholdUserByName
-        Return a list of HouseholdBoundary with this household_name.
-        user_mail: Email of the user.
-        household_name : Name of household
+**Description:**
 
-get_all_household_details_by_user_mail
+Retrieves detailed information about a specific household and its users by household ID for a given user email.
 
-    GET /usersAndHouseholdManagement/get_all_household_details_by_user_mail
-        Detailed information about the user's households, including a list of each household's available ingredients. 
-        Return a list of HouseholdBoundary or Null if there is a problem with the user's email 
-        user_mail: Email of the user.
+**Request:**
 
-addUserToHousehold
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user.
+  - `household_id` (string): The ID of the household.
 
-    POST /usersAndHouseholdManagement/usersAndHouseholdManagement/addUserToHousehold
-        Adds a user to an existing household.
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
+**Response:**
 
-removeUserFromHousehold
-
-      Delete /usersAndHouseholdManagement/removeUserFromHousehold
-         Remove user from household
-         user_mail: Email of the user to add.
-         household_id: Id of the household.
-
-addIngredientToHouseholdByIngredientName
-
-    POST /usersAndHouseholdManagement/addIngredientToHouseholdByIngredientName
-        Adds a ingredient to an existing household.
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
-        
-         body:
-            {
-              "ingredient_id": Optional - "string",
-              "name": "string",
-              "amonth": greater than 0,
-              "unit": Optional - "string"
-            }
-
-addListIngredientsToHousehold
-
-    POST /usersAndHouseholdManagement/addListIngredientsToHousehold
-        Adds a ingredients to an existing household.
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
-        list_ingredients: ListIngredientsInput
-
-removeIngredientFromHouseholdByDate
-
-    DELETE /usersAndHouseholdManagement/removeIngredientFromHouseholdByDate
-        Remove ingredient in household on a specific date.
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
-        ingredient : IngredientToRemoveByDateInput
-         body example :
-            {
-              "ingredient_data": {
-                "ingredient_id": "1001",
-                "name": "Butter",
-                "amonth": 3,
-                "unit": "string"/// in defult in gram
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "household_id": "67fc717d-67b4-43e0-a8dc-cb5189a9c383",
+      "household_name": "server_test",
+      "household_image": null,
+      "participants": [
+        {
+          "first_name": "Nissan",
+          "last_name": "Yamin",
+          "user_email": "nissanyam1@gmail.com",
+          "image": null,
+          "country": "Israel",
+          "state": "Haifa District",
+          "sum_gas_pollution": {
+            "CO2": 59064.59
+          }
+        },
+        {
+          "first_name": "Linoy",
+          "last_name": "Penikar",
+          "user_email": "linoy@gmail.com",
+          "image": null,
+          "country": "Israel",
+          "state": "Haifa",
+          "sum_gas_pollution": {
+            "CO2": 6752.25
+          }
+        }
+      ],
+      "ingredients": {
+        "1001": [
+          {
+            "ingredient_id": "1001",
+            "name": "butter",
+            "amount": 5555345,
+            "unit": "gram",
+            "purchase_date": "2024-07-09",
+            "expiration_date": "2024-07-23"
+          }
+        ],
+        ...
+      },
+      "meals": {
+        "2024-06-26": {
+          "Breakfast": {
+            "642582": [
+              {
+                "users": [
+                  "server_test@server_test.server_test"
+                ],
+                "number_of_dishes": 4,
+                "sum_gas_pollution": {
+                  "CO2": 3906.29
+                }
               },
-               "date":{
-                 "year": 2024,
-                 "month": 5,
-                 "day": 19
-               }
-
-         }
-
-removeIngredientFromHousehold
-
-    DELETE /usersAndHouseholdManagement/removeIngredientFromHousehold
-        Remove ingredient in household.
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
-        ingredient: IngredientInput
-       body eample:
-         {
-           "ingredient_id": "string",
-           "name": "string",
-           "amonth": 0,
-           "unit": "string"
-         }
-
-getAllIngredientsInHousehold
-
-    GET /usersAndHouseholdManagement/getAllIngredientsInHousehold
-        Retrieves a list of IngredientBoundary in household.
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
-
-useRecipeByRecipeId
-
-    POST /usersAndHouseholdManagement/useRecipeByRecipeId
-        Add to the history of consumption of meals at household.
-        household_id: Id of the household.
-        meal : [
-              "Breakfast",
-              "Lunch",
-              "Dinner",
-              "Snakes"
-            ] need to be on of them
-         dishes_num : flout
-         recipe_id : id of recipe to use : string
-         
-         body : 
-               user_email: list of email of the user to add.
-         
-      Example:
-         http://127.0.0.1:8000/usersAndHouseholdManagement/useRecipeByRecipeId?household_id=2f249d7a-bca5-4ae1-87e3-cf3cba2b02b3&meal=Lunch&dishes_num=1&recipe_id=634435
-         with this body
-            [
-               "example@example.example"
+              ...
             ]
-         return Null if sucseessful 
-
-    GET /usersAndHouseholdManagement/getMealTypes
-        Return list of meals types
-
-    GET /usersAndHouseholdManagement/getAllRecipesThatHouseholdCanMake
-        Return list of recipes that household can make or 404 if there no recipes
-        user_mail: Email of the user to add.
-        household_id: Id of the household.
-         co2_weight : Default value : 0.5 : fout /// for the sorting by 2 parameters
-         expiration_weight : Default value : 0.5 : fout /// for the sorting by 2 parameters
-
-    GET /usersAndHouseholdManagement/checkIfHouseholdExistInSystem
-         Return true if the hosehold exist in the system
-         household_id: Id of the household.
-    
-    GET /usersAndHouseholdManagement/checkIfHouseholdCanMakeRecipe
-         This endpoint allows users to check if a specific household has enough ingredients to make a given recipe for a specified number of dishes.
-         household_id : The ID of the household. : string
-         recipe_id : The ID of the recipe. : string
-         dishes_num : The number of dishes to be made. Defaults to 1 if not provided. : optional[int], default=1)
-         
-         Returns a boolean indicating whether the household can make the specified recipe
-
-getGasPollutionOfHouseholdInRangeDates
-
-      Post /usersAndHouseholdManagement/getGasPollutionOfHouseholdInRangeDates
-      This endpoint returns the total gas emissions of the household on the specified dates
-      user_mail: Email of user in household.
-      household_id: Id of the household.
-      require body :
-      {
-        "startDate": {
-          "year": 0,
-          "month": 0,
-          "day": 0
-        },
-        "endDate": {
-          "year": 0,
-          "month": 0,
-          "day": 0
+          }
         }
+      },
+      "sum_gas_pollution": {
+        "CO2": 84272.08
       }
-      example : 
-      'http://127.0.0.1:8000/usersAndHouseholdManagement/getGasPollutionOfHouseholdInRangeDates?user_email=nissanyam1%40gmail.com&household_id=67fc717d-67b4-43e0-a8dc-cb5189a9c383'
-      {
-        "startDate": {
-          "year": 2024,
-          "month": 6,
-          "day": 1
-        },
-        "endDate": {
-          "year": 2024,
-          "month": 7,
-          "day": 10
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household or user does not exist."
+    }
+    ```
+
+## `GET /usersAndHouseholdManagement/getHouseholdUserByName`
+
+**Description:**
+
+Retrieves information about households and their users based on the household name for a specific user email.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user requesting the information.
+  - `household_name` (string): The name of the household.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household or user does not exist."
+    }
+    ```
+
+## `POST /usersAndHouseholdManagement/addUserToHousehold`
+
+**Description:**
+
+Adds a user to a specified household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user to be added.
+  - `household_id` (string): The ID of the household to which the user is to be added.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "User '{user_email}' added to household '{household_id}' successfully."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data or request parameters."
+    }
+    ```
+  - **Status Code: `409 Conflict`**
+    ```json
+    {
+      "detail": "Conflict occurred while adding user to household."
+    }
+    ```
+
+## `DELETE /usersAndHouseholdManagement/removeUserFromHousehold`
+
+**Description:**
+
+Removes a user from a specified household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user to be removed.
+  - `household_id` (string): The ID of the household from which the user is to be removed.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "User '{user_email}' removed from household '{household_id}' successfully."
+    }
+    ```
+
+- **Error Response:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data or request parameters."
+    }
+    ```
+
+
+## `POST /usersAndHouseholdManagement/addIngredientToHouseholdByIngredientName`
+
+**Description:**
+
+Adds an ingredient to a specified household using the ingredient's name.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user adding the ingredient.
+  - `household_id` (string): The ID of the household to which the ingredient is to be added.
+  
+- **Body:**
+  - `IngredientInput` (object):
+    - `name` (string): The name of the ingredient.
+    - `amount` (number): The amount of the ingredient.
+    - `unit` (string): The unit of measurement for the ingredient.
+```json
+{
+  "ingredient_id": "string",
+  "name": "string",
+  "amount": 0,
+  "unit": "string"
+}
+```
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "Ingredient '{ingredient.name}' added to household '{household_id}' successfully by user '{user_email}'."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data or request parameters."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Ingredient does not exist or household not found."
+    }
+    ```
+
+
+## `POST /usersAndHouseholdManagement/updateIngredientInHousehold`
+
+**Description:**
+
+Updates an ingredient in a specified household based on the provided date.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user making the update.
+  - `household_id` (string): The ID of the household where the ingredient is to be updated.
+  
+- **Body:**
+  - `IngredientToRemoveByDateInput` (object):
+    - `ingredient_data` (object):
+      - `name` (string): The name of the ingredient.
+      - `amount` (number): The new amount of the ingredient.
+    - `date` (object):
+      - `year` (number): The year of the date.
+      - `month` (number): The month of the date.
+      - `day` (number): The day of the date.
+```json
+{
+  "ingredient_data": {
+    "ingredient_id": "string",
+    "name": "string",
+    "amount": 0,
+    "unit": "string"
+  },
+  "date": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  }
+}
+```
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "Ingredient '{ingredient.name}' in {ingredient_date} from household '{household_id}' updated successfully by user '{user_email}'."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Provided date cannot be later than today or invalid date provided."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Error updating ingredient in household."
+    }
+    ```
+
+## `POST /usersAndHouseholdManagement/addListIngredientsToHousehold`
+
+**Description:**
+
+Adds a list of ingredients to a specified household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user making the request.
+  - `household_id` (string): The ID of the household where the ingredients are to be added.
+
+- **Body:**
+  - `ListIngredientsInput` (object):
+    - `ingredients` (array of objects):
+      - `name` (string): The name of the ingredient.
+      - `amount` (number): The amount of the ingredient.
+      - `unit` (string): The unit of measurement for the ingredient.
+```josn
+{
+  "ingredients": [
+    {
+      "ingredient_id": "string",
+      "name": "string",
+      "amount": 0,
+      "unit": "string"
+    }
+  ]
+}
+```
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "message": "List of ingredients added to household '{household_id}' successfully by user '{user_email}'."
+    }
+    ```
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid input data."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Household or user not found."
+    }
+    ```
+
+## `DELETE /usersAndHouseholdManagement/removeIngredientFromHouseholdByDate`
+
+**Description:**
+
+Removes an ingredient from a specified household based on the given date.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user making the request.
+  - `household_id` (string): The ID of the household from which the ingredient is to be removed.
+
+- **Body:**
+  - `IngredientToRemoveByDateInput` (object):
+    - `ingredient_data` (object):
+      - `name` (string): The name of the ingredient.
+      - `amount` (number): The amount of the ingredient.
+    - `date` (object):
+      - `year` (number): The year of the date.
+      - `month` (number): The month of the date.
+      - `day` (number): The day of the date.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Invalid date provided."
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Error removing ingredient {ingredient.ingredient_data.name} from household: {household_id} in date {ingredient_date}."
+    }
+    ```
+### `DELETE /usersAndHouseholdManagement/removeIngredientFromHousehold`
+
+**Description:**
+
+Removes a specified ingredient from a household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user making the request.
+  - `household_id` (string): The ID of the household from which the ingredient is to be removed.
+
+- **Body:**
+  - `IngredientInput` (object):
+    - `name` (string): The name of the ingredient.
+    - `amount` (number): The amount of the ingredient.
+    - `ingredient_id` (string): The ID of the ingredient.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+- **Error Responses:**
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Error removing ingredient {ingredient.ingredient_id} : {ingredient.name} from household '{household_id}': {e}"
+    }
+    ```
+    or
+    ```json
+    {
+      "detail": "Invalid argument error removing ingredient {ingredient.ingredient_id} : {ingredient.name} from household '{household_id}': {e.message}"
+    }
+    ```
+
+### `GET /usersAndHouseholdManagement/getAllIngredientsInHousehold`
+
+**Description:**
+
+Retrieves all ingredients from a specified household.
+
+**Request:**
+
+- **Query Parameters:**
+  - `user_email` (string): The email address of the user making the request.
+  - `household_id` (string): The ID of the household from which ingredients are to be retrieved.
+
+**Response:**
+
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    ```json
+    {
+      "ingredients": [
+        {
+          "ingredient_id": "string",
+          "name": "string",
+          "amount": number,
+          "unit": "string",
+          "purchase_date": "YYYY-MM-DD",
+          "expiration_date": "YYYY-MM-DD"
         }
-         return :
-         {
-           "CO2": 33428.79239999999
-         }
+        //... additional ingredients
+      ]
+    }
+    ```
+    - Example:
+      ```json
+      {
+        "ingredients": [
+          {
+            "ingredient_id": "1001",
+            "name": "butter",
+            "amount": 5555345,
+            "unit": "gram",
+            "purchase_date": "2024-07-09",
+            "expiration_date": "2024-07-23"
+          },
+          {
+            "ingredient_id": "1033",
+            "name": "parmesan cheese",
+            "amount": 12089.000000000004,
+            "unit": "gram",
+            "purchase_date": "2024-06-26",
+            "expiration_date": "2024-07-10"
+          }
+          //... additional ingredients
+        ]
+      }
+      ```
 
-getGasPollutionOfUserInRangeDates
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    ```json
+    {
+      "detail": "Error retrieving all ingredients from household: {e.message}"
+    }
+    ```
+  - **Status Code: `404 Not Found`**
+    ```json
+    {
+      "detail": "Error retrieving all ingredients from household: {e.message}"
+    }
+    ```
 
-      Post /usersAndHouseholdManagement/getGasPollutionOfUserInRangeDates
-      This endpoint returns the total gas emissions of the user on the specified dates
-      user_mail: Email of the user.
+## `POST /useRecipeByRecipeId`
 
-Object Definitions
+**Description:**
 
-RecipeBoundary
+Uses a specified recipe for a given number of dishes in a household.
 
-Represents a recipe object returned by the API.
+**Parameters:**
 
-    recipe_id: Unique identifier for the recipe. : int
-    recipe_name: Name of the recipe. : string
-    ingredients: List of ingredients in the recipe, each represented by an IngredientBoundary object. : [IngredientBoundary]
-    image_url: URL of the image associated with the recipe. : string
-    sumGasPollution : Dict of gas that would emmitin if the ingredients throws
+- `users_email` (List[str]): List of user emails.
+- `household_id` (string): The household ID.
+- `meal` (string): The meal type.
+- `dishes_num` (float): The number of dishes.
+- `recipe_id` (string): The recipe ID.
 
-recipe_instructionsBoundary
+**Response:**
 
-Represents a instructions of recipe object returned by the API.
+- **Success Response:**
+  - **Status Code: `200 OK`**
+    - No content is returned on success.
 
-       name: Name of the recipe. : string
-       steps : list of steps objects : [Step]
+- **Error Responses:**
+  - **Status Code: `400 Bad Request`**
+    - Invalid meal type.
+    - Dishes number should be greater than 0.
+    - Value error while using recipe.
+    - Unexpected error while using recipe.
+  - **Status Code: `404 Not Found`**
 
-      stepObject
-       equipment: List of equipments needed to prepare the recipe : [equipment name : equipment image url] (string:string)
-       ingredients: List of ingredients needed to prepare the recipe  : [ingredient name : ingredient image url] (string:string)
-       length : Time to prepare the recipe : flout
-       number : Step number : Int
-       description : Description of what to do in this step : String
-    
-IngredientBoundary
 
-Represents an ingredient object returned by the API.
+## GET /getMealTypes`
 
-    ingredient_id: Unique identifier for the ingredient. : string
-    name: Name of the ingredient. : string
-    amonth: Amonth of the ingredient. : flout
-    unit: Unit of measurement for the amonth. : string 
-    purchase_date: Date the ingredient was purchased. : string
+### Description
 
-HouseholdBoundary
+Retrieves the list of meal types.
 
-Represents a household object returned by the API.
+### Request
 
-    household_id: Unique identifier for the household. : String
-    household_name: Name of the household. : String
-    household_image: Image associated with the household. : String
-    participants: List of participants email in the household. [String] 
-    ingredients: Dictionary of ingredients in the household, where keys are ingredient id and values are lists of IngredientBoundary objects. {string : [IngredientBoundary]}
-    meals: List of meals in the household, where keys are meal dates and values are meal types ("Breakfast", "Lunch", "Dinner", "Snacks"), the type is a dictionary of recipe ID and value is MealBoundary. {string : {string : { string : [MealBoundary]}}}
-    sumGasPollution : Dict of gas emissions that the household saved
+This endpoint does not require any parameters.
 
-MealBoundary
+### Response
 
-    users: list of users that take a part of this meal. ([String])
-    number_of_dishes : The number of dishes that will be made from the recipe in this meal.(Double)
-    sumGasPollution : Dict of gas emissions that the meal saved
+- **Status Code**: `200 OK`
+- **Body**: A list of meal types.
 
-UserBoundary
 
-Represents a user object returned by the API.
 
-    first_name: First name of the user. : string
-    last_name: Last name of the user. : string
-    user_email: Email of the user. : string in email format
-    image: Image associated with the user.  : string
-    households_ids: List of household IDs the user belongs to. [string]
-    meals: date -> meal type -> recipe id -> meal. {string : {string : {string : MealBoundary}}}
-    country: Country of the user. : string
-    state: State of the user. : string
-    sumGasPollution : Dict of gas emissions that the user saved
+## `GET /getAllRecipesThatHouseholdCanMake`
+
+### Description
+
+Retrieves all recipes that a household can make based on the ingredients available, considering CO2 emissions and expiration dates of ingredients.
+
+### Request
+
+#### Parameters
+
+- `user_email` (str): The email of the user requesting the recipes.
+- `household_id` (str): The ID of the household for which recipes are being requested.
+- `co2_weight` (float, optional): The weight given to CO2 emissions in the sorting of recipes (default: 0.5).
+- `expiration_weight` (float, optional): The weight given to the expiration date of ingredients in the sorting of recipes (default: 0.5).
+
+#### Example Request
+
+### Response
+
+- **Status Code**: `200 OK`
+- **Body**: A list of recipes that the household can make, sorted by a composite score based on CO2 emissions and expiration dates.
+
+#### Example Response
+
+```json
+[
+  {
+    "recipe_id": 640089,
+    "recipe_name": "Corn on the Cob in Cilantro and Lime Butter",
+    "ingredients": [
+      {
+        "ingredient_id": "1001",
+        "name": "butter",
+        "amount": 113,
+        "unit": "gram",
+        "purchase_date": null
+      }...
+    ],
+    "image_url": "https://img.spoonacular.com/recipes/640089-312x231.jpg",
+    "sumGasPollution": {
+      "CO2": 1110.1
+    },
+    "closest_expiration_days": 2
+  },
+  {
+    "recipe_id": 642582,
+    "recipe_name": "Farfalle With Broccoli, Carrots and Tomatoes",
+    "ingredients": [
+      {
+        "ingredient_id": "10120420",
+        "name": "farfalle pasta",
+        "amount": 453.59,
+        "unit": "gram",
+        "purchase_date": null
+      },
+      {
+        "ingredient_id": "11124",
+        "name": "carrots",
+        "amount": 3,
+        "unit": "gram",
+        "purchase_date": null
+      }}...
+    ],
+    "image_url": "https://img.spoonacular.com/recipes/642582-312x231.jpg",
+    "sumGasPollution": {
+      "CO2": 976.5714
+    },
+    "closest_expiration_days": 13
+  },
+  {
+    "recipe_id": 642138,
+    "recipe_name": "Easy Vegetable Fried Rice",
+    "ingredients": [
+      {
+        "ingredient_id": "11090",
+        "name": "broccoli",
+        "amount": 88,
+        "unit": "gram",
+        "purchase_date": null
+      },
+      {
+        "ingredient_id": "1001",
+        "name": "butter",
+        "amount": 14.2,
+        "unit": "gram",
+        "purchase_date": null
+      }....
+    ],
+    "image_url": "https://img.spoonacular.com/recipes/642138-312x231.jpg",
+    "sumGasPollution": {
+      "CO2": 671.6101
+    },
+    "closest_expiration_days": 13
+  },
+  {
+    "recipe_id": 652966,
+    "recipe_name": "Nasturtium Pesto",
+    "ingredients": [
+      {
+        "ingredient_id": "2004",
+        "name": "nasturtium flowers and leaves",
+        "amount": 473.18,
+        "unit": "gram",
+        "purchase_date": null
+      }...
+    ],
+    "image_url": "https://img.spoonacular.com/recipes/652966-312x231.jpg",
+    "sumGasPollution": {
+      "CO2": 575.7934
+    },
+    "closest_expiration_days": 29
+  },
+  {
+    "recipe_id": 643514,
+    "recipe_name": "Fresh Herb Omelette",
+    "ingredients": [
+      {
+        "ingredient_id": "2044",
+        "name": "basil",
+        "amount": 2,
+        "unit": "gram",
+        "purchase_date": null
+      }...
+    ],
+    "image_url": "https://img.spoonacular.com/recipes/643514-312x231.jpg",
+    "sumGasPollution": {
+      "CO2": 94.53
+    },
+    "closest_expiration_days": 13
+  }
+]
+```
+
+
+## `GET /checkIfHouseholdExistInSystem`
+
+### Description
+Checks if a household with a given ID exists in the system.
+
+### Parameters
+
+- **Query Parameter**:
+  - `household_id` (string): The unique identifier of the household to check.
+
+### Responses
+
+- **200 OK**:
+  - Returns `true` if the household exists in the system.
+
+- **404 Not Found**:
+  - Returns an error message if the household does not exist in the system.
+
+## `GET /checkIfHouseholdCanMakeRecipe`
+
+### Description
+Checks if a household can make a specific recipe given the number of dishes.
+
+### Parameters
+
+- **Query Parameters**:
+  - `household_id` (string): The unique identifier of the household.
+  - `recipe_id` (string): The unique identifier of the recipe.
+  - `dishes_num` (optional, float): The number of dishes to be prepared. Defaults to 1.
+
+### Responses
+
+- **200 OK**:
+  - Returns a JSON object indicating whether the household can make the recipe.
+
+- **400 Bad Request**:
+  - Returns an error message if there is an issue with the request or the provided data.
+
+
+
+## POST /getGasPollutionOfHouseholdInRangeDates
+
+### Description
+Retrieves the gas pollution data for a specific household within a given date range.
+
+### Parameters
+
+- **Query Parameters**:
+  - `user_email` (string): The email address of the user making the request.
+  - `household_id` (string): The unique identifier of the household.
+- **body**:
+  - `startDate` (Date): The start date of the range for which to retrieve gas pollution data.
+  - `endDate` (Date): The end date of the range for which to retrieve gas pollution data.
+```json
+{
+  "startDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  },
+  "endDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  }
+}
+```
+
+### Responses
+
+- **200 OK**:
+  - Returns the gas pollution data for the specified household and date range.
+```json
+{
+   "total_gas_pollution": 789.12
+}
+```
+- **400 Bad Request**:
+  - Returns an error message if there are issues with the dates or other request parameters.
+
+
+## POST /getGasPollutionOfUserInRangeDates
+
+### Description
+Retrieves the gas pollution data for a user within a specified date range.
+
+### Parameters
+
+- **Parameters**:
+  - `user_email` (string): The email address of the user making the request.
+- **body**:
+  - `startDate` (Date): The start date of the range for which to retrieve gas pollution data.
+  - `endDate` (Date): The end date of the range for which to retrieve gas pollution data.
+```json
+{
+  "startDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  },
+  "endDate": {
+    "year": 0,
+    "month": 0,
+    "day": 0
+  }
+}
+```
+
+### Responses
+
+- **200 OK**:
+  - Returns the gas pollution data for the specified user and date range.
+```json
+{
+   "total_gas_pollution": 789.12
+}
+```
+
+- **400 Bad Request**:
+  - Returned when the start date is not before the end date, or if invalid dates are provided.
+
+- **404 Not Found**:
+  - Returned if there are other issues processing the request.
+
+
+
 
 
