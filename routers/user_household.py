@@ -1,4 +1,5 @@
 import asyncio
+import time
 from typing import Optional, List, Dict
 from fastapi import HTTPException, status
 from BL.recipes_service import RecipesService
@@ -435,38 +436,27 @@ async def get_all_recipes_that_household_can_make(user_email: str, household_id:
             recipes = await recipes_service.get_recipes_by_ingredients_lst(household.get_all_unique_names_ingredient(),
                                                                            False)
             logger.info(f"Retrieved {len(recipes)} recipes based on ingredients for household '{household_id}'")
-            tasks = [user_household_service.check_if_household_can_make_the_recipe(household_id,
-                                                                                   str(recipe.recipe_id),
-                                                                                   0)
-                     for recipe in recipes]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            for recipe, result in zip(recipes, results):
-                if isinstance(result, Exception):
-                    logger.error(f"Exception occurred while checking recipe {recipe.recipe_id}: {result}")
-                elif result:
-                    recipes_rv.append(recipe)
+            for recipe in recipes:
+                try:
+                    if user_household_service.check_if_household_can_make_the_recipe(household_id,str(recipe.recipe_id), 0):
+                        recipes_rv.append(recipe)
+                except Exception as e:
+                    logger.error(e)
             logger.info(f"Checked recipes for household '{household_id}' and found {len(recipes_rv)} that can be made")
         recipes = recipes_rv
         # # Calculate closest expiration date for each recipe
         logger.info("Calculating closest expiration dates for recipes")
-        with ThreadPoolExecutor() as executor:
-            logger.info(f"Number of threads in the pool: {executor._max_workers}")
-            loop = asyncio.get_running_loop()
-            expiration_tasks = [
-                loop.run_in_executor(executor,
-                                     user_household_service.get_the_ingredient_with_the_closest_expiration_date,
-                                     recipe,
-                                     household.ingredients)
-                for recipe in recipes]
-            expiration_results = await asyncio.gather(*expiration_tasks, return_exceptions=True)
 
-            for recipe, closest_days_to_expire in zip(recipes, expiration_results):
-                if isinstance(closest_days_to_expire, Exception):
-                    logger.error(
-                        f"Exception occurred while calculating expiration for recipe "
-                        f"{recipe.recipe_id}: {closest_days_to_expire}")
-                else:
-                    recipe.set_closest_expiration_days(closest_days_to_expire)
+        closest_days_to_expire = 999
+        for recipe in recipes:
+            try:
+                closest_days_to_expire = user_household_service.get_the_ingredient_with_the_closest_expiration_date(recipe,household.ingredients)
+                recipe.set_closest_expiration_days(closest_days_to_expire)
+            except Exception as e:
+                recipe.set_closest_expiration_days(closest_days_to_expire)
+                logger.error(
+                    f"Exception occurred while calculating expiration for recipe "
+                    f"{recipe.recipe_id}: {closest_days_to_expire}")
         # Sort recipes by composite score with given weights
         recipes.sort(key=lambda r: r.composite_score(co2_weight, expiration_weight), reverse=True)
         logger.info(
